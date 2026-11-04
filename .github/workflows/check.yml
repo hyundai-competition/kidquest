@@ -1,0 +1,22 @@
+# PR과 main에 올라온 코드를 검사한다. 개인정보와 길이 규칙, 임무 엔진 시험을 돌린다.
+name: check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-java@v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: 저장소 검사
+        run: sh scripts/check_repo.sh --all
+      - name: 상태 흐름 시험
+        run: sh gradlew :core:test --no-daemon

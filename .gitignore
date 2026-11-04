@@ -1,0 +1,32 @@
+# 빌드 결과
+.gradle/
+.kotlin/
+build/
+*.aab
+captures/
+.externalNativeBuild/
+.cxx/
+
+# 개인 설정과 비밀값은 저장소에 넣지 않는다.
+local.properties
+.env
+.env.*
+*.jks
+*.keystore
+google-services.json
+.names.local
+.check_failed
+.check_names
+.claude/settings.local.json
+
+# 편집기
+.idea/
+*.iml
+.vscode/
+
+# 대회 자료는 이 저장소에 넣지 않는다.
+자료/
+
+# OS
+.DS_Store
+Thumbs.db

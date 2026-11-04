@@ -1,0 +1,20 @@
+{
+  "id": "demo",
+  "title": "우주 여행 시험판",
+  "places": [
+    { "id": "river", "latitude": 37.4979, "longitude": 127.0276, "radiusMeters": 300, "missionId": "water_planet" }
+  ],
+  "missions": [
+    {
+      "id": "water_planet",
+      "briefing": "물의 행성에 도착했어요!",
+      "event": "바다 생물들이 우주선 옆을 지나가요.",
+      "question": "바다에 사는 생물은 고래일까요, 사자일까요?",
+      "answers": ["고래"],
+      "correctLine": "맞아요, 고래! 우주 지도 조각을 얻었어요.",
+      "wrongLine": "정답은 고래예요. 우주 지도 조각을 얻었어요.",
+      "rewardItem": "map_piece"
+    }
+  ],
+  "finalLine": "마지막 행성에 거의 도착했어요!"
+}

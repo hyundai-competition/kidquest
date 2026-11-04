@@ -1,0 +1,33 @@
+# 라이브러리 버전. Pleos SDK 버전은 공식 샘플과 문서 값이다.
+# Vehicle은 문서의 2.3.1이 Pleos 저장소에 없어서(404) 저장소 최신값 2.3.2를 쓴다(2026-11-05 확인).
+[versions]
+agp = "8.8.2"
+kotlin = "2.0.0"
+coreKtx = "1.16.0"
+junit = "4.13.2"
+activityCompose = "1.10.1"
+composeBom = "2024.04.01"
+vehicleSdk = "2.3.2"
+naviHelperSdk = "3.0.5"
+fusedLocationSdk = "1.1.3"
+textToSpeechSdk = "3.3.1"
+speechToTextSdk = "3.3.1"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+pleos-vehicle = { module = "ai.pleos.playground:Vehicle", version.ref = "vehicleSdk" }
+pleos-navi-helper = { module = "ai.pleos.playground:NaviHelper", version.ref = "naviHelperSdk" }
+pleos-fused-location = { module = "ai.pleos.playground:FusedLocation", version.ref = "fusedLocationSdk" }
+pleos-text-to-speech = { module = "ai.pleos.playground:TextToSpeech", version.ref = "textToSpeechSdk" }
+pleos-speech-to-text = { module = "ai.pleos.playground:SpeechToText", version.ref = "speechToTextSdk" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
