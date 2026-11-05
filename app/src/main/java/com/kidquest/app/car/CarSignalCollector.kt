@@ -1,23 +1,31 @@
-// 차 신호를 AppEvent로 바꾼다. 차량·내비 연결 역할이 채운다. 지금은 아무 신호도 받지 않는다.
-// 문서에서 찾은 함수(미시험) :
-//   뒷좌석 탑승 registerSeatOccupancy, 벨트 registerSeatBeltBuckledState,
-//   기어 registerGearSelection, 방향지시등 registerTurnSignalState, 와이퍼 registerWiperState,
-//   잔량 registerEvBatteryStateOfCharge, 실내 온도 getHvacTemperatureCurrent,
-//   남은 시간 onTripInfo의 eta, 다음 회전 onTBTInfo, 도착 onDestinationArrived,
-//   위치 FusedLocation의 addProximityAlert, 주행 규제 CarUxRestrictionsManager.
+// 차 신호를 AppEvent로 바꾸는 입구. 신호 종류별 일은 VehicleSignals, NaviSignals, DrivingStateSignals가 맡는다.
+// 차 SDK는 car 폴더에서만 부른다. 에뮬레이터에서 값이 오는지는 아직 시험하지 않았다.
+// 위치(PlaceEntered)는 에피소드 좌표가 정해지면 붙인다. 내연기관 차의 연료 잔량도 아직 받지 않는다.
 package com.kidquest.app.car
 
+import android.content.Context
 import com.kidquest.core.contract.EventListener
 import com.kidquest.core.contract.EventSource
 
-class CarSignalCollector : EventSource {
-    private var listener: EventListener? = null
+class CarSignalCollector(context: Context) : EventSource {
+    private val appContext = context.applicationContext
+    private var vehicle: VehicleSignals? = null
+    private var navi: NaviSignals? = null
+    private var drivingState: DrivingStateSignals? = null
 
     override fun start(listener: EventListener) {
-        this.listener = listener
+        val filter = CarEventFilter(listener)
+        vehicle = VehicleSignals(appContext, filter).also { it.start() }
+        navi = NaviSignals(appContext, filter).also { it.start() }
+        drivingState = DrivingStateSignals(appContext, filter).also { it.start() }
     }
 
     override fun stop() {
-        listener = null
+        vehicle?.stop()
+        navi?.stop()
+        drivingState?.stop()
+        vehicle = null
+        navi = null
+        drivingState = null
     }
 }
