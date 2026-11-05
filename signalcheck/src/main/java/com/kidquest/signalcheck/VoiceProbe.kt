@@ -55,7 +55,7 @@ class VoiceProbe(context: Context, private val log: SignalLog) {
                 override fun onFailure(errorType: TtsError) = log.line("TTS 초기화", "실패 $errorType")
             })
             tts.addEventListener(ttsEvents)
-            tts.setLocale(Locale.KOREAN)
+            tts.setLocale(Locale.KOREA)
         }
         log.attempt("STT 초기화") {
             stt.initialize(object : SttInit {
@@ -63,7 +63,7 @@ class VoiceProbe(context: Context, private val log: SignalLog) {
                 override fun onFailure(errorType: SttError) = log.line("STT 초기화", "실패 $errorType")
             })
             stt.addListener(sttEvents)
-            stt.setLocale(Locale.KOREAN)
+            stt.setLocale(Locale.KOREA)
         }
     }
 
