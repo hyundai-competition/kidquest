@@ -32,5 +32,6 @@
 ## 먼저 할 일
 
 - 상태 흐름 시험 : `gradlew.bat :core:test`. 에뮬레이터가 필요 없다. 임무 진행은 아직 없다.
+- 차 신호 변환 시험 : `gradlew.bat :app:testDebugUnitTest`. 에뮬레이터가 필요 없다.
 - 앱 빌드 : `gradlew.bat :app:assembleDebug`
 - 저장소 검사 : `sh scripts/check_repo.sh --all`
