@@ -46,7 +46,7 @@ class MissionEngineTest {
         readyWithLeftSeat()
         val guide = send(AppEvent.GearChanged(Gear.D))
         assertEquals(EngineState.READY, engine.state)
-        assertTrue(guide.contains(Command.Say(Lines.NEED_BELT)))
+        assertTrue(guide.contains(Lines.NEED_BELT))
         send(AppEvent.BeltBuckled(RearSeat.LEFT, true))
         assertEquals(EngineState.FLYING, engine.state)
     }
@@ -97,9 +97,9 @@ class MissionEngineTest {
     }
 
     @Test
-    fun `멈춘 상태에서도 기어 P면 착륙하고 다시 하기로 돌아간다`() {
+    fun `도착한 뒤 기어 P면 멈춘 상태에서도 착륙하고 다시 하기로 돌아간다`() {
         flying()
-        send(AppEvent.BeltBuckled(RearSeat.LEFT, false), AppEvent.GearChanged(Gear.P))
+        send(AppEvent.DestinationArrived, AppEvent.BeltBuckled(RearSeat.LEFT, false), AppEvent.GearChanged(Gear.P))
         assertEquals(EngineState.LANDED, engine.state)
         send(AppEvent.RestartPressed)
         assertEquals(EngineState.WAITING, engine.state)
