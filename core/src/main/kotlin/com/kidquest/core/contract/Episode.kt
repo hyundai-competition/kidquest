@@ -2,7 +2,10 @@
 // 한 이동의 임무들은 하나의 이야기로 이어지고, 보상 아이템이 마지막 미션에 쓰인다.
 package com.kidquest.core.contract
 
+import kotlinx.serialization.Serializable
+
 /** 미리 정한 좌표. 이 근처에 들어가면 missionId의 미션이 시작된다. */
+@Serializable
 data class Place(
     val id: String,
     val latitude: Double,
@@ -15,6 +18,7 @@ data class Place(
 enum class MissionTrigger { TIME, WIPER, TURN_SIGNAL, PLACE, ROAD }
 
 /** 임무 하나. 브리핑, 사건, 질문, 답, 보상 순서로 진행한다. */
+@Serializable
 data class Mission(
     val id: String,
     /** 비어 있으면 모든 연령에 나온다. */
@@ -35,6 +39,7 @@ data class Mission(
 )
 
 /** 임무 보상과 착륙 화면에 보이는 이름. */
+@Serializable
 data class Item(
     val id: String,
     val name: String,
@@ -45,6 +50,7 @@ data class Item(
  * signal 값 : turn_left, turn_right, wiper_on, energy_changed, temperature_changed, road_tunnel, road_toll, road_rest_area.
  * 운전이 바쁠 수 있는 때는 line을 null로 두고 효과음만 낸다.
  */
+@Serializable
 data class SignalReaction(
     val signal: String,
     val soundId: String?,
@@ -56,6 +62,7 @@ data class SignalReaction(
  * 목적지 이야기. 실제 목적지를 이번 항해에서 임무 보상을 배달할 행성으로 바꾼다.
  * 달리는 동안 지역을 길게 설명하지 않는다. 실제 지식은 전용 임무 1개의 단서(Mission.destinationId)와 착륙 때 한 문장에만 쓴다.
  */
+@Serializable
 data class Destination(
     val id: String,
     /** 부모가 고르는 실제 이름. */
@@ -72,6 +79,7 @@ data class Destination(
     val factSource: String,
 )
 
+@Serializable
 data class Episode(
     val id: String,
     val title: String,
