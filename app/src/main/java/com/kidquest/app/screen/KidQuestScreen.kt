@@ -25,10 +25,12 @@ fun KidQuestScreen(controller: AppController) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(text = titleOf(controller.screen), fontSize = 40.sp)
+            controller.status?.let { Text(text = it, fontSize = 30.sp) }
             when (controller.screen) {
                 Screen.START -> ActionButton("시작") { controller.dispatch(AppEvent.StartPressed) }
                 Screen.CREW_CHECK -> Unit
                 Screen.FLYING, Screen.PAUSED -> Unit
+                Screen.DOCKED -> ActionButton("여기서 착륙") { controller.dispatch(AppEvent.EndTripPressed) }
                 Screen.LANDED -> ActionButton("다시 하기") { controller.dispatch(AppEvent.RestartPressed) }
             }
             ReplayPanel(controller.replay)
@@ -41,6 +43,7 @@ private fun titleOf(screen: Screen): String = when (screen) {
     Screen.CREW_CHECK -> "승무원 확인"
     Screen.FLYING -> "비행 중"
     Screen.PAUSED -> "멈춤"
+    Screen.DOCKED -> "잠깐 정박"
     Screen.LANDED -> "착륙"
 }
 

@@ -11,10 +11,19 @@ data class Place(
     val missionId: String,
 )
 
+/** 임무를 여는 사건. 신호를 못 읽거나 안 오면 autoAfterSeconds 뒤에 저절로 열린다. */
+enum class MissionTrigger { TIME, WIPER, TURN_SIGNAL, PLACE, ROAD }
+
 /** 임무 하나. 브리핑, 사건, 질문, 답, 보상 순서로 진행한다. */
 data class Mission(
     val id: String,
+    /** 비어 있으면 모든 연령에 나온다. */
+    val ageGroups: List<AgeGroup>,
+    val trigger: MissionTrigger,
+    val autoAfterSeconds: Int,
     val briefing: String,
+    /** 사건 효과음. 말보다 먼저 나온다. 없으면 null. */
+    val eventSoundId: String?,
     val event: String,
     val question: String,
     val answers: List<String>,
@@ -23,10 +32,51 @@ data class Mission(
     val rewardItem: String,
 )
 
+/** 임무 보상과 착륙 화면에 보이는 이름. */
+data class Item(
+    val id: String,
+    val name: String,
+)
+
+/**
+ * 임무와 상관없이 신호에 바로 답하는 짧은 사건.
+ * signal 값 : turn_left, turn_right, wiper_on, energy_changed, temperature_changed, road_tunnel, road_toll, road_rest_area.
+ * 운전이 바쁠 수 있는 때는 line을 null로 두고 효과음만 낸다.
+ */
+data class SignalReaction(
+    val signal: String,
+    val soundId: String?,
+    val line: String?,
+    val cooldownSeconds: Int,
+)
+
+/**
+ * 목적지 이야기. 실제 목적지를 이번 항해에서 임무 보상을 배달할 행성으로 바꾼다.
+ * 달리는 동안에는 지역을 설명하지 않고, 실제 사실은 착륙할 때 한 문장만 말한다.
+ */
+data class Destination(
+    val id: String,
+    /** 부모가 고르는 실제 이름. */
+    val name: String,
+    val planetName: String,
+    /** 승무원 확인 때 말한다. 어디로 무엇을 배달하는지 알려 준다. */
+    val departureLine: String,
+    /** 도착이 가까울 때 말한다. */
+    val approachLine: String,
+    /** 착륙할 때 말한다. 모은 보상을 전달하며 이번 이동의 이야기를 끝낸다. */
+    val deliveryLine: String,
+    /** 전달 뒤에 말하는 실제 사실 한 문장. 사람이 출처를 확인한다. */
+    val landingFact: String,
+    val factSource: String,
+)
+
 data class Episode(
     val id: String,
     val title: String,
+    val destinations: List<Destination>,
     val places: List<Place>,
     val missions: List<Mission>,
+    val items: List<Item>,
+    val reactions: List<SignalReaction>,
     val finalLine: String,
 )

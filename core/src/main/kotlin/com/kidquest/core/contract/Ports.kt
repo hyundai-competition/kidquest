@@ -11,7 +11,10 @@ interface EventSource {
     fun stop()
 }
 
-/** 명령을 받아 실행하는 쪽. 음성이 구현한다. */
+/** 명령을 받아 실행하는 쪽. */
 fun interface CommandHandler {
     fun handle(command: Command)
 }
+
+/** 음성. 명령을 실행하고, 대사 끝남과 아이 답과 오디오 포커스를 사건으로 돌려준다. */
+interface VoicePort : CommandHandler, EventSource

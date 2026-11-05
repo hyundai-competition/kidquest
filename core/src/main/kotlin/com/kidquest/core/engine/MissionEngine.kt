@@ -1,4 +1,4 @@
-// 앱의 상태 흐름을 정한다. 대기 → 승무원 확인 → 발사 준비 → 비행 ⇄ 멈춤 → 착륙.
+// 앱의 상태 흐름을 정한다. 대기 → 승무원 확인 → 발사 준비 → 비행 ⇄ 멈춤, 비행 ⇄ 정박 → 착륙.
 // 앱은 차를 막지 않는다. 벨트가 안 매져 있으면 이륙하지 않고 안내만 한다.
 // 임무 진행(브리핑, 질문, 답, 보상)은 아직 없다. 판단 로직 역할이 이어서 만든다.
 package com.kidquest.core.engine
@@ -15,9 +15,20 @@ class MissionEngine {
 
     private val occupied = mutableSetOf<RearSeat>()
     private val buckled = mutableSetOf<RearSeat>()
+
+    /** 부모 확인으로 대신한 자리. 벨트 값이 읽히는 자리는 들어가지 않아서, 그 자리를 풀면 멈춘다. */
+    private val parentCovered = mutableSetOf<RearSeat>()
     private val pauseReasons = mutableSetOf<PauseReason>()
-    private var parentConfirmed = false
+
+    /** 탑승 값을 못 읽어서 부모가 승무원을 확인했다. */
+    private var manualCrew = false
     private var gear = Gear.P
+    private var arrived = false
+    private var readyAnnounced = false
+    private var beltGuides = 0
+
+    /** 내비 안내 때문에 못 한 대사. 소리를 다시 낼 수 있을 때 말한다. */
+    private var heldLine: Command.Say? = null
 
     /** 사건 하나를 받아 상태를 바꾸고, 음성과 화면에 시킬 명령을 돌려준다. */
     fun onEvent(event: AppEvent): List<Command> = when (event) {
@@ -27,96 +38,210 @@ class MissionEngine {
         AppEvent.ParentConfirmedBelt -> onParentConfirmed()
         is AppEvent.GearChanged -> onGear(event.gear)
         is AppEvent.AudioFocusChanged -> setPause(PauseReason.AUDIO_FOCUS, !event.hasFocus)
+        is AppEvent.ParentStopChanged -> setPause(PauseReason.PARENT, event.stopped)
+        AppEvent.DestinationArrived -> onArrived()
+        AppEvent.EndTripPressed -> if (state == EngineState.DOCKED) land() else emptyList()
         AppEvent.RestartPressed -> onRestart()
         else -> emptyList() // 임무 진행을 만들 때 나머지 사건을 받는다.
     }
 
-    /** 탑승한 뒷좌석의 벨트가 모두 매졌나. 카시트처럼 값이 안 바뀌면 부모 확인으로 대신한다. */
+    private fun crewPresent(): Boolean = occupied.isNotEmpty() || manualCrew
+
+    /** 탑승한 뒷좌석의 벨트가 모두 매졌나. 값이 안 바뀌는 자리는 부모 확인으로 대신한다. */
     private fun beltsReady(): Boolean =
-        occupied.isNotEmpty() && (parentConfirmed || buckled.containsAll(occupied))
+        crewPresent() && occupied.all { it in buckled || it in parentCovered }
 
     private fun onStart(): List<Command> {
         if (state != EngineState.WAITING) return emptyList()
         state = EngineState.CREW_CHECK
         val show = listOf(Command.ShowScreen(Screen.CREW_CHECK))
-        return if (occupied.isEmpty()) show else show + enterReady()
+        return if (crewPresent()) show + enterReady() else show
     }
 
     private fun onSeat(event: AppEvent.SeatOccupied): List<Command> {
-        if (event.occupied) occupied += event.seat else occupied -= event.seat
-        return if (state == EngineState.CREW_CHECK && occupied.isNotEmpty()) enterReady() else emptyList()
-    }
-
-    private fun enterReady(): List<Command> {
-        state = EngineState.READY
-        return listOf(Command.Say(Lines.CREW_FOUND)) + tryTakeOff()
+        val changed = if (event.occupied) occupied.add(event.seat) else occupied.remove(event.seat)
+        if (!changed) return emptyList()
+        if (!event.occupied) parentCovered -= event.seat // 자리를 비웠다 돌아오면 다시 확인한다.
+        return afterCrewChange()
     }
 
     private fun onBelt(event: AppEvent.BeltBuckled): List<Command> {
-        if (event.buckled) buckled += event.seat else buckled -= event.seat
-        return afterBeltChange()
+        val changed = if (event.buckled) buckled.add(event.seat) else buckled.remove(event.seat)
+        if (!changed) return emptyList()
+        if (event.buckled) parentCovered -= event.seat // 값이 읽히는 자리이니 이제 값으로 본다.
+        return afterCrewChange()
     }
 
     private fun onParentConfirmed(): List<Command> {
-        parentConfirmed = true
-        return afterBeltChange()
+        if (state == EngineState.WAITING || state == EngineState.LANDED) return emptyList()
+        if (occupied.isEmpty()) manualCrew = true
+        parentCovered += occupied - buckled
+        return afterCrewChange()
     }
 
-    private fun afterBeltChange(): List<Command> = when (state) {
-        EngineState.READY -> tryTakeOff()
+    /** 탑승과 벨트 값이 바뀌면 지금 상태에서 다시 따져 본다. */
+    private fun afterCrewChange(): List<Command> = when (state) {
+        EngineState.CREW_CHECK -> if (crewPresent()) enterReady() else emptyList()
+        EngineState.READY -> if (crewPresent()) tryTakeOff() else backToCrewCheck()
         EngineState.FLYING, EngineState.PAUSED -> setPause(PauseReason.BELT, !beltsReady())
         else -> emptyList()
     }
 
+    private fun enterReady(): List<Command> {
+        state = EngineState.READY
+        val already = beltsReady()
+        readyAnnounced = already
+        return speak(if (already) Lines.ALREADY_READY else Lines.CREW_FOUND) + tryTakeOff()
+    }
+
+    private fun backToCrewCheck(): List<Command> {
+        state = EngineState.CREW_CHECK
+        readyAnnounced = false
+        return listOf(Command.ShowScreen(Screen.CREW_CHECK))
+    }
+
     private fun onGear(newGear: Gear): List<Command> {
+        if (newGear == gear) return emptyList()
         gear = newGear
         return when (state) {
             EngineState.READY -> if (gear == Gear.D) tryTakeOff() else emptyList()
             EngineState.FLYING, EngineState.PAUSED ->
-                if (gear == Gear.P) land() else setPause(PauseReason.GEAR, gear != Gear.D)
+                if (gear == Gear.P) parkOrLand() else setPause(PauseReason.GEAR, gear != Gear.D)
+            EngineState.DOCKED -> if (gear == Gear.D) undock() else emptyList()
             else -> emptyList()
         }
     }
 
     /** 주차장에서 R을 거쳐 D로 가도 이륙한다. 기어를 먼저 넣었으면 벨트를 맨 순간 이륙한다. */
-    private fun tryTakeOff(): List<Command> = when {
-        gear == Gear.D && beltsReady() -> {
-            state = EngineState.FLYING
-            pauseReasons.clear()
-            listOf(Command.Say(Lines.TAKE_OFF), Command.ShowScreen(Screen.FLYING))
-        }
-        gear == Gear.D -> listOf(Command.Say(Lines.NEED_BELT))
-        beltsReady() -> listOf(Command.Say(Lines.READY))
-        else -> emptyList()
-    }
-
-    /** 멈춘 이유를 더하거나 뺀다. 이유가 다 없어져야 이어진다. */
-    private fun setPause(reason: PauseReason, on: Boolean): List<Command> {
-        if (on) pauseReasons += reason else pauseReasons -= reason
+    private fun tryTakeOff(): List<Command> {
+        if (!beltsReady()) readyAnnounced = false
         return when {
-            state == EngineState.FLYING && pauseReasons.isNotEmpty() -> {
-                state = EngineState.PAUSED
-                val stop = listOf(Command.StopAudio, Command.ShowScreen(Screen.PAUSED))
-                if (reason == PauseReason.BELT) stop + Command.Say(Lines.BELT_OFF) else stop
-            }
-            state == EngineState.PAUSED && pauseReasons.isEmpty() -> {
-                state = EngineState.FLYING
-                listOf(Command.ShowScreen(Screen.FLYING))
+            gear == Gear.D && beltsReady() -> takeOff()
+            gear == Gear.D -> beltGuide(Lines.NEED_BELT)
+            beltsReady() && !readyAnnounced -> {
+                readyAnnounced = true
+                speak(Lines.READY)
             }
             else -> emptyList()
         }
     }
 
-    private fun land(): List<Command> {
-        state = EngineState.LANDED
-        pauseReasons.clear()
-        return listOf(Command.StopAudio, Command.Say(Lines.LANDED), Command.ShowScreen(Screen.LANDED))
+    /** 내비 안내 중이거나 부모가 껐으면 그 이유는 남겨 두고, 소리가 나도 될 때 이어진다. */
+    private fun takeOff(): List<Command> {
+        pauseReasons -= setOf(PauseReason.BELT, PauseReason.GEAR)
+        state = if (pauseReasons.isEmpty()) EngineState.FLYING else EngineState.PAUSED
+        val screen = if (state == EngineState.FLYING) flyingScreen() else pausedScreen()
+        return speak(Lines.TAKE_OFF) + screen
     }
 
+    /** 멈춘 이유를 더하거나 뺀다. 이유가 다 없어져야 이어진다. */
+    private fun setPause(reason: PauseReason, on: Boolean): List<Command> {
+        val changed = if (on) pauseReasons.add(reason) else pauseReasons.remove(reason)
+        if (!changed) return emptyList()
+        if (reason == PauseReason.BELT && !on && heldLine == Lines.BELT_OFF) heldLine = null
+
+        val wasFlying = state == EngineState.FLYING
+        val screen = when {
+            wasFlying && pauseReasons.isNotEmpty() -> {
+                state = EngineState.PAUSED
+                pausedScreen()
+            }
+            state == EngineState.PAUSED && pauseReasons.isEmpty() -> {
+                state = EngineState.FLYING
+                flyingScreen()
+            }
+            state == EngineState.PAUSED -> pausedScreen()
+            else -> null
+        }
+        val stop = on && (wasFlying || reason == PauseReason.AUDIO_FOCUS || reason == PauseReason.PARENT)
+        val guide = if (reason == PauseReason.BELT && on && state == EngineState.PAUSED) beltGuide(Lines.BELT_OFF) else emptyList()
+        val held = if (reason == PauseReason.AUDIO_FOCUS && !on) releaseHeldLine() else emptyList()
+        return listOfNotNull(Command.StopAudio.takeIf { stop }, screen) + guide + held
+    }
+
+    private fun flyingScreen() = Command.ShowScreen(Screen.FLYING, Lines.STATUS_FLYING)
+
+    private fun pausedScreen(): Command.ShowScreen {
+        val status = when {
+            PauseReason.PARENT in pauseReasons -> Lines.STATUS_STOPPED
+            PauseReason.BELT in pauseReasons -> Lines.STATUS_BELT
+            PauseReason.GEAR in pauseReasons -> Lines.STATUS_GEAR
+            else -> Lines.STATUS_NAVI
+        }
+        return Command.ShowScreen(Screen.PAUSED, status)
+    }
+
+    /** 부모가 껐으면 말하지 않고, 내비 안내 중이면 끝날 때까지 미룬다. 미룬 대사는 마지막 하나만 남긴다. */
+    private fun speak(line: Command.Say): List<Command> = when {
+        PauseReason.PARENT in pauseReasons -> emptyList()
+        PauseReason.AUDIO_FOCUS in pauseReasons -> {
+            heldLine = line
+            emptyList()
+        }
+        else -> listOf(line)
+    }
+
+    private fun releaseHeldLine(): List<Command> {
+        val line = heldLine ?: return emptyList()
+        heldLine = null
+        return speak(line)
+    }
+
+    /** 벨트 안내는 한 이동에 세 번까지만 한다(F09). */
+    private fun beltGuide(line: Command.Say): List<Command> {
+        if (beltGuides >= MAX_BELT_GUIDES) return emptyList()
+        beltGuides++
+        return speak(line)
+    }
+
+    /** 도착했으면 착륙하고, 아니면 휴게소일 수 있으니 잠깐 정박한다. */
+    private fun parkOrLand(): List<Command> = if (arrived) land() else dock()
+
+    private fun dock(): List<Command> {
+        state = EngineState.DOCKED
+        pauseReasons -= setOf(PauseReason.BELT, PauseReason.GEAR)
+        return listOf(Command.StopAudio) + speak(Lines.DOCKED) +
+            Command.ShowScreen(Screen.DOCKED, Lines.STATUS_DOCKED)
+    }
+
+    /** 정박 중에 벨트를 풀었을 수 있으니 출발할 때 다시 본다. */
+    private fun undock(): List<Command> {
+        state = EngineState.PAUSED
+        if (!beltsReady()) pauseReasons += PauseReason.BELT
+        if (pauseReasons.isEmpty()) {
+            state = EngineState.FLYING
+            return listOf(flyingScreen())
+        }
+        val guide = if (PauseReason.BELT in pauseReasons) beltGuide(Lines.BELT_OFF) else emptyList()
+        return listOf(pausedScreen()) + guide
+    }
+
+    private fun onArrived(): List<Command> {
+        arrived = true
+        return if (state == EngineState.DOCKED) land() else emptyList()
+    }
+
+    private fun land(): List<Command> {
+        state = EngineState.LANDED
+        pauseReasons.retainAll(setOf(PauseReason.AUDIO_FOCUS, PauseReason.PARENT))
+        return listOf(Command.StopAudio) + speak(Lines.LANDED) + Command.ShowScreen(Screen.LANDED)
+    }
+
+    /** 몸과 차의 값(탑승, 벨트, 기어, 포커스)은 그대로 두고, 이번 이동의 기록만 지운다. */
     private fun onRestart(): List<Command> {
         if (state != EngineState.LANDED) return emptyList()
         state = EngineState.WAITING
-        parentConfirmed = false
+        parentCovered.clear()
+        pauseReasons -= PauseReason.PARENT
+        manualCrew = false
+        arrived = false
+        readyAnnounced = false
+        beltGuides = 0
+        heldLine = null
         return listOf(Command.ShowScreen(Screen.START))
+    }
+
+    private companion object {
+        const val MAX_BELT_GUIDES = 3
     }
 }

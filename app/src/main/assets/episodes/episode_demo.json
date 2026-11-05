@@ -1,13 +1,43 @@
 {
   "id": "demo",
   "title": "우주 여행 시험판",
+  "destinations": [
+    {
+      "id": "demo_destination",
+      "name": "시험 목적지",
+      "planetName": "시험 행성",
+      "departureLine": "오늘은 시험 행성에 별지도를 배달해요.",
+      "approachLine": "시험 행성에 거의 도착했어요!",
+      "deliveryLine": "모은 조각으로 별지도를 완성해서 전달했어요!",
+      "landingFact": "시험 문장입니다. 사람이 출처를 확인한 문장으로 바꿉니다.",
+      "factSource": "확인 전"
+    }
+  ],
   "places": [
     { "id": "river", "latitude": 37.4979, "longitude": 127.0276, "radiusMeters": 300, "missionId": "water_planet" }
   ],
   "missions": [
     {
+      "id": "meteor_shower",
+      "ageGroups": ["PRESCHOOL"],
+      "trigger": "WIPER",
+      "autoAfterSeconds": 120,
+      "briefing": "초록 행성을 지나가요. 초록 행성의 방어막은 초록색이래요.",
+      "eventSoundId": "meteor",
+      "event": "유성우가 떨어지고 있어요!",
+      "question": "방어막 색을 맞히면 우주선을 지킬 수 있어요. 초록 행성의 방어막은 무슨 색이었을까요?",
+      "answers": ["초록색", "초록"],
+      "correctLine": "맞아요, 초록색! 방어막이 켜졌어요.",
+      "wrongLine": "정답은 초록색이에요. 방어막이 켜졌어요.",
+      "rewardItem": "shield_piece"
+    },
+    {
       "id": "water_planet",
+      "ageGroups": [],
+      "trigger": "PLACE",
+      "autoAfterSeconds": 300,
       "briefing": "물의 행성에 도착했어요!",
+      "eventSoundId": null,
       "event": "바다 생물들이 우주선 옆을 지나가요.",
       "question": "바다에 사는 생물은 고래일까요, 사자일까요?",
       "answers": ["고래"],
@@ -15,6 +45,15 @@
       "wrongLine": "정답은 고래예요. 우주 지도 조각을 얻었어요.",
       "rewardItem": "map_piece"
     }
+  ],
+  "items": [
+    { "id": "shield_piece", "name": "방어막 조각" },
+    { "id": "map_piece", "name": "우주 지도 조각" }
+  ],
+  "reactions": [
+    { "signal": "turn_left", "soundId": "thruster_left", "line": null, "cooldownSeconds": 60 },
+    { "signal": "turn_right", "soundId": "thruster_right", "line": null, "cooldownSeconds": 60 },
+    { "signal": "road_tunnel", "soundId": "wormhole", "line": null, "cooldownSeconds": 60 }
   ],
   "finalLine": "마지막 행성에 거의 도착했어요!"
 }

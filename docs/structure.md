@@ -23,8 +23,10 @@
 3. **에피소드 파일 형식 :** `core/.../contract/Episode.kt`와 `app/.../assets/episodes/`의 예시 파일.
 
 ```
-차 신호, 재생 모드 → AppEvent → MissionEngine → Command → 음성, 화면
+차 신호, 재생 모드, 버튼, 음성 → AppEvent → MissionEngine → Command → 음성, 화면
 ```
+
+기능별로 어떤 사건과 명령을 쓰는지는 [contract_map.md](contract_map.md)에 있다.
 
 ## 먼저 할 일
 
