@@ -1,6 +1,6 @@
 # 기능과 약속 대조표
 
-P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리한다. 자기 기능을 이 표로 적을 수 없으면 `core/.../contract/`를 고치자고 PR이나 회의에서 말한다.
+P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리한다. 약속은 만들면서 수정하고 보완한다. 자기 기능을 이 표로 적을 수 없으면 `core/.../contract/`를 고치는 PR에 `약속 변경` 라벨을 달아 올린다.
 
 「지금」 칸의 **엔진 됨**은 `:core:test`로 확인했다는 뜻이다. 차 SDK와 실제 소리는 아직 붙이지 않았다.
 
@@ -25,7 +25,7 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 | F19 우주선 에너지 | `EnergyChanged` | `PlaySound`, `Say` | `SignalReaction` | 약속만 |
 | F21 재생 모드 | 위의 차 신호 사건 전부 | | | 일부 버튼만 |
 | F24 위치 미션 | `PlaceEntered` | `Say`, `Listen` | `Place`, `Mission.trigger` | 약속만 |
-| F25 목적지 이야기 | `DestinationSelected`, `DestinationArrived` | `Say` | `Destination` | 약속만 |
+| F25 목적지 이야기 | `DestinationSelected`, `DestinationArrived` | `Say` | `Destination`, `Mission.destinationId` | 약속만 |
 | F32 실내 환경 | `CabinTemperatureChanged` | `Say`, `SetBackground` | `SignalReaction` | 약속만 |
 | F33 마지막 미션 | `RemainingTimeChanged`, `DestinationArrived` | `Say`, `AwardItem`, `ShowScreen(LANDED)` | `Episode.finalLine`, `Destination.approachLine` | 약속만 |
 

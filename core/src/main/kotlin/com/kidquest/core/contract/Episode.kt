@@ -19,6 +19,8 @@ data class Mission(
     val id: String,
     /** 비어 있으면 모든 연령에 나온다. */
     val ageGroups: List<AgeGroup>,
+    /** 이 목적지일 때만 나오는 임무. null이면 어디로 가든 나온다. */
+    val destinationId: String?,
     val trigger: MissionTrigger,
     val autoAfterSeconds: Int,
     val briefing: String,
@@ -52,7 +54,7 @@ data class SignalReaction(
 
 /**
  * 목적지 이야기. 실제 목적지를 이번 항해에서 임무 보상을 배달할 행성으로 바꾼다.
- * 달리는 동안에는 지역을 설명하지 않고, 실제 사실은 착륙할 때 한 문장만 말한다.
+ * 달리는 동안 지역을 길게 설명하지 않는다. 실제 지식은 전용 임무 1개의 단서(Mission.destinationId)와 착륙 때 한 문장에만 쓴다.
  */
 data class Destination(
     val id: String,

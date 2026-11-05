@@ -20,6 +20,7 @@
     {
       "id": "meteor_shower",
       "ageGroups": ["PRESCHOOL"],
+      "destinationId": null,
       "trigger": "WIPER",
       "autoAfterSeconds": 120,
       "briefing": "초록 행성을 지나가요. 초록 행성의 방어막은 초록색이래요.",
@@ -34,6 +35,7 @@
     {
       "id": "water_planet",
       "ageGroups": [],
+      "destinationId": null,
       "trigger": "PLACE",
       "autoAfterSeconds": 300,
       "briefing": "물의 행성에 도착했어요!",
