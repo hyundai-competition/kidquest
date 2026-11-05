@@ -25,3 +25,4 @@ dependencyResolutionManagement {
 rootProject.name = "KidQuest"
 include(":core")
 include(":app")
+include(":signalcheck")
