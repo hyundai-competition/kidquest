@@ -89,4 +89,6 @@ data class Episode(
     val items: List<Item>,
     val reactions: List<SignalReaction>,
     val finalLine: String,
+    /** 임무를 다 끝내고 착륙할 때 말하는 결말 2~3문장. 모은 조각으로 목표를 이룬다. 비어 있으면 결말 없이 착륙 대사만 말한다. */
+    val endingLine: String = "",
 )

@@ -9,13 +9,19 @@ import com.kidquest.core.contract.Item
 import com.kidquest.core.contract.Mission
 import com.kidquest.core.contract.MissionTrigger
 import com.kidquest.core.contract.RearSeat
+import com.kidquest.core.contract.SignalReaction
 
 abstract class MissionTestBase {
-    protected fun mission(id: String, sound: String? = "meteor", reward: String = "shield") = Mission(
+    protected fun mission(
+        id: String,
+        sound: String? = "meteor",
+        reward: String = "shield",
+        trigger: MissionTrigger = MissionTrigger.WIPER,
+    ) = Mission(
         id = id,
         ageGroups = emptyList(),
         destinationId = null,
-        trigger = MissionTrigger.WIPER,
+        trigger = trigger,
         autoAfterSeconds = 120,
         briefing = "$id 브리핑",
         eventSoundId = sound,
@@ -27,15 +33,20 @@ abstract class MissionTestBase {
         rewardItem = reward,
     )
 
-    protected fun episode(vararg missions: Mission) = Episode(
+    protected fun episode(
+        vararg missions: Mission,
+        reactions: List<SignalReaction> = emptyList(),
+        ending: String = "결말 문장",
+    ) = Episode(
         id = "test",
         title = "시험",
         destinations = emptyList(),
         places = emptyList(),
         missions = missions.toList(),
         items = listOf(Item("shield", "방어막 조각"), Item("map", "지도 조각")),
-        reactions = emptyList(),
+        reactions = reactions,
         finalLine = "마지막",
+        endingLine = ending,
     )
 
     protected var engine = MissionEngine(episode(mission("a")))
@@ -50,6 +61,8 @@ abstract class MissionTestBase {
 
     protected fun buckle(on: Boolean) = send(AppEvent.BeltBuckled(RearSeat.LEFT, on))
 
+    protected fun wiper(on: Boolean) = send(AppEvent.WiperChanged(on))
+
     /** 이륙까지 간다. 이륙 대사는 아직 안 끝났다. */
     protected fun takeOff(): List<Command> {
         send(AppEvent.StartPressed, AppEvent.SeatOccupied(RearSeat.LEFT, true))
@@ -63,11 +76,19 @@ abstract class MissionTestBase {
         return finish(Lines.TAKE_OFF.lineId)
     }
 
-    /** 질문까지 다 말해서 답을 기다리는 데까지 간다. */
-    protected fun untilAnswer(consent: Boolean = true): List<Command> {
-        send(AppEvent.ListeningConsentChanged(consent))
+    /** 와이퍼로 임무를 열고 효과음 뒤 3초가 지나 사건 대사를 말하는 데까지 간다. */
+    protected fun untilEventLine(): List<Command> {
         untilBriefing()
         finish("a/briefing")
+        wiper(true)
+        tick(0)
+        return tick(3)
+    }
+
+    /** 질문까지 다 말해서 답을 기다리는 데까지 간다. consent가 null이면 동의 사건을 보내지 않는다. */
+    protected fun untilAnswer(consent: Boolean? = true): List<Command> {
+        if (consent != null) send(AppEvent.ListeningConsentChanged(consent))
+        untilEventLine()
         finish("a/event")
         return finish("a/question")
     }

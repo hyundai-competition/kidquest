@@ -1,4 +1,5 @@
 // 임무 진행 시험. 브리핑, 사건, 질문, 답, 보상이 순서대로 돌고, 답을 못 받아도 멈추지 않는지 본다.
+// 차 신호로 임무가 열리는 시험은 CarSignalTest에 있다.
 package com.kidquest.core.engine
 
 import com.kidquest.core.contract.AppEvent
@@ -20,10 +21,10 @@ class MissionRunTest : MissionTestBase() {
     fun `한 임무가 끝까지 돈다`() {
         send(AppEvent.ListeningConsentChanged(true))
         assertEquals(listOf(Command.Say("a/briefing", "a 브리핑")), untilBriefing())
-        assertEquals(
-            listOf(Command.PlaySound("meteor"), Command.Say("a/event", "a 사건")),
-            finish("a/briefing"),
-        )
+        assertTrue("신호가 올 때까지 기다린다", finish("a/briefing").isEmpty())
+        assertEquals(listOf(Command.PlaySound("meteor")), wiper(true))
+        tick(0)
+        assertEquals(listOf(Command.Say("a/event", "a 사건")), tick(3))
         assertEquals(listOf(Command.Say("a/question", "a 질문")), finish("a/event"))
         assertEquals(listOf(Command.Listen(listOf("초록색", "초록"), 8)), finish("a/question"))
         assertEquals(listOf(Command.Say("a/answer", "a 맞아요")), send(AppEvent.AnswerHeard("초록색")))
@@ -34,7 +35,8 @@ class MissionRunTest : MissionTestBase() {
     fun `효과음이 없는 임무는 사건 대사만 말한다`() {
         engine = MissionEngine(episode(mission("a", sound = null)))
         untilBriefing()
-        assertEquals(listOf(Command.Say("a/event", "a 사건")), finish("a/briefing"))
+        finish("a/briefing")
+        assertEquals(listOf(Command.Say("a/event", "a 사건")), wiper(true))
     }
 
     @Test
@@ -67,10 +69,7 @@ class MissionRunTest : MissionTestBase() {
 
     @Test
     fun `동의 전에는 기본으로 듣지 않는다`() {
-        untilBriefing()
-        finish("a/briefing")
-        finish("a/event")
-        assertTrue(finish("a/question").none { it is Command.Listen })
+        assertTrue(untilAnswer(consent = null).none { it is Command.Listen })
     }
 
     @Test
@@ -114,7 +113,9 @@ class MissionRunTest : MissionTestBase() {
         send(AppEvent.AnswerHeard(null))
         val next = finish("a/answer")
         assertEquals(listOf(Command.AwardItem("shield", "방어막 조각"), Command.Say("b/briefing", "b 브리핑")), next)
-        finish("b/briefing")
+        assertEquals("와이퍼가 켜져 있으니 바로 열린다", listOf(Command.PlaySound("meteor")), finish("b/briefing"))
+        tick(10)
+        tick(13)
         finish("b/event")
         finish("b/question")
         send(AppEvent.AnswerHeard(null))

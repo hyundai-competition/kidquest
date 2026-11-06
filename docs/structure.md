@@ -32,6 +32,7 @@
 
 ## 먼저 할 일
 
-- 상태 흐름과 임무 진행 시험 : `gradlew.bat :core:test`. 에뮬레이터가 필요 없다. 앱은 아직 엔진에 에피소드를 넘기지 않는다.
+- 상태 흐름과 임무 진행 시험 : `gradlew.bat :core:test`. 에뮬레이터가 필요 없다.
+- 역할끼리 붙이는 순서 : [integration.md](integration.md)
 - 앱 빌드 : `gradlew.bat :app:assembleDebug`
 - 저장소 검사 : `sh scripts/check_repo.sh --all`

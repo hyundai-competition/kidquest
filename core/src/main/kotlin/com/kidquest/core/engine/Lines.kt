@@ -13,6 +13,9 @@ internal object Lines {
     val DOCKED = Say("docked", "잠깐 정박할게요. 다시 출발하면 이어서 들려줄게요.")
     val LANDED = Say("landed", "착륙 완료! 오늘의 배지를 확인해 보세요.")
 
+    /** 결말 대사의 lineId. 결말 문장은 에피소드 파일에 있고, 이 대사가 끝나면 착륙 대사를 말한다. */
+    const val ENDING_ID = "ending"
+
     const val STATUS_FLYING = "비행 중"
     const val STATUS_BELT = "벨트를 매면 이어져요"
     const val STATUS_GEAR = "잠깐 쉬는 중이에요"
