@@ -11,7 +11,7 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 | F03 벨트 발사 | `BeltBuckled`, `ParentConfirmedBelt`, `GearChanged` | `Say` | | 엔진 됨 |
 | F04 이륙, 정박, 착륙 | `GearChanged`, `DestinationArrived`, `EndTripPressed` | `Say`, `StopAudio`, `ShowScreen(FLYING, DOCKED, LANDED)` | | 엔진 됨 |
 | F05 임무 진행 | `LineFinished`, `AnswerHeard`, `Tick` | `Say`, `PlaySound`, `Listen`, `AwardItem` | `Mission`, `Item` | 엔진 됨, 앱 연결 전 |
-| F06 차 신호 사건 | `TurnSignalOn`, `WiperChanged`, `Tick` | `PlaySound`, `Say` | `SignalReaction`, `Mission.trigger` | 약속만 |
+| F06 차 신호 사건 | `TurnSignalOn`, `WiperChanged`, `Tick` | `PlaySound`, `Say` | `SignalReaction`, `Mission.trigger` | 엔진 됨, 반응 대사(`line`)는 아직 안 씀 |
 | F07 음성 출력 | `LineFinished` | `Say`, `StopAudio` | | 가짜 음성 |
 | F08 아이 답 받기 | `ListeningConsentChanged`, `AnswerHeard` | `Listen` | `Mission.answers` | 엔진 됨, 실제 듣기 전 |
 | F09 벨트 풀림 멈춤 | `BeltBuckled` | `StopAudio`, `Say`, `ShowScreen(PAUSED, 이유)` | | 엔진 됨 |
@@ -19,7 +19,7 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 | F11 주행 중 화면 | `DrivingRestricted` | `ShowScreen(FLYING, 상태 한 줄)` | | 약속만 |
 | F12 착륙 화면 | | `ShowScreen(LANDED)`, `AwardItem` | `Item` | 약속만 |
 | F13 끄기 | `ParentStopChanged` | `StopAudio`, `ShowScreen(PAUSED, 이유)` | | 엔진 됨 |
-| F14 신호 없는 차 처리 | `SignalUnavailable`, `Tick` | | `Mission.autoAfterSeconds` | 약속만 |
+| F14 신호 없는 차 처리 | `SignalUnavailable`, `Tick` | | `Mission.autoAfterSeconds` | 엔진 됨(시간이 지나면 열림) |
 | F15, F16 연령별 임무 | `AgeSelected` | | `Mission.ageGroups` | 약속만 |
 | F17 남은 시간 맞춤 | `RemainingTimeChanged` | | | 약속만 |
 | F19 우주선 에너지 | `EnergyChanged` | `PlaySound`, `Say` | `SignalReaction` | 약속만 |
@@ -43,4 +43,6 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 - **시간 :** 엔진은 시계를 읽지 않는다. `AppController`가 1초마다 `Tick`을 보낸다.
 - **스레드 :** 차 SDK 콜백이 어느 스레드에서 와도 `listener.onEvent`만 부르면 된다. `AppController`가 메인 스레드로 옮긴다.
 - **겹침 :** 내비 안내 중에는 말하지 않는다. 그동안 나온 대사는 마지막 하나만 남겼다가 안내가 끝나면 말한다.
-- **못 읽는 신호 :** 차 신호를 못 읽으면 `SignalUnavailable`을 보낸다. 탑승과 벨트는 저절로 넘어가지 않고 부모 확인(`ParentConfirmedBelt`)이나 재생 모드로 넘어간다.
+- **못 읽는 신호 :** 차 신호를 못 읽으면 `SignalUnavailable`을 보낸다. 탑승과 벨트는 저절로 넘어가지 않고 부모 확인(`ParentConfirmedBelt`)이나 재생 모드로 넘어간다. 임무는 신호가 안 오면 `autoAfterSeconds` 뒤에 저절로 열린다. 위치와 도로 임무도 #10과 F36 전까지는 시간으로 열린다.
+- **효과음 :** 임무 효과음 뒤 3초(가정) 있다가 사건 대사를 말한다. 깜빡이 같은 반응 소리는 말하는 중에도 올 수 있다. 음성은 말을 끊지 말고 효과음을 같이 낸다.
+- **와이퍼 :** 켜짐과 꺼짐을 다 보낸다. 엔진이 켜져 있는지 기억해서, 비 오는 날 계속 켜져 있어도 와이퍼 임무가 열린다.

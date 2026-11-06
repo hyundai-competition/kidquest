@@ -52,7 +52,9 @@ class MissionEngine(episode: Episode? = null) {
         is AppEvent.AnswerHeard -> whileFlying { missions.onAnswer(event.word) }
         is AppEvent.Tick -> whileFlying { missions.onTick(event.nowMillis) }
         is AppEvent.ListeningConsentChanged -> missions.setListeningAllowed(event.allowed)
-        else -> emptyList() // 나머지 사건은 차 신호 판단을 만들 때 받는다.
+        is AppEvent.WiperChanged -> missions.onWiper(event.on, state == EngineState.FLYING)
+        is AppEvent.TurnSignalOn -> whileFlying { missions.onTurnSignal(event.side) }
+        else -> emptyList() // 위치, 에너지, 실내 온도는 #10에서 받는다. 못 읽는 신호는 시간이 지나면 임무가 열려서 따로 안 받는다.
     }
 
     private fun whileFlying(action: () -> List<Command>): List<Command> =

@@ -20,18 +20,27 @@ class MissionPauseTest : MissionTestBase() {
 
     @Test
     fun `내비 안내가 끝나면 끊긴 문장을 처음부터 다시 말한다`() {
-        untilBriefing()
-        finish("a/briefing")
+        untilEventLine()
         send(AppEvent.AudioFocusChanged(false))
         assertEquals(listOf("a 사건"), said(send(AppEvent.AudioFocusChanged(true))))
     }
 
     @Test
     fun `이어 말할 때 효과음은 다시 내지 않는다`() {
-        untilBriefing()
-        finish("a/briefing")
+        untilEventLine()
         buckle(false)
         assertTrue(buckle(true).none { it is Command.PlaySound })
+    }
+
+    @Test
+    fun `효과음 뒤 기다리다 멈추면 이어질 때 사건 대사부터 말한다`() {
+        untilBriefing()
+        finish("a/briefing")
+        wiper(true)
+        buckle(false)
+        val back = buckle(true)
+        assertTrue(back.none { it is Command.PlaySound })
+        assertEquals(listOf("a 사건"), said(back))
     }
 
     @Test
