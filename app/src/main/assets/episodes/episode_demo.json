@@ -57,5 +57,6 @@
     { "signal": "turn_right", "soundId": "thruster_right", "line": null, "cooldownSeconds": 60 },
     { "signal": "road_tunnel", "soundId": "wormhole", "line": null, "cooldownSeconds": 60 }
   ],
-  "finalLine": "마지막 행성에 거의 도착했어요!"
+  "finalLine": "마지막 행성에 거의 도착했어요!",
+  "endingLine": "모은 방어막 조각과 우주 지도 조각으로 우주선을 튼튼하게 고쳤어요. 이제 어떤 유성우가 와도 끄떡없어요. 오늘 항해 정말 멋졌어요, 선장님!"
 }

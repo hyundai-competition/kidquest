@@ -33,7 +33,11 @@ abstract class MissionTestBase {
         rewardItem = reward,
     )
 
-    protected fun episode(vararg missions: Mission, reactions: List<SignalReaction> = emptyList()) = Episode(
+    protected fun episode(
+        vararg missions: Mission,
+        reactions: List<SignalReaction> = emptyList(),
+        ending: String = "결말 문장",
+    ) = Episode(
         id = "test",
         title = "시험",
         destinations = emptyList(),
@@ -42,6 +46,7 @@ abstract class MissionTestBase {
         items = listOf(Item("shield", "방어막 조각"), Item("map", "지도 조각")),
         reactions = reactions,
         finalLine = "마지막",
+        endingLine = ending,
     )
 
     protected var engine = MissionEngine(episode(mission("a")))

@@ -17,6 +17,7 @@ internal class MissionRunner(episode: Episode?) {
     private val missions = episode?.missions.orEmpty()
     private val itemNames = episode?.items.orEmpty().associate { it.id to it.name }
     private val reactions = SignalReactions(episode)
+    private val endingText = episode?.endingLine.orEmpty()
 
     private var index = 0
 
@@ -38,6 +39,13 @@ internal class MissionRunner(episode: Episode?) {
     private var clockMillis: Long? = null
 
     private val mission: Mission? get() = missions.getOrNull(index)
+
+    /** 이번 이동의 임무를 다 끝냈다. 임무가 없는 에피소드는 끝낸 것으로 보지 않는다. */
+    val allDone: Boolean get() = missions.isNotEmpty() && index >= missions.size
+
+    /** 다 끝냈을 때만 결말을 말한다. 덜 끝냈는데 「모은 조각으로 고쳤다」고 하면 이야기가 안 맞는다. */
+    fun ending(): Command.Say? =
+        if (allDone && endingText.isNotBlank()) Command.Say(Lines.ENDING_ID, endingText) else null
 
     /** 지금 말할 대사를 말한다. 시작 전이면 시작하고, 끊긴 단계는 다시 말할 수 있는 곳부터 한다. */
     fun speakCurrent(): List<Command> {

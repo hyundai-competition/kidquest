@@ -48,7 +48,11 @@ class MissionEngine(episode: Episode? = null) {
         AppEvent.DestinationArrived -> onArrived()
         AppEvent.EndTripPressed -> if (state == EngineState.DOCKED) land() else emptyList()
         AppEvent.RestartPressed -> onRestart()
-        is AppEvent.LineFinished -> whileFlying { onLineFinished(event.lineId) }
+        is AppEvent.LineFinished -> when (state) {
+            EngineState.FLYING -> onLineFinished(event.lineId)
+            EngineState.LANDED -> if (event.lineId == Lines.ENDING_ID) speak(Lines.LANDED) else emptyList()
+            else -> emptyList()
+        }
         is AppEvent.AnswerHeard -> whileFlying { missions.onAnswer(event.word) }
         is AppEvent.Tick -> whileFlying { missions.onTick(event.nowMillis) }
         is AppEvent.ListeningConsentChanged -> missions.setListeningAllowed(event.allowed)
@@ -225,8 +229,8 @@ class MissionEngine(episode: Episode? = null) {
         return speak(line)
     }
 
-    /** 도착했으면 착륙하고, 아니면 휴게소일 수 있으니 잠깐 정박한다. */
-    private fun parkOrLand(): List<Command> = if (arrived) land() else dock()
+    /** 도착했거나 임무를 다 끝냈으면 착륙하고, 아니면 휴게소일 수 있으니 잠깐 정박한다. */
+    private fun parkOrLand(): List<Command> = if (arrived || missions.allDone) land() else dock()
 
     private fun dock(): List<Command> {
         state = EngineState.DOCKED
@@ -255,7 +259,8 @@ class MissionEngine(episode: Episode? = null) {
     private fun land(): List<Command> {
         state = EngineState.LANDED
         pauseReasons.retainAll(setOf(PauseReason.AUDIO_FOCUS, PauseReason.PARENT))
-        return listOf(Command.StopAudio) + speak(Lines.LANDED) + Command.ShowScreen(Screen.LANDED)
+        val line = missions.ending() ?: Lines.LANDED // 결말이 있으면 결말이 끝난 뒤에 착륙 대사를 말한다.
+        return listOf(Command.StopAudio) + speak(line) + Command.ShowScreen(Screen.LANDED)
     }
 
     /** 몸과 차의 값(탑승, 벨트, 기어, 포커스)은 그대로 두고, 이번 이동의 기록만 지운다. */
