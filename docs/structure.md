@@ -6,7 +6,8 @@
 |---|---|---|---|
 | `core/.../contract/` | 사건, 명령, 에피소드 형식. 팀 전체의 약속 | 판단 로직·데이터 | `kq-logic` |
 | `core/.../engine/` | 상태와 임무 판단. 안드로이드와 차 SDK를 쓰지 않음 | 판단 로직·데이터 | `kq-logic` |
-| `app/.../assets/episodes/` | 에피소드와 위치 좌표 파일 | 판단 로직·데이터 | `kq-logic` |
+| `core/.../episode/` | 에피소드 파일의 글자를 읽고 틀린 곳을 찾음 | 판단 로직·데이터 | `kq-logic` |
+| `app/.../assets/episodes/`, `app/.../episode/` | 에피소드와 위치 좌표 파일, 파일을 여는 코드 | 판단 로직·데이터 | `kq-logic` |
 | `app/.../car/` | 차 신호와 위치를 사건으로 바꿈 | 차량·내비 연결 | `kq-car` |
 | `app/.../voice/` | 말하기, 효과음, 답 듣기, 소리 양보 | 화면·음성 | `kq-voice` |
 | `app/.../screen/` | 정차 화면과 주행 중 화면 | 화면·음성 | `kq-voice` |

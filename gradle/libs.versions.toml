@@ -4,6 +4,8 @@
 agp = "8.8.2"
 kotlin = "2.0.0"
 coreKtx = "1.16.0"
+# kotlin 2.0.0과 짝이 맞는 판. 1.7.3부터는 kotlin 2.0.20을 요구한다.
+kotlinxSerialization = "1.7.1"
 junit = "4.13.2"
 activityCompose = "1.10.1"
 composeBom = "2024.04.01"
@@ -20,6 +22,7 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", versi
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 pleos-vehicle = { module = "ai.pleos.playground:Vehicle", version.ref = "vehicleSdk" }
 pleos-navi-helper = { module = "ai.pleos.playground:NaviHelper", version.ref = "naviHelperSdk" }
 pleos-fused-location = { module = "ai.pleos.playground:FusedLocation", version.ref = "fusedLocationSdk" }
@@ -31,3 +34,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
