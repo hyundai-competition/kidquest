@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import com.kidquest.app.episode.EpisodeFile
+import com.kidquest.app.screen.model.StartSelection
 import com.kidquest.app.storage.LocalStore
 import com.kidquest.core.contract.AgeGroup
 import com.kidquest.core.contract.AppEvent
@@ -34,10 +35,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         destinationId = id?.takeIf { candidate -> destinations.any { it.id == candidate } }
     }
     fun startTrip() {
-        controller.dispatch(AppEvent.AgeSelected(age))
-        controller.dispatch(AppEvent.DestinationSelected(destinationId))
-        controller.dispatch(AppEvent.ListeningConsentChanged(consent))
-        controller.dispatch(AppEvent.StartPressed)
+        StartSelection(age, destinationId, consent).events().forEach(controller::dispatch)
     }
     fun restartTrip() {
         consent = false // 새 항해도 동의를 다시 확인한다. 동의는 저장하지 않는다.

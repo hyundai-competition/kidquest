@@ -28,6 +28,9 @@ class StartScreenConnectionTest {
             android.util.Log.i("KQScreenTest", report)
             File(compose.activity.getExternalFilesDir(null), "vehicle-check.txt").writeText(report)
         }
+        compose.onNodeWithText("미취학").performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithText("시험 목적지").performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithText("기본 이야기").performScrollTo().performClick().assertIsSelected()
         compose.onNodeWithText("승무원 확인하기 →").performScrollTo().performClick()
         compose.onNodeWithText("승무원 확인").assertExists()
         compose.onNodeWithText("재생 모드").performScrollTo().performClick()

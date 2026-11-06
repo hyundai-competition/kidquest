@@ -32,8 +32,9 @@ fun CrewCheckScreen(controller: AppController) {
         if (CarSignal.SEAT in vehicle.unavailable || CarSignal.BELT in vehicle.unavailable) {
             Text("일부 탑승·벨트 신호를 읽지 못했어요. 직접 확인해 주세요.", fontSize = 24.sp)
         }
-        Button(onClick = { controller.dispatch(AppEvent.ParentConfirmedBelt) }, modifier = Modifier.heightIn(min = 80.dp)) {
-            Text("아이 탑승과 벨트를 직접 확인했어요", fontSize = 26.sp)
+        Text("탑승과 벨트는 자동으로 확인해요. 카시트 등으로 확인이 어려울 때만 아래 버튼을 사용해 주세요.", fontSize = 24.sp)
+        OutlinedButton(onClick = { controller.dispatch(AppEvent.ParentConfirmedBelt) }, modifier = Modifier.heightIn(min = 80.dp)) {
+            Text("카시트·벨트 직접 확인 (부모용)", fontSize = 26.sp)
         }
         if (vehicle.parentConfirmed) Text("부모가 직접 확인했어요. 차량 센서 값과는 별개입니다.", fontSize = 24.sp)
         Text("벨트를 확인한 뒤 기어가 D이면 이야기가 시작돼요.", fontSize = 24.sp)
