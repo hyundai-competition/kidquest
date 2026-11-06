@@ -23,11 +23,11 @@
 | 2 | 탑승 | `crew_found` |
 | 3 | 벨트 매기 | `ready` |
 | 4 | D | `take_off`, 이어서 `meteor_shower/briefing` |
-| 5 | 와이퍼 켜기 | `PlaySound(meteor)`, 3~4초 뒤 `meteor_shower/event`, `meteor_shower/question` |
+| 5 | 와이퍼 켜기(D를 누르고 2분 안에) | `PlaySound(meteor)`, 3~4초 뒤 `meteor_shower/event`, `meteor_shower/question`. 2분이 지나면 파일의 120초가 되어 임무가 저절로 열리고, 그 뒤 와이퍼를 눌러도 아무것도 안 나온다 |
 | 6 | 기다리기 | 듣기 동의가 없으면 8초 뒤 `meteor_shower/answer`. 이어서 다음 임무 `water_planet/briefing` |
-| 7 | 벨트 풀기, 벨트 매기 | 풀면 `StopAudio`와 `belt_off`. 매면 말하던 대사가 있었을 때만 `StopAudio` 뒤 그 대사를 처음부터 말한다. 신호를 기다리던 중이면 아무것도 안 나온다 |
-| 8 | P | 임무가 남았으니 `docked`(정박) |
-| 9 | 화면의 「여기서 착륙」 | `landed` |
+| 7 | 벨트 풀기, 벨트 매기 | 풀면 `StopAudio`와 `belt_off`. 매면 하던 단계에 따라 `StopAudio` 뒤 다시 말한다. 대사 중이었으면 그 대사를, 효과음 뒤 기다리던 중이면 사건 대사를, 답을 기다리던 중이면 질문을 말한다. 신호를 기다리던 중이면 아무것도 안 나온다(6 다음이 이 경우다) |
+| 8 | P | 임무가 남았으니 `StopAudio`, `docked`(정박) |
+| 9 | 화면의 「여기서 착륙」 | `StopAudio`, `landed` |
 
 - 답 버튼(「답 : 초록색」 등)은 부모가 듣기에 동의했을 때만 쓰인다. 동의 버튼은 시작 화면 일(#23)이다. 그 전에는 답 버튼을 눌러도 8초 뒤 넘어간다.
 - 두 번째 임무(강 근처)는 위치 판단(#10) 전이라 「강 근처」를 눌러도 반응이 없다. 300초 뒤 저절로 열린다.

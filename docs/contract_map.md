@@ -10,7 +10,7 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 | F02 승무원 확인 | `SeatOccupied`, `ParentConfirmedBelt` | `Say`, `ShowScreen(CREW_CHECK)` | | 엔진 됨 |
 | F03 벨트 발사 | `BeltBuckled`, `ParentConfirmedBelt`, `GearChanged` | `Say` | | 엔진 됨 |
 | F04 이륙, 정박, 착륙 | `GearChanged`, `DestinationArrived`, `EndTripPressed` | `Say`, `StopAudio`, `ShowScreen(FLYING, DOCKED, LANDED)` | `Episode.endingLine` | 엔진 됨 |
-| F05 임무 진행 | `LineFinished`, `AnswerHeard`, `Tick` | `Say`, `PlaySound`, `Listen`, `AwardItem` | `Mission`, `Item` | 엔진 됨, 앱 연결 전 |
+| F05 임무 진행 | `LineFinished`, `AnswerHeard`, `Tick` | `Say`, `PlaySound`, `Listen`, `AwardItem` | `Mission`, `Item` | 엔진 됨, 앱 연결 됨(가짜 음성) |
 | F06 차 신호 사건 | `TurnSignalOn`, `WiperChanged`, `Tick` | `PlaySound`, `Say` | `SignalReaction`, `Mission.trigger` | 엔진 됨, 반응 대사(`line`)는 아직 안 씀 |
 | F07 음성 출력 | `LineFinished` | `Say`, `StopAudio` | | 가짜 음성 |
 | F08 아이 답 받기 | `ListeningConsentChanged`, `AnswerHeard` | `Listen` | `Mission.answers` | 엔진 됨, 실제 듣기 전 |
