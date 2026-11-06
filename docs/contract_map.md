@@ -10,11 +10,11 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 | F02 승무원 확인 | `SeatOccupied`, `ParentConfirmedBelt` | `Say`, `ShowScreen(CREW_CHECK)` | | 엔진 됨 |
 | F03 벨트 발사 | `BeltBuckled`, `ParentConfirmedBelt`, `GearChanged` | `Say` | | 엔진 됨 |
 | F04 이륙, 정박, 착륙 | `GearChanged`, `DestinationArrived`, `EndTripPressed` | `Say`, `StopAudio`, `ShowScreen(FLYING, DOCKED, LANDED)` | | 엔진 됨 |
-| F05 임무 진행 | `LineFinished`, `AnswerHeard`, `Tick` | `Say`, `PlaySound`, `Listen`, `AwardItem` | `Mission`, `Item` | 약속만 |
+| F05 임무 진행 | `LineFinished`, `AnswerHeard`, `Tick` | `Say`, `PlaySound`, `Listen`, `AwardItem` | `Mission`, `Item` | 엔진 됨, 앱 연결 전 |
 | F06 차 신호 사건 | `TurnSignalOn`, `WiperChanged`, `Tick` | `PlaySound`, `Say` | `SignalReaction`, `Mission.trigger` | 약속만 |
 | F07 음성 출력 | `LineFinished` | `Say`, `StopAudio` | | 가짜 음성 |
-| F08 아이 답 받기 | `ListeningConsentChanged`, `AnswerHeard` | `Listen` | `Mission.answers` | 약속만 |
-| F09 벨트 풀림 멈춤 | `BeltBuckled` | `StopAudio`, `Say`, `ShowScreen(PAUSED, 이유)` | | 엔진 됨, 이어 말하기는 임무 진행과 같이 |
+| F08 아이 답 받기 | `ListeningConsentChanged`, `AnswerHeard` | `Listen` | `Mission.answers` | 엔진 됨, 실제 듣기 전 |
+| F09 벨트 풀림 멈춤 | `BeltBuckled` | `StopAudio`, `Say`, `ShowScreen(PAUSED, 이유)` | | 엔진 됨 |
 | F10 소리 양보 | `AudioFocusChanged` | `StopAudio`, `ShowScreen(PAUSED, 이유)` | | 엔진 됨 |
 | F11 주행 중 화면 | `DrivingRestricted` | `ShowScreen(FLYING, 상태 한 줄)` | | 약속만 |
 | F12 착륙 화면 | | `ShowScreen(LANDED)`, `AwardItem` | `Item` | 약속만 |
@@ -38,7 +38,8 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 
 ## 정하고 시작한 규칙
 
-- **대사 끝남 :** 음성은 `Say`를 끝까지 말하면 `LineFinished(lineId)`를 보낸다. `StopAudio`로 끊긴 대사는 보내지 않는다. TTS에 일시정지 함수가 안 보여서, 이어 말할 때는 그 문장을 처음부터 다시 말한다.
+- **대사 끝남 :** 음성은 `Say`를 끝까지 말하면 `LineFinished(lineId)`를 보낸다. `StopAudio`로 끊긴 대사는 보내지 않는다. TTS에 일시정지 함수가 안 보여서, 이어 말할 때는 그 문장을 처음부터 다시 말한다. 음성은 어떤 경우에도 말을 끝내면 이 사건을 보내야 한다. 안 보내면 임무가 그 자리에 멈춘다.
+- **듣기 :** `StopAudio`는 말하기와 듣기를 둘 다 멈춘다. 동의하지 않으면 `Listen`을 보내지 않고 8초 뒤 넘어간다. `Listen` 뒤 10초 안에 `AnswerHeard`가 안 오면 엔진이 듣기를 멈추고 넘어간다.
 - **시간 :** 엔진은 시계를 읽지 않는다. `AppController`가 1초마다 `Tick`을 보낸다.
 - **스레드 :** 차 SDK 콜백이 어느 스레드에서 와도 `listener.onEvent`만 부르면 된다. `AppController`가 메인 스레드로 옮긴다.
 - **겹침 :** 내비 안내 중에는 말하지 않는다. 그동안 나온 대사는 마지막 하나만 남겼다가 안내가 끝나면 말한다.

@@ -1,17 +1,23 @@
 // 앱의 상태 흐름을 정한다. 대기 → 승무원 확인 → 발사 준비 → 비행 ⇄ 멈춤, 비행 ⇄ 정박 → 착륙.
 // 앱은 차를 막지 않는다. 벨트가 안 매져 있으면 이륙하지 않고 안내만 한다.
-// 임무 진행(브리핑, 질문, 답, 보상)은 아직 없다. 판단 로직 역할이 이어서 만든다.
+// 임무 진행(브리핑, 질문, 답, 보상)은 MissionRunner가 한다. 비행 중일 때만 넘겨서 멈춘 동안에는 진행하지 않는다.
 package com.kidquest.core.engine
 
 import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.Command
+import com.kidquest.core.contract.Episode
 import com.kidquest.core.contract.Gear
 import com.kidquest.core.contract.RearSeat
 import com.kidquest.core.contract.Screen
 
-class MissionEngine {
+class MissionEngine(episode: Episode? = null) {
     var state: EngineState = EngineState.WAITING
         private set
+
+    private val missions = MissionRunner(episode)
+
+    /** 이 대사가 끝나면 임무를 말한다. 이륙 대사나 미룬 대사와 겹치지 않게 한다. */
+    private var continueAfterLine: String? = null
 
     private val occupied = mutableSetOf<RearSeat>()
     private val buckled = mutableSetOf<RearSeat>()
@@ -42,7 +48,27 @@ class MissionEngine {
         AppEvent.DestinationArrived -> onArrived()
         AppEvent.EndTripPressed -> if (state == EngineState.DOCKED) land() else emptyList()
         AppEvent.RestartPressed -> onRestart()
-        else -> emptyList() // 임무 진행을 만들 때 나머지 사건을 받는다.
+        is AppEvent.LineFinished -> whileFlying { onLineFinished(event.lineId) }
+        is AppEvent.AnswerHeard -> whileFlying { missions.onAnswer(event.word) }
+        is AppEvent.Tick -> whileFlying { missions.onTick(event.nowMillis) }
+        is AppEvent.ListeningConsentChanged -> missions.setListeningAllowed(event.allowed)
+        else -> emptyList() // 나머지 사건은 차 신호 판단을 만들 때 받는다.
+    }
+
+    private fun whileFlying(action: () -> List<Command>): List<Command> =
+        if (state == EngineState.FLYING) action() else emptyList()
+
+    private fun onLineFinished(lineId: String): List<Command> {
+        if (lineId != continueAfterLine) return missions.onLineFinished(lineId)
+        continueAfterLine = null
+        return missions.speakCurrent()
+    }
+
+    /** 다시 비행으로 돌아왔다. 먼저 말할 대사가 있으면 그 대사가 끝난 뒤에 임무를 잇는다. */
+    private fun continueMissions(spoken: List<Command>): List<Command> {
+        val line = spoken.filterIsInstance<Command.Say>().lastOrNull()
+        continueAfterLine = line?.lineId
+        return if (line == null) missions.resume() else emptyList()
     }
 
     private fun crewPresent(): Boolean = occupied.isNotEmpty() || manualCrew
@@ -131,7 +157,9 @@ class MissionEngine {
         pauseReasons -= setOf(PauseReason.BELT, PauseReason.GEAR)
         state = if (pauseReasons.isEmpty()) EngineState.FLYING else EngineState.PAUSED
         val screen = if (state == EngineState.FLYING) flyingScreen() else pausedScreen()
-        return speak(Lines.TAKE_OFF) + screen
+        val spoken = speak(Lines.TAKE_OFF)
+        continueAfterLine = if (state == EngineState.FLYING) Lines.TAKE_OFF.lineId else null
+        return spoken + screen
     }
 
     /** 멈춘 이유를 더하거나 뺀다. 이유가 다 없어져야 이어진다. */
@@ -156,7 +184,8 @@ class MissionEngine {
         val stop = on && (wasFlying || reason == PauseReason.AUDIO_FOCUS || reason == PauseReason.PARENT)
         val guide = if (reason == PauseReason.BELT && on && state == EngineState.PAUSED) beltGuide(Lines.BELT_OFF) else emptyList()
         val held = if (reason == PauseReason.AUDIO_FOCUS && !on) releaseHeldLine() else emptyList()
-        return listOfNotNull(Command.StopAudio.takeIf { stop }, screen) + guide + held
+        val next = if (!wasFlying && state == EngineState.FLYING) continueMissions(held) else emptyList()
+        return listOfNotNull(Command.StopAudio.takeIf { stop }, screen) + guide + held + next
     }
 
     private fun flyingScreen() = Command.ShowScreen(Screen.FLYING, Lines.STATUS_FLYING)
@@ -210,7 +239,7 @@ class MissionEngine {
         if (!beltsReady()) pauseReasons += PauseReason.BELT
         if (pauseReasons.isEmpty()) {
             state = EngineState.FLYING
-            return listOf(flyingScreen())
+            return listOf(flyingScreen()) + continueMissions(emptyList())
         }
         val guide = if (PauseReason.BELT in pauseReasons) beltGuide(Lines.BELT_OFF) else emptyList()
         return listOf(pausedScreen()) + guide
@@ -238,6 +267,8 @@ class MissionEngine {
         readyAnnounced = false
         beltGuides = 0
         heldLine = null
+        continueAfterLine = null
+        missions.reset()
         return listOf(Command.ShowScreen(Screen.START))
     }
 
