@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 앱 권한과 시작 화면. 쓸 신호의 권한만 적는다. 아직 신호를 받지 않아서 권한은 시험 전이다. 기어 권한은 문서에서 못 찾아서 첫 시험 뒤에 넣는다. -->
+<!-- 앱 권한과 시작 화면. 쓸 신호의 권한만 적는다. 권한은 시험 전이다. 기어와 와이퍼 권한은 문서에서 못 찾아서 신호 확인 앱과 SDK에 있는 이름을 넣었고 첫 시험 뒤에 줄인다. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="pleos.car.permission.CAR_SEATS" />
     <uses-permission android:name="pleos.car.permission.CAR_LIGHTS" />
     <uses-permission android:name="pleos.car.permission.CAR_WINDOWS" />
+    <uses-permission android:name="pleos.car.permission.READ_WINDSHIELD_WIPERS" />
+    <uses-permission android:name="pleos.car.permission.CAR_DRIVE" />
+    <uses-permission android:name="pleos.car.permission.CAR_POWERTRAIN" />
     <uses-permission android:name="pleos.car.permission.CAR_ENERGY" />
     <uses-permission android:name="pleos.car.permission.CAR_CLIMATE" />
     <uses-permission android:name="pleos.car.permission.NAVI_ROUTE" />
@@ -17,6 +20,9 @@
         android:allowBackup="false"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <uses-library
+            android:name="android.car"
+            android:required="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
