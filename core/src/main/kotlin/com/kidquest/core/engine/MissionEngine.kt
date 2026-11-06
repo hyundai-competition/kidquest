@@ -119,11 +119,13 @@ class MissionEngine(episode: Episode? = null) {
         else -> emptyList()
     }
 
+    /** 기어가 이미 D면 바로 발사하거나 승무원 확인만 말한다. 대사 두 개를 한꺼번에 보내면 앞 대사가 끊기거나 겹친다. */
     private fun enterReady(): List<Command> {
         state = EngineState.READY
         val already = beltsReady()
         readyAnnounced = already
-        return speak(if (already) Lines.ALREADY_READY else Lines.CREW_FOUND) + tryTakeOff()
+        if (gear == Gear.D) return if (already) takeOff() else speak(Lines.CREW_FOUND)
+        return speak(if (already) Lines.ALREADY_READY else Lines.CREW_FOUND)
     }
 
     private fun backToCrewCheck(): List<Command> {
