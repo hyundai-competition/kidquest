@@ -9,6 +9,8 @@ import ai.pleos.playground.tts.listener.EventListener
 import android.content.Context
 import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.os.Handler
+import android.os.Looper
 import java.util.Locale
 import ai.pleos.playground.stt.constant.ErrorType as SttError
 import ai.pleos.playground.stt.constant.Mode as SttMode
@@ -26,6 +28,7 @@ class VoiceProbe(context: Context, private val log: SignalLog) {
         .setOnAudioFocusChangeListener { change -> log.line("오디오 포커스", focusName(change)) }
         .build()
     private var zoneId = 0
+    private val main = Handler(Looper.getMainLooper())
 
     private val ttsEvents = object : EventListener {
         override fun onReady() = log.line("TTS", "준비")
@@ -71,6 +74,15 @@ class VoiceProbe(context: Context, private val log: SignalLog) {
         tts.speak(TEST_LINE, true)
     }
 
+    /**
+     * 기어 D에서 화면이 막힌 뒤에도 새로 말을 시작할 수 있는지 본다. 버튼을 누르고 10초 안에 콘솔로 D를 넣는다.
+     * 화면 뒤에서 부르는 것이라 버튼을 누를 수 없을 때를 흉내 낸다.
+     */
+    fun speakLater() {
+        log.line("TTS 예약", "${DELAY_SECONDS}초 뒤 말하기")
+        main.postDelayed({ speak() }, DELAY_SECONDS * 1_000L)
+    }
+
     fun stopSpeaking() = log.attempt("TTS 멈춤") { tts.stop() }
 
     fun listen() = log.attempt("STT 듣기") { stt.request() }
@@ -87,6 +99,7 @@ class VoiceProbe(context: Context, private val log: SignalLog) {
     }
 
     fun stop() {
+        main.removeCallbacksAndMessages(null)
         log.attempt("음성 해제") {
             audio.abandonAudioFocusRequest(focus)
             tts.removeEventListener(ttsEvents)
@@ -107,5 +120,6 @@ class VoiceProbe(context: Context, private val log: SignalLog) {
     private companion object {
         const val TEST_LINE = "선장님, 발사 준비 끝났어요. 소리 시험 중입니다."
         const val ZONE_COUNT = 4
+        const val DELAY_SECONDS = 10
     }
 }
