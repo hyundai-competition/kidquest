@@ -30,6 +30,10 @@ internal class VehicleSignals(context: Context, private val filter: CarEventFilt
     /** 연료 잔량 구독은 한 번만 건다. 전기차 잔량 실패가 여러 번 와도 다시 걸지 않는다. */
     private val fuelStarted = AtomicBoolean(false)
 
+    /** 전기차 잔량을 한 번이라도 받았으면 전기차다. 그 뒤의 실패는 잠깐 끊긴 것으로 보고 연료로 넘어가지 않는다. */
+    @Volatile
+    private var evReceived = false
+
     fun start() {
         try {
             vehicle.initialize()
@@ -153,8 +157,14 @@ internal class VehicleSignals(context: Context, private val filter: CarEventFilt
     private fun watchEnergy() {
         try {
             vehicle.getEvBattery().registerEvBatteryStateOfCharge(object : EvBatteryStateOfChargeListener {
-                override fun onEvBatteryStateOfChargeUpdated(value: Int?) = sendEnergy(value)
-                override fun onFailed(e: Exception) = watchFuelOnce()
+                override fun onEvBatteryStateOfChargeUpdated(value: Int?) {
+                    if (value != null) evReceived = true
+                    sendEnergy(value)
+                }
+
+                override fun onFailed(e: Exception) {
+                    if (!evReceived) watchFuelOnce()
+                }
             })
         } catch (_: Exception) {
             watchFuelOnce()
