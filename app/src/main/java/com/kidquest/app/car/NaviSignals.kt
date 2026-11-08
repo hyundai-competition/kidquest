@@ -80,10 +80,12 @@ internal class NaviSignals(context: Context, private val filter: CarEventFilter)
         filter.send(AppEvent.DestinationArrived)
     }
 
-    /** 조회는 성공하고 결과만 오류로 오는 경우다. 오류 코드 종류를 아직 시험하지 못해서 모두 못 읽음으로 본다. */
-    override fun onError(errorCode: NaviErrorCode) {
-        filter.unavailable(CarSignal.NAVIGATION)
-    }
+    /**
+     * SDK의 오류 코드는 경로 찾기 실패(CAUSE_SEARCH_ROUTE 등)와 배터리 부족(CAUSE_LOW_BATTERY)뿐이다.
+     * 경로를 못 찾은 것이지 내비 값을 못 읽는 것이 아니라서 SignalUnavailable을 보내지 않는다.
+     * 경로가 생기면 다음 차례 조회에서 값이 온다.
+     */
+    override fun onError(errorCode: NaviErrorCode) = Unit
 
     private companion object {
         const val POLL_MILLIS = 10_000L
