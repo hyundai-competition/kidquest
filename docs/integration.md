@@ -48,6 +48,7 @@
 - 장소 카드를 눌러도 화면이 직접 임무를 열지 않는다. 위치가 들어왔을 때와 같은 `PlaceEntered(placeId)`를 보낸다. 그래야 카드, 재생 버튼, 진짜 위치가 같은 길로 간다.
 - 주행 중(기어 D)에는 앱 화면이 가려진다(PR #35). 화면 변화는 정박(P)과 착륙 화면에서 보인다.
 - 화면 상태(`screen`, `status`, `items`)는 `AppController`가 들고 있다. 착륙 화면의 아이템은 임무마다 받은 `AwardItem`이다.
+- 출처 표시 : 에피소드 파일의 `credits` 두 줄(역사 내용 출처, OpenStreetMap 위치 데이터 표시)을 앱 정보 화면이나 착륙 화면에 보여 준다. 좌표를 OpenStreetMap에서 가져와서 앱에 표시가 있어야 한다.
 - 착륙 화면 배경은 `AppController.background`(`NORMAL`, `COOL`, `WARM`)다. 엔진이 실내 온도 띠가 바뀔 때만 `SetBackground`를 보낸다.
 
 ## 4. 차량·내비 연결 : `CarSignalCollector`가 보낼 사건
