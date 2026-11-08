@@ -94,7 +94,7 @@ private fun TripButtons(replay: ReplaySource) = ReplayRow {
 /** 실제 아이 목소리를 쓰지 않고 답을 넣는다. 단어는 예시 에피소드의 정답이다. */
 @Composable
 private fun AnswerButtons(replay: ReplaySource) = ReplayRow {
-    ReplayButton("답 : 초록색") { replay.send(AppEvent.AnswerHeard("초록색")) }
+    ReplayButton("답 : 파란색") { replay.send(AppEvent.AnswerHeard("파란색")) }
     ReplayButton("답 : 고래") { replay.send(AppEvent.AnswerHeard("고래")) }
     ReplayButton("못 알아들음") { replay.send(AppEvent.AnswerHeard(null)) }
 }
