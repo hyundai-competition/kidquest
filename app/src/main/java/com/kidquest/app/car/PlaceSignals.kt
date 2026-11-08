@@ -41,14 +41,34 @@ internal class PlaceSignals(
         places.forEach(::watch)
     }
 
+    /** 멈춘 뒤에 늦게 온 등록은 바로 지우고, 늦게 온 진입은 보내지 않는다. */
+    @Volatile
+    private var stopped = false
+
+    /** 알림 하나를 지우다 실패해도 나머지 알림과 위치 연결은 마저 푼다. */
+    @Synchronized
     fun stop() {
+        stopped = true
+        alertIds.forEach(::removeAlert)
+        alertIds.clear()
         try {
-            alertIds.forEach(location::removeProximityAlert)
             location.release()
         } catch (_: Exception) {
             // 끝나는 중이라 할 일이 없다.
         }
-        alertIds.clear()
+    }
+
+    @Synchronized
+    private fun registered(alertId: String) {
+        if (stopped) removeAlert(alertId) else alertIds += alertId
+    }
+
+    private fun removeAlert(alertId: String) {
+        try {
+            location.removeProximityAlert(alertId)
+        } catch (_: Exception) {
+            // 끝나는 중이라 할 일이 없다.
+        }
     }
 
     private fun watch(place: Place) {
@@ -60,12 +80,10 @@ internal class PlaceSignals(
         )
         try {
             location.addProximityAlert(request, object : ProximityAlertListener {
-                override fun onRegistered(alertId: String) {
-                    alertIds += alertId
-                }
+                override fun onRegistered(alertId: String) = registered(alertId)
 
                 override fun onTransition(event: ProximityAlertEvent) {
-                    if (event.transition == ProximityTransition.ENTER) filter.send(AppEvent.PlaceEntered(place.id))
+                    if (!stopped && event.transition == ProximityTransition.ENTER) filter.send(AppEvent.PlaceEntered(place.id))
                 }
 
                 override fun onError(exception: Exception) = placeFailed(place)
