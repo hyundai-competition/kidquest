@@ -1,4 +1,4 @@
-// 앱에 들어가는 예시 파일로 목적지마다 처음부터 착륙까지 돌려 본다.
+// 앱에 들어가는 예시 파일로 목적지와 경로마다 처음부터 착륙까지 돌려 본다.
 // 장소 id, 정답, 보상 이름이 파일 안에서 엇갈리면 임무가 안 열리거나 오답으로 넘어가는데, 앱은 꺼지지 않아서 눈치채기 어렵다.
 package com.kidquest.core.engine
 
@@ -7,6 +7,7 @@ import com.kidquest.core.contract.Command
 import com.kidquest.core.contract.Episode
 import com.kidquest.core.contract.Gear
 import com.kidquest.core.contract.MissionTrigger
+import com.kidquest.core.contract.Place
 import com.kidquest.core.contract.RearSeat
 import com.kidquest.core.contract.TurnSide
 import com.kidquest.core.episode.EpisodeResult
@@ -15,6 +16,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
+import kotlin.math.asin
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class DemoRouteTest {
     /** 시험은 core 폴더에서 돈다. */
@@ -32,19 +38,23 @@ class DemoRouteTest {
         return send(AppEvent.Tick(clock))
     }
 
-    /** 고른 목적지로 끝까지 간다. 받은 보상 이름과 착륙 때 말한 문장을 돌려준다. */
-    private fun play(destinationId: String?): Pair<List<String>, List<String>> {
+    /** 고른 목적지와 경로로 끝까지 간다. 받은 보상 이름과 착륙 때 말한 문장을 돌려준다. */
+    private fun play(destinationId: String?, routeId: String? = null): Pair<List<String>, List<String>> {
         engine = MissionEngine(episode)
         clock = 0
-        send(AppEvent.ListeningConsentChanged(true), AppEvent.DestinationSelected(destinationId), AppEvent.StartPressed)
+        send(AppEvent.ListeningConsentChanged(true), AppEvent.DestinationSelected(destinationId, routeId), AppEvent.StartPressed)
         send(AppEvent.SeatOccupied(RearSeat.LEFT, true), AppEvent.BeltBuckled(RearSeat.LEFT, true), AppEvent.GearChanged(Gear.D))
         val destination = episode.destinations.firstOrNull { it.id == destinationId }
+        val route = destination?.routes?.firstOrNull { it.id == routeId }
         val afterTakeOff = finish(Lines.TAKE_OFF.lineId)
         if (destination != null) {
-            assertEquals(listOf(destination.departureLine), said(afterTakeOff))
+            assertTrue("${destination.id} 경로", route != null)
+            assertEquals(listOf(route!!.departureLine.ifBlank { destination.departureLine }), said(afterTakeOff))
             finish(TripPlan.DEPARTURE_ID)
         }
-        val trip = episode.missions.filter { it.destinationId == null || it.destinationId == destinationId }
+        val routed = episode.destinations.flatMap { it.routes }.flatMap { it.missionIds }.toSet()
+        val common = episode.missions.filter { it.destinationId == null && it.id !in routed }
+        val trip = common + route?.missionIds.orEmpty().map { id -> episode.missions.single { it.id == id } }
         val awards = mutableListOf<String>()
         trip.forEach { mission ->
             finish("${mission.id}/briefing")
@@ -71,17 +81,38 @@ class DemoRouteTest {
     }
 
     @Test
-    fun `목적지마다 출발부터 착륙까지 모든 임무가 열리고 정답을 알아듣는다`() {
-        assertTrue("목적지가 4곳이어야 한다", episode.destinations.size == 4)
+    fun `목적지와 경로마다 출발부터 착륙까지 모든 임무가 열리고 정답을 알아듣는다`() {
+        assertEquals("목적지 수", 4, episode.destinations.size)
+        assertEquals("경로 수", 5, episode.destinations.sumOf { it.routes.size })
         episode.destinations.forEach { destination ->
-            val (awards, landing) = play(destination.id)
-            assertEquals("${destination.id} 보상 수", 3, awards.size)
-            assertEquals(
-                destination.id,
-                listOf(episode.endingLine, destination.deliveryLine, destination.landingFact, Lines.LANDED.text),
-                landing,
-            )
+            destination.routes.forEach { route ->
+                val (awards, landing) = play(destination.id, route.id)
+                assertEquals("${route.id} 보상 수", 2 + route.missionIds.size, awards.size)
+                assertEquals(
+                    route.id,
+                    listOf(episode.endingLine, destination.deliveryLine, destination.landingFact, Lines.LANDED.text),
+                    landing,
+                )
+            }
         }
+    }
+
+    @Test
+    fun `경로의 장소는 가는 순서대로 목적지에 가까워진다`() {
+        // 경로에 도시 순서를 거꾸로 적으면 첫 도시를 못 지난 것으로 보고 건너뛴다.
+        episode.destinations.flatMap { it.routes }.forEach { route ->
+            val points = route.missionIds.map { id -> episode.places.single { it.missionId == id } }
+            val distances = points.map { km(it, points.last()) }
+            assertTrue("${route.id} : $distances", distances.zipWithNext().all { (before, after) -> before > after })
+        }
+    }
+
+    /** 두 좌표 사이의 거리(km). 지구를 공으로 본다. */
+    private fun km(a: Place, b: Place): Double {
+        val rad = Math.PI / 180
+        val h = sin((b.latitude - a.latitude) * rad / 2).pow(2) +
+            cos(a.latitude * rad) * cos(b.latitude * rad) * sin((b.longitude - a.longitude) * rad / 2).pow(2)
+        return 2 * 6_371 * asin(sqrt(h))
     }
 
     @Test

@@ -35,7 +35,7 @@ class MissionEngine(episode: Episode? = null) {
     /** 사건 하나를 받아 상태를 바꾸고, 음성과 화면에 시킬 명령을 돌려준다. */
     fun onEvent(event: AppEvent): List<Command> = when (event) {
         AppEvent.StartPressed -> onStart()
-        is AppEvent.DestinationSelected -> beforeStart { plan.selectDestination(event.destinationId) }
+        is AppEvent.DestinationSelected -> beforeStart { plan.selectDestination(event.destinationId, event.routeId) }
         is AppEvent.AgeSelected -> beforeStart { plan.selectAge(event.group) }
         is AppEvent.SeatOccupied -> if (crew.seat(event.seat, event.occupied)) afterCrewChange() else emptyList()
         is AppEvent.BeltBuckled -> if (crew.belt(event.seat, event.buckled)) afterCrewChange() else emptyList()
@@ -60,7 +60,11 @@ class MissionEngine(episode: Episode? = null) {
         is AppEvent.RemainingTimeChanged -> onRemaining(event.seconds)
         is AppEvent.CabinTemperatureChanged -> trip.temperature(event.celsius)
         is AppEvent.RoadAhead -> whileFlying { missions.onRoad(event.kind, event.meters) }
-        else -> emptyList() // 에너지와 회전 거리는 아직 이야기에 안 쓴다. 못 읽는 신호는 시간이 지나면 임무가 열려서 따로 안 받는다.
+        is AppEvent.SignalUnavailable -> {
+            missions.onSignalUnavailable(event.signal) // 위치만 쓴다. 다른 신호는 시간이 지나면 임무가 열린다.
+            emptyList()
+        }
+        else -> emptyList() // 에너지와 회전 거리는 아직 이야기에 안 쓴다.
     }
 
     private fun whileFlying(action: () -> List<Command>): List<Command> =
@@ -72,11 +76,16 @@ class MissionEngine(episode: Episode? = null) {
         return emptyList()
     }
 
-    /** 이동 중에만 도착 직전 문장을 말한다. 보물을 다 찾았으면 「마지막 보물」 말이 안 맞아서 건너뛴다. */
+    /**
+     * 이동 중에만 도착 직전 문장을 말한다. 보물을 다 찾았으면 「마지막 보물」 말이 안 맞아서 건너뛴다.
+     * 그 뒤로는 마지막 장소에 온 것으로 보고 남은 중간 장소를 건너뛴다. 문장이 먼저 나가고 마지막 보물이 열린다.
+     */
     private fun onRemaining(seconds: Int): List<Command> {
         if (state !in TRIP_STATES || missions.allDone) return emptyList()
         val line = trip.approach(seconds) ?: return emptyList()
-        return missions.announce(line, state == EngineState.FLYING)
+        val spoken = missions.announce(line, state == EngineState.FLYING)
+        missions.nearArrival()
+        return spoken
     }
 
     private fun onLineFinished(lineId: String): List<Command> {
@@ -228,9 +237,14 @@ class MissionEngine(episode: Episode? = null) {
         return listOf(pausedScreen()) + guide
     }
 
+    /** 정박 중이면 착륙한다. 이동 중이면 도착지 원을 비껴갔어도 마지막 보물을 열 수 있게 한다. */
     private fun onArrived(): List<Command> {
         arrived = true
-        return if (state == EngineState.DOCKED) land() else emptyList()
+        return when (state) {
+            EngineState.DOCKED -> land()
+            in TRIP_STATES -> missions.onArrived(state == EngineState.FLYING)
+            else -> emptyList()
+        }
     }
 
     /**

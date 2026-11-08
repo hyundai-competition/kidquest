@@ -4,7 +4,10 @@ package com.kidquest.core.contract
 
 import kotlinx.serialization.Serializable
 
-/** 미리 정한 좌표. 이 근처에 들어가면 missionId의 미션이 열린다. 그 미션 차례가 오기 전에 지나가면 기억했다가 차례가 오면 연다. missionId는 PLACE 미션이어야 한다. */
+/**
+ * 미리 정한 좌표. 이 근처에 들어가면 missionId의 미션이 열린다. 그 미션 차례가 오기 전에 지나가면 기억했다가 차례가 오면 연다. missionId는 PLACE 미션이어야 한다.
+ * 고속도로 위 도시는 나들목이나 휴게소처럼 차가 실제로 지나는 곳에 두고 반경을 넓게 잡는다. 원이 겹치면 들어간 원마다 PlaceEntered를 보낸다.
+ */
 @Serializable
 data class Place(
     val id: String,
@@ -14,7 +17,7 @@ data class Place(
     val missionId: String,
 )
 
-/** 임무를 여는 사건. 신호를 못 읽거나 안 오면 autoAfterSeconds 뒤에 저절로 열린다. */
+/** 임무를 여는 사건. 신호를 못 읽거나 안 오면 autoAfterSeconds 뒤에 저절로 열린다. 장소(PLACE) 임무만은 위치를 못 읽는 차에서만 시간으로 연다. */
 enum class MissionTrigger { TIME, WIPER, TURN_SIGNAL, PLACE, ROAD }
 
 /** 임무 하나. 브리핑, 사건, 질문, 답, 보상 순서로 진행한다. */
@@ -23,7 +26,7 @@ data class Mission(
     val id: String,
     /** 비어 있으면 모든 연령에 나온다. */
     val ageGroups: List<AgeGroup>,
-    /** 이 목적지일 때만 나오는 임무. null이면 어디로 가든 나온다. */
+    /** 이 목적지일 때만 나오는 임무. null이면 어디로 가든 나온다. 경로(Route)에 든 임무는 그 경로를 골랐을 때만 나온다. */
     val destinationId: String?,
     val trigger: MissionTrigger,
     val autoAfterSeconds: Int,
@@ -36,6 +39,8 @@ data class Mission(
     val correctLine: String,
     val wrongLine: String,
     val rewardItem: String,
+    /** 사건 대사에 넣은 지역 사실의 출처. 사람이 원문을 확인하고 적는다. 사실이 없는 임무는 비워 둔다. */
+    val factSource: String = "",
 )
 
 /** 임무 보상과 착륙 화면에 보이는 이름. */
@@ -70,13 +75,30 @@ data class Destination(
     val planetName: String,
     /** 출발한 뒤 첫 임무 전에 한 번 말한다. 어디로 무엇을 찾으러 가는지 알려 준다. */
     val departureLine: String,
-    /** 도착이 가까울 때 말한다. 엔진은 아직 쓰지 않는다(남은 시간은 #10). */
+    /** 도착이 가까울 때(남은 시간 5분 이하) 한 번 말한다. */
     val approachLine: String,
     /** 도착해서 착륙할 때 결말 다음에 말한다. 찾은 보물을 전하며 이번 이동의 이야기를 끝낸다. */
     val deliveryLine: String,
     /** 전달 문장 다음에 말하는 실제 사실 한 문장. 사람이 출처를 확인하고 factSource에 적는다. */
     val landingFact: String,
     val factSource: String,
+    /** 이 목적지로 가는 길. 부모가 고르고, 안 고르면 첫 경로로 간다. 비어 있으면 destinationId가 이 목적지인 임무를 파일 순서대로 쓴다. */
+    val routes: List<Route> = emptyList(),
+)
+
+/**
+ * 목적지로 가는 길 하나. 지나는 도시의 장소 임무를 가는 순서대로 적고, 목적지 장소 임무를 맨 끝에 둔다.
+ * 공통 임무(destinationId가 null이고 어느 경로에도 없는 임무)를 먼저 하고 이 순서대로 간다.
+ * 같은 도시를 지나는 경로끼리는 그 도시 임무 하나를 같이 쓴다.
+ */
+@Serializable
+data class Route(
+    val id: String,
+    /** 부모가 고르는 이름. 예 : 경부고속도로(대전·대구). */
+    val name: String,
+    val missionIds: List<String>,
+    /** 이 길로 갈 때의 출발 문장. 비어 있으면 목적지의 departureLine을 쓴다. */
+    val departureLine: String = "",
 )
 
 @Serializable
