@@ -36,6 +36,7 @@ fun ReplayPanel(replay: ReplaySource) {
         modifier = Modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        SetupButtons(replay)
         CrewButtons(replay)
         GearButtons(replay)
         DrivingButtons(replay)
@@ -82,22 +83,47 @@ private fun TemperatureButtons(replay: ReplaySource) = ReplayRow {
     }
 }
 
-/** 장소 id는 에피소드 파일의 places와 같아야 미션이 열린다. 지금 파일에는 river 하나만 있다. */
+/**
+ * 시작 화면이 들어오기 전에도 시연할 수 있게 부모가 고르는 값을 넣는다.
+ * 목적지는 「시작」을 누르기 전에만 엔진이 받는다. id는 에피소드 파일의 destinations와 같다.
+ */
+@Composable
+private fun SetupButtons(replay: ReplaySource) = ReplayRow {
+    DESTINATIONS.forEach { (id, label) ->
+        ReplayButton("목적지 : $label") { replay.send(AppEvent.DestinationSelected(id)) }
+    }
+    ReplayButton("듣기 동의") { replay.send(AppEvent.ListeningConsentChanged(true)) }
+    ReplayButton("듣기 거절") { replay.send(AppEvent.ListeningConsentChanged(false)) }
+}
+
+/** 장소 id는 에피소드 파일의 places와 같아야 임무가 열린다. 진짜 위치 대신 「근처에 왔다」를 넣는다. */
 @Composable
 private fun TripButtons(replay: ReplaySource) = ReplayRow {
-    ReplayButton("강 근처") { replay.send(AppEvent.PlaceEntered("river")) }
+    PLACES.forEach { (id, label) ->
+        ReplayButton("$label 근처") { replay.send(AppEvent.PlaceEntered(id)) }
+    }
     ReplayButton("20분 남음") { replay.send(AppEvent.RemainingTimeChanged(20 * 60)) }
     ReplayButton("5분 남음") { replay.send(AppEvent.RemainingTimeChanged(5 * 60)) }
     ReplayButton("도착") { replay.send(AppEvent.DestinationArrived) }
 }
 
-/** 실제 아이 목소리를 쓰지 않고 답을 넣는다. 단어는 예시 에피소드의 정답이다. */
+/** 실제 아이 목소리를 쓰지 않고 답을 넣는다. 단어는 예시 에피소드의 정답이다. 듣기 동의가 있어야 쓰인다. */
 @Composable
 private fun AnswerButtons(replay: ReplaySource) = ReplayRow {
-    ReplayButton("답 : 파란색") { replay.send(AppEvent.AnswerHeard("파란색")) }
-    ReplayButton("답 : 고래") { replay.send(AppEvent.AnswerHeard("고래")) }
+    ANSWERS.forEach { word ->
+        ReplayButton("답 : $word") { replay.send(AppEvent.AnswerHeard(word)) }
+    }
     ReplayButton("못 알아들음") { replay.send(AppEvent.AnswerHeard(null)) }
 }
+
+private val DESTINATIONS = listOf("gyeongju" to "경주", "busan" to "부산", "andong" to "안동", "seoul" to "서울")
+private val PLACES = listOf(
+    "cheomseongdae" to "첨성대",
+    "temporary_capital" to "임시수도",
+    "hahoe" to "하회마을",
+    "gyeongbokgung" to "경복궁",
+)
+private val ANSWERS = listOf("파란색", "열쇠", "별", "부산", "옛날 집", "임금님")
 
 /** 화면 폭이 차마다 다르니 넘치는 버튼은 다음 줄로 보낸다. */
 @OptIn(ExperimentalLayoutApi::class)
