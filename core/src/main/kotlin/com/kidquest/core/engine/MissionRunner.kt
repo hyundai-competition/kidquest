@@ -3,6 +3,7 @@
 // 엔진이 비행 중일 때만 부른다. 멈춤과 이어 가기는 엔진이 정하고, 여기서는 지금 대사를 다시 말하기만 한다.
 // 시간은 Tick으로만 잰다. 각 단계에 들어간 뒤 처음 받은 Tick부터 센다.
 // 신호를 기다리는 동안 멈춘 시간도 기다린 시간에 들어간다(가정). 답을 기다리다 멈추면 질문부터 다시 해서 새로 센다.
+// 고른 목적지에 출발 문장이 있으면 첫 임무 전에 한 번 말한다. 장소는 차례가 오기 전에 지나가도 기억했다가 그 임무 차례에 연다.
 package com.kidquest.core.engine
 
 import com.kidquest.core.contract.Command
@@ -11,10 +12,11 @@ import com.kidquest.core.contract.Mission
 import com.kidquest.core.contract.MissionTrigger
 import com.kidquest.core.contract.TurnSide
 
-internal class MissionRunner(episode: Episode?) {
-    private enum class Step { BRIEFING, WAIT_TRIGGER, SOUND, EVENT, QUESTION, WAIT_ANSWER, ANSWER_LINE }
+internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
+    private enum class Step { INTRO, BRIEFING, WAIT_TRIGGER, SOUND, EVENT, QUESTION, WAIT_ANSWER, ANSWER_LINE }
 
-    private val missions = episode?.missions.orEmpty()
+    /** 고른 목적지와 나이로 거른 임무. 시작 전에만 바뀐다. */
+    private val missions: List<Mission> get() = plan.missions
     private val itemNames = episode?.items.orEmpty().associate { it.id to it.name }
     private val reactions = SignalReactions(episode)
     private val endingText = episode?.endingLine.orEmpty()
@@ -31,6 +33,12 @@ internal class MissionRunner(episode: Episode?) {
 
     /** 비 오는 날은 와이퍼가 계속 켜져 있다. 켜짐 사건을 다시 못 받아도 임무를 열 수 있게 기억한다. */
     private var wiperOn = false
+
+    /** 이번 이동에서 지나온 장소의 임무 id. 차례가 오기 전에 지나가도 기억한다. */
+    private val reached = mutableSetOf<String>()
+
+    /** 출발 문장을 이미 말했거나 말할 게 없다. */
+    private var introDone = false
 
     /** 지금 단계에 들어간 뒤 처음 받은 시계 값. */
     private var stepStartedAt: Long? = null
@@ -51,7 +59,7 @@ internal class MissionRunner(episode: Episode?) {
     fun speakCurrent(): List<Command> {
         val now = mission ?: return emptyList()
         return when (step) {
-            null -> sayStep(Step.BRIEFING, "briefing", now.briefing)
+            null -> sayIntro() ?: sayStep(Step.BRIEFING, "briefing", now.briefing)
             Step.WAIT_TRIGGER -> if (signalActive(now)) openEvent(now) else emptyList()
             Step.SOUND -> sayStep(Step.EVENT, "event", now.event) // 효과음이 끊겼으니 사건 대사부터 한다.
             Step.WAIT_ANSWER -> {
@@ -72,6 +80,10 @@ internal class MissionRunner(episode: Episode?) {
         val now = mission ?: return emptyList()
         if (lineId != line?.lineId) return emptyList()
         return when (step) {
+            Step.INTRO -> {
+                clearStep()
+                speakCurrent()
+            }
             Step.BRIEFING -> waitForTrigger(now)
             Step.EVENT -> sayStep(Step.QUESTION, "question", now.question)
             Step.QUESTION -> waitForAnswer(now)
@@ -99,6 +111,15 @@ internal class MissionRunner(episode: Episode?) {
         val now = mission
         if (now != null && step == Step.WAIT_TRIGGER && now.trigger == MissionTrigger.TURN_SIGNAL) return openEvent(now)
         return reactions.play(if (side == TurnSide.LEFT) "turn_left" else "turn_right", clockMillis)
+    }
+
+    /** 장소에 들어왔다. 그 장소 임무가 신호를 기다리는 중이면 열고, 아직 차례가 아니면 기억만 한다. 같은 장소는 한 번만 센다. */
+    fun onPlace(placeId: String, flying: Boolean): List<Command> {
+        val missionId = plan.missionAt(placeId) ?: return emptyList()
+        if (!reached.add(missionId)) return emptyList()
+        val now = mission
+        if (!flying || now == null || now.id != missionId || step != Step.WAIT_TRIGGER) return emptyList()
+        return if (signalActive(now)) openEvent(now) else emptyList()
     }
 
     fun onTick(nowMillis: Long): List<Command> {
@@ -129,6 +150,8 @@ internal class MissionRunner(episode: Episode?) {
     /** 이번 이동의 기록만 지운다. */
     fun reset() {
         index = 0
+        introDone = false
+        reached.clear()
         reactions.reset()
         clearStep()
     }
@@ -140,14 +163,28 @@ internal class MissionRunner(episode: Episode?) {
         return listOf(say)
     }
 
+    /** 첫 임무 전에 출발 문장을 한 번 말한다. 말할 게 없으면 null. */
+    private fun sayIntro(): List<Command>? {
+        if (introDone) return null
+        introDone = true
+        val intro = plan.departure() ?: return null
+        enter(Step.INTRO)
+        line = intro
+        return listOf(intro)
+    }
+
     private fun enter(next: Step) {
         step = next
         line = null
         stepStartedAt = null
     }
 
-    /** 이 임무를 여는 신호가 이미 켜져 있나. 깜빡이는 순간 신호라 기억하지 않는다. */
-    private fun signalActive(now: Mission) = now.trigger == MissionTrigger.WIPER && wiperOn
+    /** 이 임무를 여는 신호가 이미 와 있나. 와이퍼는 켜져 있는지, 장소는 지나왔는지 본다. 깜빡이는 순간 신호라 기억하지 않는다. */
+    private fun signalActive(now: Mission) = when (now.trigger) {
+        MissionTrigger.WIPER -> wiperOn
+        MissionTrigger.PLACE -> now.id in reached
+        else -> false
+    }
 
     /** 신호가 오거나 시간이 지나면 연다. 신호를 못 읽는 차도 시간이 지나면 열린다. */
     private fun waitForTrigger(now: Mission): List<Command> {
