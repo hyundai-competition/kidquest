@@ -30,6 +30,9 @@ internal class TripPlan(private val episode: Episode?) {
     /** 첫 임무 전에 말한다. 어디로 무엇을 찾으러 가는지 알려 준다. */
     fun departure(): Command.Say? = say(DEPARTURE_ID, destination?.departureLine)
 
+    /** 도착이 가까울 때 한 번 말한다. 목적지를 안 골랐으면 에피소드의 마지막 문장(finalLine)을 쓴다. */
+    fun approach(): Command.Say? = say(APPROACH_ID, destination?.approachLine ?: episode?.finalLine)
+
     /** 도착해서 착륙할 때 결말 다음에 말한다. 찾은 보물을 전하고, 실제 사실 한 문장으로 끝낸다. */
     fun arrivalLines(): List<Command.Say> =
         listOfNotNull(say(DELIVERY_ID, destination?.deliveryLine), say(FACT_ID, destination?.landingFact))
@@ -53,5 +56,6 @@ internal class TripPlan(private val episode: Episode?) {
         const val DEPARTURE_ID = "departure"
         const val DELIVERY_ID = "delivery"
         const val FACT_ID = "landing_fact"
+        const val APPROACH_ID = "approach"
     }
 }

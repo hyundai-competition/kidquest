@@ -48,12 +48,14 @@
 - 장소 카드를 눌러도 화면이 직접 임무를 열지 않는다. 위치가 들어왔을 때와 같은 `PlaceEntered(placeId)`를 보낸다. 그래야 카드, 재생 버튼, 진짜 위치가 같은 길로 간다.
 - 주행 중(기어 D)에는 앱 화면이 가려진다(PR #35). 화면 변화는 정박(P)과 착륙 화면에서 보인다.
 - 화면 상태(`screen`, `status`, `items`)는 `AppController`가 들고 있다. 착륙 화면의 아이템은 임무마다 받은 `AwardItem`이다.
+- 착륙 화면 배경은 `AppController.background`(`NORMAL`, `COOL`, `WARM`)다. 엔진이 실내 온도 띠가 바뀔 때만 `SetBackground`를 보낸다.
 
 ## 4. 차량·내비 연결 : `CarSignalCollector`가 보낼 사건
 
 - `SeatOccupied(seat, occupied)`, `BeltBuckled(seat, buckled)`, `GearChanged(gear)`
 - `TurnSignalOn(side)`, `WiperChanged(on)`. 와이퍼는 켜짐과 꺼짐을 둘 다 보낸다.
 - 못 읽는 신호는 `SignalUnavailable(signal)`로 알린다.
+- 남은 시간 `RemainingTimeChanged(seconds)`는 초, 앞길 `RoadAhead(kind, meters)`는 미터, 실내 온도 `CabinTemperatureChanged(celsius)`는 섭씨로 보낸다. 같은 값은 다시 안 보내도 되고, 다시 와도 엔진이 한 번만 쓴다.
 - 에피소드 파일 `places`의 좌표 반경(`radiusMeters`)에 들어가면 `PlaceEntered(placeId)`를 보낸다. 에뮬레이터에서는 `adb emu geo fix <경도> <위도>`(경도가 먼저)로 옮긴다. 첫 시험에서 위치가 바뀌고 ENTER가 왔다.
 - 어느 스레드에서 와도 `listener.onEvent`만 부르면 된다. `AppController`가 메인 스레드로 옮긴다.
 - 확인 : 콘솔 값을 바꾸면 2절의 재생 버튼을 눌렀을 때와 같은 로그가 나와야 한다.
@@ -70,6 +72,7 @@
 | `seoul` | 대전 → 서울 | `gyeongbokgung` | 37.57861, 126.97722 | `seoul_palace` |
 
 - 순서 : `take_off` → 출발 문장(`departure`) → 공통 임무 `rain_map`(와이퍼), `crossroads`(깜빡이) → 목적지 장소 임무 → P에서 결말(`ending`) → 전달 문장(`delivery`) → 실제 사실(`landing_fact`) → `landed`.
+- 남은 시간이 5분 이하가 되면 도착 직전 문장(`approach`)을 한 번 말한다. 말하는 중이면 끊지 않고 신호를 기다리기 시작할 때 말한다. 보물을 다 찾은 뒤에는 말하지 않는다. 에뮬레이터 내비는 남은 시간이 안 바뀌어서(첫 시험) 재생 버튼으로 넣는다.
 - 장소 임무의 브리핑은 「가까워지면 알려 줄게요」로 미리 알리고, 장소에 들어온 사건 대사에서 「들어왔어요」라고 말한다. 브리핑은 앞 임무가 끝나자마자 나가기 때문이다.
 - 장소는 차례가 오기 전에 지나가도 기억했다가 그 임무 차례에 브리핑 뒤 바로 연다. 같은 장소는 한 번만 센다. 다른 목적지의 장소나 없는 장소는 무시한다.
 - 장소가 안 오면 600초 뒤 저절로 열린다.
