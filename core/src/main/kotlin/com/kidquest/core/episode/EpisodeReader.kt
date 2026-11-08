@@ -5,6 +5,7 @@ package com.kidquest.core.episode
 import com.kidquest.core.contract.Destination
 import com.kidquest.core.contract.Episode
 import com.kidquest.core.contract.Mission
+import com.kidquest.core.contract.MissionTrigger
 import kotlinx.serialization.json.Json
 
 sealed interface EpisodeResult {
@@ -41,7 +42,18 @@ private fun findProblems(episode: Episode): List<String> {
     episode.destinations.forEach { problems += destinationProblems(it) }
     episode.places.filter { it.missionId !in missionIds }
         .forEach { problems += "좌표 ${it.id} : 없는 임무 ${it.missionId}를 가리킨다" }
+    problems += placeProblems(episode)
     return problems
+}
+
+/** 장소 임무와 좌표는 짝이 맞아야 한다. 좌표가 없는 장소 임무는 시간이 지나야만 열리고, 장소 임무가 아닌 임무의 좌표는 쓰이지 않는다. */
+private fun placeProblems(episode: Episode): List<String> {
+    val placeMissions = episode.missions.filter { it.trigger == MissionTrigger.PLACE }.map { it.id }.toSet()
+    val pointed = episode.places.map { it.missionId }.toSet()
+    val unused = episode.places.filter { it.missionId in episode.missions.map { m -> m.id } && it.missionId !in placeMissions }
+        .map { "좌표 ${it.id} : 임무 ${it.missionId}는 장소 임무(PLACE)가 아니다" }
+    val missing = (placeMissions - pointed).map { "임무 $it : 장소 임무인데 가리키는 좌표가 없다" }
+    return unused + missing
 }
 
 private fun duplicates(kind: String, ids: List<String>): List<String> =

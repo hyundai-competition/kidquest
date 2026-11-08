@@ -4,7 +4,7 @@ package com.kidquest.core.contract
 
 import kotlinx.serialization.Serializable
 
-/** 미리 정한 좌표. 이 근처에 들어가면 missionId의 미션이 시작된다. */
+/** 미리 정한 좌표. 이 근처에 들어가면 missionId의 미션이 열린다. 그 미션 차례가 오기 전에 지나가면 기억했다가 차례가 오면 연다. missionId는 PLACE 미션이어야 한다. */
 @Serializable
 data class Place(
     val id: String,
@@ -59,8 +59,8 @@ data class SignalReaction(
 )
 
 /**
- * 목적지 이야기. 실제 목적지를 이번 항해에서 임무 보상을 배달할 행성으로 바꾼다.
- * 달리는 동안 지역을 길게 설명하지 않는다. 실제 지식은 전용 임무 1개의 단서(Mission.destinationId)와 착륙 때 한 문장에만 쓴다.
+ * 목적지 이야기. 부모가 고른 실제 목적지까지 가며 그 지역의 보물을 찾는다.
+ * 지역 이야기는 장소에 들어갔을 때 보물 단서 한두 문장으로만 하고, 출처를 확인한 사실만 쓴다(Mission.destinationId 임무와 착륙 때 한 문장).
  */
 @Serializable
 data class Destination(
@@ -68,13 +68,13 @@ data class Destination(
     /** 부모가 고르는 실제 이름. */
     val name: String,
     val planetName: String,
-    /** 승무원 확인 때 말한다. 어디로 무엇을 배달하는지 알려 준다. */
+    /** 출발한 뒤 첫 임무 전에 한 번 말한다. 어디로 무엇을 찾으러 가는지 알려 준다. */
     val departureLine: String,
-    /** 도착이 가까울 때 말한다. */
+    /** 도착이 가까울 때 말한다. 엔진은 아직 쓰지 않는다(남은 시간은 #10). */
     val approachLine: String,
-    /** 착륙할 때 말한다. 모은 보상을 전달하며 이번 이동의 이야기를 끝낸다. */
+    /** 도착해서 착륙할 때 결말 다음에 말한다. 찾은 보물을 전하며 이번 이동의 이야기를 끝낸다. */
     val deliveryLine: String,
-    /** 전달 뒤에 말하는 실제 사실 한 문장. 사람이 출처를 확인한다. */
+    /** 전달 문장 다음에 말하는 실제 사실 한 문장. 사람이 출처를 확인하고 factSource에 적는다. */
     val landingFact: String,
     val factSource: String,
 )
