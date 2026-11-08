@@ -26,8 +26,8 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 | F21 재생 모드 | 위의 차 신호 사건 전부 | | | 일부 버튼만 |
 | F24 위치 미션 | `PlaceEntered` | `Say`, `Listen` | `Place`, `Mission.trigger` | 엔진 됨(차례 전에 지난 장소는 기억), 차 위치 연결은 아직 |
 | F25 목적지 이야기 | `DestinationSelected`, `DestinationArrived` | `Say` | `Destination`, `Mission.destinationId` | 엔진 됨(출발 문장, 착륙 때 전달 문장과 실제 사실), 도착 직전 문장(`approachLine`)은 아직 |
-| F32 실내 환경 | `CabinTemperatureChanged` | `Say`, `SetBackground` | `SignalReaction` | 약속만 |
-| F33 마지막 미션 | `RemainingTimeChanged`, `DestinationArrived` | `Say`, `AwardItem`, `ShowScreen(LANDED)` | `Episode.finalLine`, `Destination.approachLine` | 약속만 |
+| F32 실내 환경 | `CabinTemperatureChanged` | `Say`, `SetBackground` | `SignalReaction` | 엔진 됨(20도 이하 시원함, 26도 이상 따뜻함 배경을 띠가 바뀔 때만 보냄, 대사는 아직 안 씀) |
+| F33 마지막 미션 | `RemainingTimeChanged`, `DestinationArrived` | `Say`, `AwardItem`, `ShowScreen(LANDED)` | `Episode.finalLine`, `Destination.approachLine` | 엔진 됨(남은 시간 5분 이하에서 도착 직전 문장 한 번, 목적지가 없으면 `finalLine`) |
 
 ## P1 중 약속을 먼저 넣은 것
 
@@ -45,5 +45,7 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 - **겹침 :** 내비 안내 중에는 말하지 않는다. 그동안 나온 대사는 마지막 하나만 남겼다가 안내가 끝나면 말한다.
 - **못 읽는 신호 :** 차 신호를 못 읽으면 `SignalUnavailable`을 보낸다. 탑승과 벨트는 저절로 넘어가지 않고 부모 확인(`ParentConfirmedBelt`)이나 재생 모드로 넘어간다. 임무는 신호가 안 오면 `autoAfterSeconds` 뒤에 저절로 열린다. 위치 임무는 `PlaceEntered`가 오면 열리고, 안 오면 시간으로 열린다. 도로 임무는 F36 전까지 시간으로 열린다.
 - **효과음 :** 임무 효과음 뒤 3초(가정) 있다가 사건 대사를 말한다. 깜빡이 같은 반응 소리는 말하는 중에도 올 수 있다. 음성은 말을 끊지 말고 효과음을 같이 낸다.
-- **착륙 :** 도착했거나 임무를 다 끝냈으면 기어 P에서 착륙하고, 아니면 정박한다. 임무를 다 끝냈을 때만 결말(`endingLine`)을 말하고, 결말이 끝나면(`LineFinished("ending")`) 착륙 대사를 말한다. 착륙 화면의 아이템은 임무마다 보낸 `AwardItem`을 모은 것이다.
+- **착륙 :** 도착했거나 임무를 다 끝냈으면 기어 P에서 착륙하고, 아니면 정박한다. 결말(`endingLine`, 임무를 다 끝냈을 때) → 목적지 전달 문장과 실제 사실(도착했거나 다 끝냈을 때) → 착륙 대사 순서로, 앞 대사가 끝나야(`LineFinished`) 다음 대사를 말한다. 착륙 화면의 아이템은 임무마다 보낸 `AwardItem`을 모은 것이다.
 - **와이퍼 :** 켜짐과 꺼짐을 다 보낸다. 엔진이 켜져 있는지 기억해서, 비 오는 날 계속 켜져 있어도 와이퍼 임무가 열린다.
+- **알림 :** 도착 직전 문장은 대사를 끊지 않는다. 신호를 기다리는 중이거나 임무를 다 끝냈을 때 말하고, 그사이 온 와이퍼와 장소 신호는 문장이 끝난 뒤 연다. 신호를 기다린 시간은 이어서 센다.
+- **앞길 :** `RoadAhead`가 300m(가정) 안이면 `road_tunnel`, `road_toll`, `road_rest_area` 같은 `SignalReaction` 효과음을 쿨다운 안에서 한 번 낸다. 거리가 바뀔 때마다 다시 와도 소리는 한 번이다.

@@ -1,7 +1,8 @@
 // 앱의 상태 흐름을 정한다. 대기 → 승무원 확인 → 발사 준비 → 비행 ⇄ 멈춤, 비행 ⇄ 정박 → 착륙.
 // 앱은 차를 막지 않는다. 벨트가 안 매져 있으면 이륙하지 않고 안내만 한다.
 // 임무 진행(브리핑, 질문, 답, 보상)은 MissionRunner가 한다. 비행 중일 때만 넘겨서 멈춘 동안에는 진행하지 않는다.
-// 탑승과 벨트 값은 Crew가, 이번 이동에 쓸 임무와 목적지 문장은 TripPlan이 기억한다.
+// 탑승과 벨트 값은 Crew가, 이번 이동에 쓸 임무와 목적지 문장은 TripPlan이, 남은 시간과 실내 온도는 TripSignals가 맡는다.
+// 대사를 막거나 미루는 일(부모가 끔, 내비 안내 중, 벨트 안내 횟수)은 SpeechGate가 한다.
 package com.kidquest.core.engine
 
 import com.kidquest.core.contract.AppEvent
@@ -17,6 +18,7 @@ class MissionEngine(episode: Episode? = null) {
     private val plan = TripPlan(episode)
     private val missions = MissionRunner(episode, plan)
     private val crew = Crew()
+    private val trip = TripSignals(plan)
 
     /** 이 대사가 끝나면 임무를 말한다. 이륙 대사나 미룬 대사와 겹치지 않게 한다. */
     private var continueAfterLine: String? = null
@@ -25,10 +27,7 @@ class MissionEngine(episode: Episode? = null) {
     private var gear = Gear.P
     private var arrived = false
     private var readyAnnounced = false
-    private var beltGuides = 0
-
-    /** 내비 안내 때문에 못 한 대사. 소리를 다시 낼 수 있을 때 말한다. */
-    private var heldLine: Command.Say? = null
+    private val gate = SpeechGate(pauseReasons)
 
     /** 착륙 때 차례로 말할 대사. 앞 대사가 끝나면 다음 대사를 말한다. */
     private var landingLines: List<Command.Say> = emptyList()
@@ -58,7 +57,10 @@ class MissionEngine(episode: Episode? = null) {
         is AppEvent.WiperChanged -> missions.onWiper(event.on, state == EngineState.FLYING)
         is AppEvent.TurnSignalOn -> whileFlying { missions.onTurnSignal(event.side) }
         is AppEvent.PlaceEntered -> missions.onPlace(event.placeId, state == EngineState.FLYING)
-        else -> emptyList() // 에너지, 실내 온도, 남은 시간은 #10에서 받는다. 못 읽는 신호는 시간이 지나면 임무가 열려서 따로 안 받는다.
+        is AppEvent.RemainingTimeChanged -> onRemaining(event.seconds)
+        is AppEvent.CabinTemperatureChanged -> trip.temperature(event.celsius)
+        is AppEvent.RoadAhead -> whileFlying { missions.onRoad(event.kind, event.meters) }
+        else -> emptyList() // 에너지와 회전 거리는 아직 이야기에 안 쓴다. 못 읽는 신호는 시간이 지나면 임무가 열려서 따로 안 받는다.
     }
 
     private fun whileFlying(action: () -> List<Command>): List<Command> =
@@ -68,6 +70,13 @@ class MissionEngine(episode: Episode? = null) {
     private fun beforeStart(action: () -> Unit): List<Command> {
         if (state == EngineState.WAITING) action()
         return emptyList()
+    }
+
+    /** 이동 중에만 도착 직전 문장을 말한다. 보물을 다 찾았으면 「마지막 보물」 말이 안 맞아서 건너뛴다. */
+    private fun onRemaining(seconds: Int): List<Command> {
+        if (state !in TRIP_STATES || missions.allDone) return emptyList()
+        val line = trip.approach(seconds) ?: return emptyList()
+        return missions.announce(line, state == EngineState.FLYING)
     }
 
     private fun onLineFinished(lineId: String): List<Command> {
@@ -159,7 +168,7 @@ class MissionEngine(episode: Episode? = null) {
     private fun setPause(reason: PauseReason, on: Boolean): List<Command> {
         val changed = if (on) pauseReasons.add(reason) else pauseReasons.remove(reason)
         if (!changed) return emptyList()
-        if (reason == PauseReason.BELT && !on && heldLine == Lines.BELT_OFF) heldLine = null
+        if (reason == PauseReason.BELT && !on) gate.dropBeltGuide()
 
         val wasFlying = state == EngineState.FLYING
         val screen = when {
@@ -176,7 +185,7 @@ class MissionEngine(episode: Episode? = null) {
         }
         val stop = on && (wasFlying || reason == PauseReason.AUDIO_FOCUS || reason == PauseReason.PARENT)
         val guide = if (reason == PauseReason.BELT && on && state == EngineState.PAUSED) beltGuide(Lines.BELT_OFF) else emptyList()
-        val held = if (reason == PauseReason.AUDIO_FOCUS && !on) releaseHeldLine() else emptyList()
+        val held = if (reason == PauseReason.AUDIO_FOCUS && !on) gate.release() else emptyList()
         val next = if (!wasFlying && state == EngineState.FLYING) continueMissions(held) else emptyList()
         return listOfNotNull(Command.StopAudio.takeIf { stop }, screen) + guide + held + next
     }
@@ -193,28 +202,9 @@ class MissionEngine(episode: Episode? = null) {
         return Command.ShowScreen(Screen.PAUSED, status)
     }
 
-    /** 부모가 껐으면 말하지 않고, 내비 안내 중이면 끝날 때까지 미룬다. 미룬 대사는 마지막 하나만 남긴다. */
-    private fun speak(line: Command.Say): List<Command> = when {
-        PauseReason.PARENT in pauseReasons -> emptyList()
-        PauseReason.AUDIO_FOCUS in pauseReasons -> {
-            heldLine = line
-            emptyList()
-        }
-        else -> listOf(line)
-    }
+    private fun speak(line: Command.Say) = gate.speak(line)
 
-    private fun releaseHeldLine(): List<Command> {
-        val line = heldLine ?: return emptyList()
-        heldLine = null
-        return speak(line)
-    }
-
-    /** 벨트 안내는 한 이동에 세 번까지만 한다(F09). */
-    private fun beltGuide(line: Command.Say): List<Command> {
-        if (beltGuides >= MAX_BELT_GUIDES) return emptyList()
-        beltGuides++
-        return speak(line)
-    }
+    private fun beltGuide(line: Command.Say) = gate.beltGuide(line)
 
     /** 도착했거나 임무를 다 끝냈으면 착륙하고, 아니면 휴게소일 수 있으니 잠깐 정박한다. */
     private fun parkOrLand(): List<Command> = if (arrived || missions.allDone) land() else dock()
@@ -269,15 +259,15 @@ class MissionEngine(episode: Episode? = null) {
         pauseReasons -= PauseReason.PARENT
         arrived = false
         readyAnnounced = false
-        beltGuides = 0
-        heldLine = null
+        gate.reset()
         continueAfterLine = null
         landingLines = emptyList()
         missions.reset()
+        trip.reset()
         return listOf(Command.ShowScreen(Screen.START))
     }
 
     private companion object {
-        const val MAX_BELT_GUIDES = 3
+        val TRIP_STATES = setOf(EngineState.FLYING, EngineState.PAUSED, EngineState.DOCKED)
     }
 }
