@@ -44,6 +44,27 @@ class MainActivity : Activity() {
         log.attempt("위치 준비") { location = LocationProbe(this, log).also { it.start() } }
     }
 
+    // 기어 D에서 막힘 화면이 앱을 덮을 때 앱이 뒤로 가는지 보려고 생명주기를 남긴다.
+    override fun onStart() {
+        super.onStart()
+        log.line("화면", "onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        log.line("화면", "onResume")
+    }
+
+    override fun onPause() {
+        log.line("화면", "onPause")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        log.line("화면", "onStop")
+        super.onStop()
+    }
+
     override fun onDestroy() {
         location?.stop()
         navi?.stop()
@@ -70,7 +91,12 @@ class MainActivity : Activity() {
                 button("소리 구역 바꾸기") { voice?.nextZone() },
             ),
         )
-        addView(buttonRow(button("내비 값 읽기") { navi?.readNow() }))
+        addView(
+            buttonRow(
+                button("내비 값 읽기") { navi?.readNow() },
+                button("10초 뒤 말하기") { voice?.speakLater() },
+            ),
+        )
         addView(
             ScrollView(context).apply { addView(logView) },
             LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f),
