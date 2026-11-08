@@ -156,6 +156,37 @@ class MissionEngineEdgeTest {
         assertEquals(EngineState.READY, engine.state)
     }
 
+    private fun said(out: List<Command>) = out.filterIsInstance<Command.Say>()
+
+    @Test
+    fun `기어가 이미 D이고 벨트를 맨 채 시작하면 발사 대사 하나만 말하고 이륙한다`() {
+        send(AppEvent.SeatOccupied(left, true), AppEvent.BeltBuckled(left, true), AppEvent.GearChanged(Gear.D))
+        val out = send(AppEvent.StartPressed)
+        assertEquals(listOf(Lines.TAKE_OFF), said(out))
+        assertEquals(EngineState.FLYING, engine.state)
+    }
+
+    @Test
+    fun `기어가 이미 D인데 벨트를 안 맸으면 승무원 확인 대사 하나만 말한다`() {
+        send(AppEvent.SeatOccupied(left, true), AppEvent.GearChanged(Gear.D))
+        val out = send(AppEvent.StartPressed)
+        assertEquals(listOf(Lines.CREW_FOUND), said(out))
+        assertEquals(EngineState.READY, engine.state)
+        assertEquals(listOf(Lines.TAKE_OFF), said(send(AppEvent.BeltBuckled(left, true))))
+        assertEquals(EngineState.FLYING, engine.state)
+    }
+
+    @Test
+    fun `착륙 뒤 기어를 D로 둔 채 다시 하면 발사 대사 하나만 말하고 이륙한다`() {
+        flying()
+        send(AppEvent.GearChanged(Gear.P), AppEvent.EndTripPressed)
+        assertEquals(EngineState.LANDED, engine.state)
+        send(AppEvent.GearChanged(Gear.D), AppEvent.RestartPressed)
+        val out = send(AppEvent.StartPressed)
+        assertEquals(listOf(Lines.TAKE_OFF), said(out))
+        assertEquals(EngineState.FLYING, engine.state)
+    }
+
     @Test
     fun `벨트 안내는 세 번까지만 한다`() {
         flying()
