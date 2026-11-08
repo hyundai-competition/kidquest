@@ -1,6 +1,7 @@
 // 임무 판단 코드. 안드로이드와 차 SDK를 쓰지 않아서 에뮬레이터 없이 시험할 수 있다.
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 java {
@@ -15,5 +16,6 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
 }

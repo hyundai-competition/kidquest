@@ -1,61 +1,159 @@
 {
   "id": "demo",
-  "title": "우주 여행 시험판",
+  "title": "지역 보물 탐험 시험판",
   "destinations": [
     {
-      "id": "demo_destination",
-      "name": "시험 목적지",
-      "planetName": "시험 행성",
-      "departureLine": "오늘은 시험 행성에 별지도를 배달해요.",
-      "approachLine": "시험 행성에 거의 도착했어요!",
-      "deliveryLine": "모은 조각으로 별지도를 완성해서 전달했어요!",
-      "landingFact": "시험 문장입니다. 사람이 출처를 확인한 문장으로 바꿉니다.",
-      "factSource": "확인 전"
+      "id": "gyeongju",
+      "name": "서울 → 경주",
+      "planetName": "경주",
+      "departureLine": "오늘은 서울에서 경주까지 가요. 신라 사람들이 남긴 보물을 찾으러 출발해요!",
+      "approachLine": "경주가 거의 다 왔어요. 마지막 보물이 기다리고 있어요.",
+      "deliveryLine": "경주에 도착했어요! 오늘 찾은 보물 조각을 모아 경주 보물 상자를 열었어요.",
+      "landingFact": "첨성대는 별을 관측하려고 높이 쌓은 대예요. 삼국유사라는 옛 책에 신라 선덕여왕 때 돌을 다듬어 쌓았다고 적혀 있어요.",
+      "factSource": "[출처 : 경주 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002925, [출처 : 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0056197 (2026-11-08 확인)"
+    },
+    {
+      "id": "busan",
+      "name": "서울 → 부산",
+      "planetName": "부산",
+      "departureLine": "오늘은 서울에서 부산까지 가요. 바다 도시 부산에 숨은 보물을 찾으러 출발해요!",
+      "approachLine": "부산이 거의 다 왔어요. 마지막 보물이 기다리고 있어요.",
+      "deliveryLine": "부산에 도착했어요! 오늘 찾은 보물 조각을 모아 부산 보물 상자를 열었어요.",
+      "landingFact": "부산 임시수도기념관은 6·25 전쟁 때 대통령이 일하고 머무는 곳으로 쓰인 집이고, 1984년에 박물관이 되었어요.",
+      "factSource": "[출처 : 부산 임시수도 대통령관저 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0077059 (2026-11-08 확인)"
+    },
+    {
+      "id": "andong",
+      "name": "서울 → 안동",
+      "planetName": "안동",
+      "departureLine": "오늘은 서울에서 안동까지 가요. 옛날 마을이 그대로 남은 안동의 보물을 찾으러 출발해요!",
+      "approachLine": "안동이 거의 다 왔어요. 마지막 보물이 기다리고 있어요.",
+      "deliveryLine": "안동에 도착했어요! 오늘 찾은 보물 조각을 모아 안동 보물 상자를 열었어요.",
+      "landingFact": "하회마을은 2010년에 경주 양동마을과 함께 유네스코 세계유산이 되었어요.",
+      "factSource": "https://whc.unesco.org/en/list/1324/ (Date of Inscription 2010), [출처 : 안동 하회마을 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0034689 (2026-11-08 확인)"
+    },
+    {
+      "id": "seoul",
+      "name": "대전 → 서울",
+      "planetName": "서울",
+      "departureLine": "오늘은 대전에서 서울까지 가요. 옛날 임금님이 살던 서울에 숨은 보물을 찾으러 출발해요!",
+      "approachLine": "서울이 거의 다 왔어요. 마지막 보물이 기다리고 있어요.",
+      "deliveryLine": "서울에 도착했어요! 오늘 찾은 보물 조각을 모아 서울 보물 상자를 열었어요.",
+      "landingFact": "경복궁은 1395년에 처음 지은 조선의 으뜸 궁궐이에요.",
+      "factSource": "[출처 : 경복궁 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002434 (건립 시기 1395년, 정궁, 2026-11-08 확인)"
     }
   ],
   "places": [
-    { "id": "river", "latitude": 37.4979, "longitude": 127.0276, "radiusMeters": 300, "missionId": "water_planet" }
+    { "id": "cheomseongdae", "latitude": 35.83472, "longitude": 129.21917, "radiusMeters": 1000, "missionId": "gyeongju_star" },
+    { "id": "temporary_capital", "latitude": 35.1034, "longitude": 129.0174, "radiusMeters": 1000, "missionId": "busan_capital" },
+    { "id": "hahoe", "latitude": 36.53806, "longitude": 128.52056, "radiusMeters": 1000, "missionId": "andong_village" },
+    { "id": "gyeongbokgung", "latitude": 37.57861, "longitude": 126.97722, "radiusMeters": 1000, "missionId": "seoul_palace" }
   ],
   "missions": [
     {
-      "id": "meteor_shower",
-      "ageGroups": ["PRESCHOOL"],
+      "id": "rain_map",
+      "ageGroups": [],
       "destinationId": null,
       "trigger": "WIPER",
       "autoAfterSeconds": 120,
-      "briefing": "초록 행성을 지나가요. 초록 행성의 방어막은 초록색이래요.",
-      "eventSoundId": "meteor",
-      "event": "유성우가 떨어지고 있어요!",
-      "question": "방어막 색을 맞히면 우주선을 지킬 수 있어요. 초록 행성의 방어막은 무슨 색이었을까요?",
-      "answers": ["초록색", "초록"],
-      "correctLine": "맞아요, 초록색! 방어막이 켜졌어요.",
-      "wrongLine": "정답은 초록색이에요. 방어막이 켜졌어요.",
-      "rewardItem": "shield_piece"
+      "briefing": "대장님, 보물 지도에 물방울이 묻으면 글씨가 흐려진대요. 지도 속 열쇠는 파란색이래요.",
+      "eventSoundId": "stardust",
+      "event": "쓱싹쓱싹! 지도에 묻은 물방울을 닦았더니 글씨가 다시 보여요.",
+      "question": "보물 상자 열쇠는 파란색일까요, 빨간색일까요?",
+      "answers": ["파란색", "파랑"],
+      "correctLine": "맞아요, 파란색! 열쇠로 보물 지도 조각을 꺼냈어요.",
+      "wrongLine": "괜찮아요, 열쇠는 파란색이었어요. 보물 지도 조각을 꺼냈어요.",
+      "rewardItem": "map_piece"
     },
     {
-      "id": "water_planet",
+      "id": "crossroads",
       "ageGroups": [],
       "destinationId": null,
-      "trigger": "PLACE",
-      "autoAfterSeconds": 300,
-      "briefing": "물의 행성에 도착했어요!",
+      "trigger": "TURN_SIGNAL",
+      "autoAfterSeconds": 180,
+      "briefing": "대장님, 가는 길에 갈림길이 있대요. 갈림길 어딘가에 보물 표시가 숨어 있어요.",
       "eventSoundId": null,
-      "event": "바다 생물들이 우주선 옆을 지나가요.",
-      "question": "바다에 사는 생물은 고래일까요, 사자일까요?",
-      "answers": ["고래"],
-      "correctLine": "맞아요, 고래! 우주 지도 조각을 얻었어요.",
-      "wrongLine": "정답은 고래예요. 우주 지도 조각을 얻었어요.",
-      "rewardItem": "map_piece"
+      "event": "깜빡깜빡! 갈림길에서 보물 표시를 찾았어요.",
+      "question": "보물 상자를 여는 건 열쇠일까요, 숟가락일까요?",
+      "answers": ["열쇠"],
+      "correctLine": "맞아요, 열쇠예요! 갈림길 보물 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 열쇠예요. 갈림길 보물 조각을 찾았어요.",
+      "rewardItem": "crossroads_piece"
+    },
+    {
+      "id": "gyeongju_star",
+      "ageGroups": [],
+      "destinationId": "gyeongju",
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 경주 보물은 별을 보던 돌 건물 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "경주에 들어왔어요! 옛날 신라 사람들이 별을 보던 첨성대가 이 근처에 있어요.",
+      "question": "첨성대는 별을 보던 곳일까요, 물고기를 잡던 곳일까요?",
+      "answers": ["별"],
+      "correctLine": "맞아요, 별을 보던 곳이에요! 첨성대 보물 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 첨성대는 별을 보던 곳이에요. 첨성대 보물 조각을 찾았어요.",
+      "rewardItem": "cheomseongdae_piece"
+    },
+    {
+      "id": "busan_capital",
+      "ageGroups": [],
+      "destinationId": "busan",
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 부산 보물은 옛날 대통령이 머물던 집 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "부산에 들어왔어요! 6·25 전쟁 때 부산은 피란 수도였고, 이 근처 집은 대통령이 일하고 머무는 곳으로 쓰였어요.",
+      "question": "6·25 전쟁 때 피란 수도였던 도시는 부산일까요, 제주일까요?",
+      "answers": ["부산"],
+      "correctLine": "맞아요, 부산이에요! 임시수도 보물 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 부산이에요. 임시수도 보물 조각을 찾았어요.",
+      "rewardItem": "capital_piece"
+    },
+    {
+      "id": "andong_village",
+      "ageGroups": [],
+      "destinationId": "andong",
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 안동 보물은 옛날 집들이 모여 있는 마을에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "안동에 들어왔어요! 이 근처 하회마을은 고려 말부터 한 집안 사람들이 모여 살아온 마을이고, 옛날 집들이 지금도 남아 있어요.",
+      "question": "하회마을에 남아 있는 건 옛날 집일까요, 높은 빌딩일까요?",
+      "answers": ["옛날"],
+      "correctLine": "맞아요, 옛날 집이에요! 하회마을 보물 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 옛날 집이에요. 하회마을 보물 조각을 찾았어요.",
+      "rewardItem": "hahoe_piece"
+    },
+    {
+      "id": "seoul_palace",
+      "ageGroups": [],
+      "destinationId": "seoul",
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 서울 보물은 옛날 임금님이 살던 궁궐 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "서울에 들어왔어요! 이 근처 경복궁은 조선 임금님의 으뜸 궁궐이에요.",
+      "question": "경복궁에 살던 사람은 임금님일까요, 해적일까요?",
+      "answers": ["임금"],
+      "correctLine": "맞아요, 임금님이에요! 경복궁 보물 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 임금님이에요. 경복궁 보물 조각을 찾았어요.",
+      "rewardItem": "palace_piece"
     }
   ],
   "items": [
-    { "id": "shield_piece", "name": "방어막 조각" },
-    { "id": "map_piece", "name": "우주 지도 조각" }
+    { "id": "map_piece", "name": "보물 지도 조각" },
+    { "id": "crossroads_piece", "name": "갈림길 보물 조각" },
+    { "id": "cheomseongdae_piece", "name": "첨성대 보물 조각" },
+    { "id": "capital_piece", "name": "임시수도 보물 조각" },
+    { "id": "hahoe_piece", "name": "하회마을 보물 조각" },
+    { "id": "palace_piece", "name": "경복궁 보물 조각" }
   ],
   "reactions": [
     { "signal": "turn_left", "soundId": "thruster_left", "line": null, "cooldownSeconds": 60 },
     { "signal": "turn_right", "soundId": "thruster_right", "line": null, "cooldownSeconds": 60 },
     { "signal": "road_tunnel", "soundId": "wormhole", "line": null, "cooldownSeconds": 60 }
   ],
-  "finalLine": "마지막 행성에 거의 도착했어요!"
+  "finalLine": "마지막 보물이 거의 다 왔어요!",
+  "endingLine": "오늘 찾은 보물 조각을 하나로 맞췄어요. 정말 멋진 탐험이었어요, 대장님!"
 }

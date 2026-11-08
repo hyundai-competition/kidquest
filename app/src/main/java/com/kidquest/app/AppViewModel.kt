@@ -3,9 +3,15 @@ package com.kidquest.app
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.kidquest.app.episode.EpisodeFile
+import com.kidquest.core.engine.MissionEngine
+import com.kidquest.core.episode.EpisodeResult
 
-class AppViewModel(application: Application) : AndroidViewModel(application) {
-    val controller = AppController(application).also { it.start() }
+class AppViewModel(app: Application) : AndroidViewModel(app) {
+    /** 파일이 틀리면 에피소드 없이 상태 흐름만 돈다. 틀린 곳은 KQEpisode 로그에 남는다. */
+    private val episode = (EpisodeFile.load(app, EpisodeFile.DEMO) as? EpisodeResult.Ok)?.episode
+
+    val controller = AppController(engine = MissionEngine(episode)).also { it.start() }
 
     override fun onCleared() {
         controller.stop()
