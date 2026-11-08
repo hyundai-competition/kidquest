@@ -19,7 +19,7 @@ class CarSignalCollector(context: Context, private val places: List<Place> = emp
 
     override fun start(listener: EventListener) {
         val filter = CarEventFilter { event ->
-            Log.i(TAG, event.toString())
+            Log.i(CAR_LOG_TAG, event.toString())
             listener.onEvent(event)
         }
         vehicle = VehicleSignals(appContext, filter).also { it.start() }
@@ -38,9 +38,7 @@ class CarSignalCollector(context: Context, private val places: List<Place> = emp
         drivingState = null
         place = null
     }
-
-    private companion object {
-        /** 로그 보기 : adb logcat -s KQCar */
-        const val TAG = "KQCar"
-    }
 }
+
+/** car 폴더가 함께 쓰는 로그 태그. 로그 보기 : adb logcat -s KQCar */
+internal const val CAR_LOG_TAG = "KQCar"
