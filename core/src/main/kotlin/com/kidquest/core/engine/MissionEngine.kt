@@ -60,11 +60,12 @@ class MissionEngine(episode: Episode? = null) {
         is AppEvent.RemainingTimeChanged -> onRemaining(event.seconds)
         is AppEvent.CabinTemperatureChanged -> trip.temperature(event.celsius)
         is AppEvent.RoadAhead -> whileFlying { missions.onRoad(event.kind, event.meters) }
+        is AppEvent.NextTurnDistance -> missions.onNextTurn(event.meters, state == EngineState.FLYING)
         is AppEvent.SignalUnavailable -> {
-            missions.onSignalUnavailable(event.signal) // 위치만 쓴다. 다른 신호는 시간이 지나면 임무가 열린다.
+            missions.onSignalUnavailable(event.signal) // 위치와 내비만 쓴다. 다른 신호는 시간이 지나면 임무가 열린다.
             emptyList()
         }
-        else -> emptyList() // 에너지와 회전 거리는 아직 이야기에 안 쓴다.
+        else -> emptyList() // 에너지와 주행 중 화면 제한은 아직 안 쓴다.
     }
 
     private fun whileFlying(action: () -> List<Command>): List<Command> =

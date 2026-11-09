@@ -19,7 +19,7 @@
 | 소리 id | 후보 | 길이 | 주의 |
 |---|---|---|---|
 | meteor | [meteor flyby](https://freesound.org/people/humanoide9000/sounds/329029/) (humanoide9000) | 18초 | 직접 녹음했다고 적혀 있음. 잘라 쓴다 |
-| thruster_left, thruster_right | [Large Rocket Engine](https://freesound.org/people/Zovex/sounds/237974/) (Zovex) | 11초 | 직접 만들었다고 적혀 있음. 잘라 쓰고 깜빡이 소리는 짧게 한다 |
+| thruster_left, thruster_right | [Large Rocket Engine](https://freesound.org/people/Zovex/sounds/237974/) (Zovex) | 11초 | 직접 만들었다고 적혀 있음. 깜빡이 반응 소리였는데 11-09부터 예시 파일에서 안 쓴다(아이가 깜빡이를 조르지 않게) |
 | wormhole | [Air portal](https://freesound.org/people/humanoide9000/sounds/329028/) (humanoide9000) | 28초 | 소리를 섞었다고만 적혀 있어 원본 출처는 모름 |
 | wormhole 예비 | [Wormhole .wav](https://freesound.org/people/doug914/sounds/423636/) (doug914) | 18초 | 멀티 샘플이라고만 적혀 있어 원본 출처는 모름 |
 

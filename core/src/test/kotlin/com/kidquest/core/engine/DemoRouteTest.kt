@@ -61,6 +61,7 @@ class DemoRouteTest {
             val opened = when (mission.trigger) {
                 MissionTrigger.WIPER -> send(AppEvent.WiperChanged(true)) + tick(0) + tick(5)
                 MissionTrigger.TURN_SIGNAL -> send(AppEvent.TurnSignalOn(TurnSide.LEFT))
+                MissionTrigger.NAVI_TURN -> send(AppEvent.NextTurnDistance(200), AppEvent.NextTurnDistance(1_500))
                 MissionTrigger.PLACE -> send(AppEvent.PlaceEntered(episode.places.single { it.missionId == mission.id }.id))
                 else -> tick(0) + tick(mission.autoAfterSeconds.toLong() + 5)
             }

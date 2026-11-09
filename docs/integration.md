@@ -25,7 +25,7 @@
 | 4 | D | `take_off`, 이어서 `rain_map/briefing` |
 | 5 | 와이퍼 켜기(D를 누르고 2분 안에) | `PlaySound(stardust)`, 3~4초 뒤 `rain_map/event`, `rain_map/question`. 2분이 지나면 파일의 120초가 되어 임무가 저절로 열리고, 그 뒤 와이퍼를 눌러도 아무것도 안 나온다 |
 | 6 | 기다리기 | 듣기 동의가 없으면 8초 뒤 `rain_map/answer`. 이어서 다음 임무 `crossroads/briefing` |
-| 6-1 | 깜빡이 | `crossroads/event`(효과음 없음). 3분이 지나면 저절로 열린다 |
+| 6-1 | 기다리기 | 3분 뒤 `crossroads/event`(효과음 없음). 재생 패널은 내비 회전 안내를 안 보내서 시간으로 열린다. 깜빡이 버튼으로는 안 열린다. 갈림길 버튼을 만들면 `NextTurnDistance(200)` 다음 `NextTurnDistance(1500)`을 보낸다 |
 | 7 | 벨트 풀기, 벨트 매기 | 풀면 `StopAudio`와 `belt_off`. 매면 하던 단계에 따라 `StopAudio` 뒤 다시 말한다. 대사 중이었으면 그 대사를, 효과음 뒤 기다리던 중이면 사건 대사를, 답을 기다리던 중이면 질문을 말한다. 신호를 기다리던 중이면 아무것도 안 나온다(6 다음이 이 경우다) |
 | 8 | P | 임무가 남았으니 `StopAudio`, `docked`(정박) |
 | 9 | 화면의 「여기서 착륙」 | `StopAudio`, `landed` |
@@ -54,9 +54,15 @@
 ## 4. 차량·내비 연결 : `CarSignalCollector`가 보낼 사건
 
 - `SeatOccupied(seat, occupied)`, `BeltBuckled(seat, buckled)`, `GearChanged(gear)`
-- `TurnSignalOn(side)`, `WiperChanged(on)`. 와이퍼는 켜짐과 꺼짐을 둘 다 보낸다.
+- `TurnSignalOn(side)`, `WiperChanged(on)`. 와이퍼는 켜짐과 꺼짐을 둘 다 보낸다. 깜빡이는 예시 파일에서 임무도 소리도 안 연다(아이가 깜빡이를 조르지 않게).
 - 못 읽는 신호는 `SignalUnavailable(signal)`로 알린다.
 - 남은 시간 `RemainingTimeChanged(seconds)`는 초, 앞길 `RoadAhead(kind, meters)`는 미터, 실내 온도 `CabinTemperatureChanged(celsius)`는 섭씨로 보낸다. 같은 값은 다시 안 보내도 되고, 다시 와도 엔진이 한 번만 쓴다.
+- 내비 회전 안내 `onTBTInfo`가 오면 목록 첫 회전까지 거리를 `NextTurnDistance(meters)`로 보낸다. 거리가 줄어드는 동안 몇 초마다 계속 보내야 한다.
+  - 엔진은 300m 안에 왔던 회전의 거리가 100m 넘게 늘면 그 갈림길을 지난 것으로 보고 갈림길 임무(`crossroads`)를 연다. 두 값 다 가정이다.
+  - 콜백이 목록이 바뀔 때만 오면 엔진이 300m 안의 값을 못 봐서 갈림길을 지나도 모르고, 아래 10분이 지나야 열린다. 그때는 `getTBTInfo()`(샘플 코드에 이름이 있음)로 몇 초마다 물어서 보낸다. 에뮬레이터와 실제 차에서 얼마나 자주 오는지는 아직 확인하지 않았다.
+  - `TURN_TUNNEL`, `TURN_TOLL`처럼 길이 갈라지지 않는 안내 지점은 넣지 않고 `RoadAhead`로 보낸다. 휴게소 안내(`TURN_RESTAREA`)는 지나가기만 할 수 있어서 넣지 않는다. 좌우 회전과 `TURN_ENTER_IC`, `TURN_EXIT_IC`는 넣는다. 모두 가정이고, Pleos 문서에서 옮긴 이름이라 SDK에서 철자를 확인한다.
+  - 내비를 아예 못 읽으면 `SignalUnavailable(NAVIGATION)`을 보낸다. 그때와 회전 안내가 한 번도 안 온 이동에서만 갈림길 임무가 시간으로 열린다.
+  - 안내가 오는 중이면 3분으로는 안 열고 실제 갈림길을 기다린다. 10분 동안 못 지나면 연다(가정). 회전 거리가 드물게 오거나 이동 중에 안내를 꺼도 멈추지 않게 하려는 것이다. 그 전에 뒤 장소에 닿거나 도착 5분 전이 되면 보물 없이 건너뛴다.
 - 에피소드 파일 `places`의 좌표 반경(`radiusMeters`)에 들어가면 `PlaceEntered(placeId)`를 보낸다. 원이 겹치면 들어간 원마다 보낸다. 에뮬레이터에서는 `adb emu geo fix <경도> <위도>`(경도가 먼저)로 옮긴다. 첫 시험에서 위치가 바뀌고 ENTER가 왔다.
 - 위치를 아예 못 읽는 차면 `SignalUnavailable(LOCATION)`을 보낸다. 그때만 장소 임무가 시간으로 열린다.
 - 어느 스레드에서 와도 `listener.onEvent`만 부르면 된다. `AppController`가 메인 스레드로 옮긴다.
@@ -91,7 +97,7 @@
 
 중간 도시 좌표는 OpenStreetMap에서 그 나들목의 양쪽 방향 분기 노드 두 개를 평균한 값이다(위키데이터나 위키백과 좌표와 가장 많이 다른 곳이 북대구IC 470m, 2026-11-09). OpenStreetMap 자료라 앱이나 기획서에 「위치 데이터 © OpenStreetMap contributors, ODbL」 표시가 필요하다. 앱은 이 좌표를 파일에서만 읽고, 실행 중에 지도 서버에 묻지 않는다.
 
-- 순서 : `take_off` → 출발 문장(`departure`, 경로의 `departureLine`이 비면 목적지 것) → 공통 임무 `rain_map`(와이퍼), `crossroads`(깜빡이) → 경로의 장소 임무 → P에서 결말(`ending`) → 전달 문장(`delivery`) → 실제 사실(`landing_fact`) → `landed`.
+- 순서 : `take_off` → 출발 문장(`departure`, 경로의 `departureLine`이 비면 목적지 것) → 공통 임무 `rain_map`(와이퍼), `crossroads`(내비 갈림길) → 경로의 장소 임무 → P에서 결말(`ending`) → 전달 문장(`delivery`) → 실제 사실(`landing_fact`) → `landed`.
 - 중간 도시 장소는 고속도로 위 나들목에 반경 3km로 둔다. 천안과 수원 임무는 두 경로가 같이 쓴다.
 - 장소 임무는 시간이 지나도 열지 않는다. 시간으로 열면 서울에서 「경주에 들어왔어요」라고 할 수 있어서다. 위치를 못 읽는 차(`SignalUnavailable(LOCATION)`)에서만 600초 뒤에 연다.
 - 다른 길로 가서 기다리던 장소를 못 지나고 뒤 장소에 먼저 오면, 기다리던 장소 임무는 보물 없이 건너뛰고 들어온 장소 임무를 연다.

@@ -17,8 +17,13 @@ data class Place(
     val missionId: String,
 )
 
-/** 임무를 여는 사건. 신호를 못 읽거나 안 오면 autoAfterSeconds 뒤에 저절로 열린다. 장소(PLACE) 임무만은 위치를 못 읽는 차에서만 시간으로 연다. */
-enum class MissionTrigger { TIME, WIPER, TURN_SIGNAL, PLACE, ROAD }
+/**
+ * 임무를 여는 사건. 신호를 못 읽거나 안 오면 autoAfterSeconds 뒤에 저절로 열린다.
+ * 장소(PLACE) 임무는 위치를 못 읽는 차에서만 시간으로 연다.
+ * NAVI_TURN은 내비가 알려 준 갈림길이나 회전을 지났을 때다. 회전 안내가 안 오거나 내비를 못 읽으면 autoAfterSeconds에, 안내가 오는 중이면 10분 동안 못 지났을 때 연다.
+ * 깜빡이(TURN_SIGNAL)로 여는 임무는 만들지 않는다(docs/rules.md 아이 안전).
+ */
+enum class MissionTrigger { TIME, WIPER, TURN_SIGNAL, PLACE, ROAD, NAVI_TURN }
 
 /** 임무 하나. 브리핑, 사건, 질문, 답, 보상 순서로 진행한다. */
 @Serializable

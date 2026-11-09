@@ -40,6 +40,7 @@ sealed interface AppEvent {
     // 내비와 위치. car와 replay가 보낸다.
     data class PlaceEntered(val placeId: String) : AppEvent
     data class RemainingTimeChanged(val seconds: Int) : AppEvent
+    /** 내비 회전 안내(onTBTInfo)의 첫 회전까지 거리(미터). 경로 안내 중에 값이 바뀔 때마다 보낸다. */
     data class NextTurnDistance(val meters: Int) : AppEvent
     data class RoadAhead(val kind: RoadKind, val meters: Int) : AppEvent
     data object DestinationArrived : AppEvent
