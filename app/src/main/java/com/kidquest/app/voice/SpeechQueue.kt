@@ -1,4 +1,4 @@
-// 대사를 순서대로 읽고 정상 완료만 한 번 알린다. 중단·대체 뒤 늦게 온 콜백은 실행 번호로 거른다.
+// 대사를 순서대로 읽는다. 정상 완료와 복구 불가 오류는 한 번 진행시키고, 명시적 중단은 완료로 보내지 않는다.
 // 모든 호출은 VoiceOutput이 메인 스레드로 보낸다. lineId가 같아도 재생 실행 번호는 다르다.
 package com.kidquest.app.voice
 
@@ -10,6 +10,7 @@ class SpeechQueue(
     private val finished: (String) -> Unit,
     private val report: (String) -> Unit,
     private val onSpeaking: (Command.Say) -> Unit = {},
+    private val unavailable: (String) -> Unit = finished,
 ) {
     private data class Active(val token: Long, val line: Command.Say, val fallback: Boolean, var job: SpeechPlayback? = null)
     private val pending = ArrayDeque<Command.Say>()
@@ -70,8 +71,9 @@ class SpeechQueue(
         current.job?.cancel()
         report("재생 오류: ${current.line.lineId} / $reason")
         if (!current.fallback) play(current.line, true) else {
-            pending.clear()
-            report("음성 재생 불가: 녹음 파일을 준비해 주세요 (${current.line.lineId})")
+            report("음성 재생 불가: 화면으로 이어갑니다 (${current.line.lineId})")
+            unavailable(current.line.lineId)
+            if (active == null) next()
         }
     }
 

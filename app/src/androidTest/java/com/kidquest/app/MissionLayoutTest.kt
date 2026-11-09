@@ -27,6 +27,9 @@ class MissionLayoutTest {
         lateinit var model: AppViewModel
         val width = mutableStateOf(1500)
         compose.runOnIdle { model = ViewModelProvider(compose.activity)[AppViewModel::class.java] }
+        compose.waitUntil(10_000) { model.connectionsReady }
+        compose.runOnIdle { model.controller.dispatch(com.kidquest.core.contract.AppEvent.GearChanged(com.kidquest.core.contract.Gear.P)) }
+        compose.waitUntil { model.canPlayMiniGames }
         compose.activity.runOnUiThread {
             compose.activity.setContent {
                 Box(Modifier.requiredSize(width.value.dp, 900.dp)) { KidQuestScreen(model) }
@@ -46,7 +49,7 @@ class MissionLayoutTest {
                 val art = compose.onNodeWithTag("mission-art").fetchSemanticsNode().boundsInRoot
                 assertEquals("${route.to} $size", 1.6f, art.width / art.height, .02f)
                 compose.onNodeWithText("미션 시작").assertIsDisplayed()
-                compose.onNodeWithText("지도로 돌아가기").assertIsDisplayed()
+                compose.onNodeWithText("미니게임 목록으로").assertIsDisplayed()
                 compose.runOnIdle { assertEquals(route.missions.first().id, model.demoMission?.id) }
                 val layouts = mutableListOf<TextLayoutResult>()
                 compose.onNodeWithText(route.missions.first().description).performScrollTo()
@@ -54,7 +57,7 @@ class MissionLayoutTest {
                 assertTrue("${route.to} $size 설명 잘림", layouts.isNotEmpty() && layouts.none { it.hasVisualOverflow })
                 if (route.to == "경주" && size == 628) capture("mission-narrow.png")
             }
-            compose.onNodeWithText("지도로 돌아가기").performClick()
+            compose.onNodeWithText("미니게임 목록으로").performClick()
             compose.onNodeWithTag("mission-page").assertDoesNotExist()
         }
     }

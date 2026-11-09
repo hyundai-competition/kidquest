@@ -17,6 +17,7 @@ import com.kidquest.app.voice.NumberAnswer
 import com.kidquest.app.storage.LocalStore
 import com.kidquest.core.contract.AgeGroup
 import com.kidquest.core.contract.AppEvent
+import com.kidquest.core.contract.Gear
 import com.kidquest.core.engine.MissionEngine
 import com.kidquest.core.episode.EpisodeResult
 
@@ -50,6 +51,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
     private val car = PermissionCarSource(app, episode?.places.orEmpty())
     val controller = AppController(app, engine = MissionEngine(episode), car = car, episode = episode)
+    init { controller.vehicleChanged = { vehicle ->
+        if (vehicle.gear != Gear.P || vehicle.restricted) closeMiniGames()
+    } }
     var connectionsReady by mutableStateOf(false)
         private set
     fun startConnections(locationAllowed: Boolean) {
@@ -59,8 +63,21 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         connectionsReady = true
     }
     fun selectTravelRoute(id: String) { if (travelRoutes.any { it.id == id }) routeId = id }
+    var placeNotice by mutableStateOf("")
+        private set
     fun visitPlace(id: String) {
-        if (!controller.vehicle.restricted) controller.replay.send(AppEvent.PlaceEntered(id))
+        val stop = tripStops.firstOrNull { it.placeId == id } ?: return
+        if (controller.vehicle.restricted) return
+        controller.replay.send(AppEvent.PlaceEntered(id))
+        placeNotice = "시연 위치를 ${stop.label}(으)로 선택했어요. 현재 대사와 앞 임무가 끝나면 이어져요. 소리가 꺼져 있으면 다시 켜 주세요."
+    }
+    var miniGamesVisible by mutableStateOf(false)
+        private set
+    val canPlayMiniGames get() = controller.vehicle.gear == Gear.P && !controller.vehicle.restricted
+    fun openMiniGames() { if (canPlayMiniGames) miniGamesVisible = true }
+    fun closeMiniGames() {
+        if (demoMission != null || journeyEndingVisible) closeDemoMission()
+        miniGamesVisible = false
     }
 
     fun selectAge(value: AgeGroup) {
@@ -88,8 +105,6 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     var skippedDemoMissions by mutableStateOf(setOf<String>())
         private set
     val journeyReadyToEnd get() = selectedRoute.missions.all { it.id in completedDemoMissions || it.id in skippedDemoMissions }
-    var bonusSuspended by mutableStateOf(false)
-        private set
     var missionAudioMuted by mutableStateOf(false)
         private set
     var reviewingCompletedMission by mutableStateOf(false)
@@ -99,10 +114,10 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private var soundWasStopped = false
     private var voiceRetryCount = 0
     fun openDemoMission(mission: CityMission) {
-        if (controller.vehicle.restricted || mission !in selectedRoute.missions) return
+        if (!canPlayMiniGames || mission !in selectedRoute.missions) return
+        miniGamesVisible = true
         soundWasStopped = controller.parentStopRequested
         controller.dispatch(AppEvent.ParentStopChanged(true))
-        bonusSuspended = false
         reviewingCompletedMission = false
         missionAudioMuted = soundWasStopped
         voiceRetryCount = 0
@@ -111,17 +126,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         readMission()
     }
     fun readMission() {
-        if (!controller.vehicle.restricted && !missionAudioMuted) demoMission?.let {
+        if (canPlayMiniGames && !missionAudioMuted) demoMission?.let {
             controller.retryAudioFocus()
             controller.speakScreen("${it.place}. ${it.description}")
         }
     }
     fun beginMission() {
+        if (!canPlayMiniGames || missionSession == null) return
         controller.stopScreenAudio()
         missionSession?.playing = true
     }
     fun missionAction(value: String, placement: Boolean = false) {
-        if (controller.vehicle.restricted) return
+        if (!canPlayMiniGames) return
         val session = missionSession ?: return
         val wasDone = session.done
         val accepted = if (placement) session.place(value) else session.choose(value)
@@ -156,7 +172,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun readVoiceQuiz(withDescription: Boolean = false) {
         val session = missionSession ?: return
-        if (session.done || missionAudioMuted) return
+        if (!canPlayMiniGames || session.done || missionAudioMuted) return
         val prefix = if (withDescription) session.mission.description.substringBefore("\n") + " " else ""
         val question = if (consent) session.quiz.spoken else session.quiz.question + " " +
             session.quiz.options.mapIndexed { i, text -> "${i + 1}번, $text." }.joinToString(" ") +
@@ -167,7 +183,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun resumeAnswering() { voiceRetryCount = 0; if (!missionAudioMuted) controller.retryAudioFocus(); listenAgain() }
     fun listenAgain() {
         val session = missionSession ?: return
-        if (!consent || missionAudioMuted || session.done || !session.voiceMode) return
+        if (!canPlayMiniGames || !consent || missionAudioMuted || session.done || !session.voiceMode) return
         controller.listenScreen { answer -> handleVoiceAnswer(session, answer) }
     }
     private fun handleVoiceAnswer(session: MissionSession, text: String?) {
@@ -176,11 +192,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val index = NumberAnswer.parse(text)
         if (index == null) {
             retryVoiceQuestion("번호를 잘 듣지 못했어요. 1번, 2번, 3번 중 하나로 다시 말해 주세요.", session)
-        } else answerVoiceChoice(index, fromVoice = true)
+        } else answerVoiceChoice(index)
     }
-    fun answerVoiceChoice(index: Int, fromVoice: Boolean = false) {
+    fun answerVoiceChoice(index: Int) {
         val session = missionSession ?: return
-        if (!session.voiceMode || session.done || (controller.vehicle.restricted && !fromVoice)) return
+        if (!canPlayMiniGames || !session.voiceMode || session.done) return
         if (session.answerNumber(index)) completeMission(session)
         else retryVoiceQuestion(session.feedback, session)
     }
@@ -195,18 +211,6 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         }) else null
         controller.speakScreen(text, after)
     }
-    fun onDrivingRestrictionChanged(restricted: Boolean) {
-        if (demoMission == null && !journeyEndingVisible) return
-        if (restricted && !bonusSuspended) {
-            bonusSuspended = true
-            controller.stopScreenAudio()
-            if (!soundWasStopped) controller.dispatch(AppEvent.ParentStopChanged(false))
-        } else if (!restricted && bonusSuspended) {
-            bonusSuspended = false
-            soundWasStopped = controller.parentStopRequested
-            controller.dispatch(AppEvent.ParentStopChanged(true))
-        }
-    }
     fun toggleMissionAudio() {
         missionAudioMuted = !missionAudioMuted
         soundWasStopped = missionAudioMuted
@@ -219,7 +223,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun reviewCompletedMission() { reviewingCompletedMission = true }
     fun showJourneyEnding() {
-        if (controller.vehicle.restricted || !journeyReadyToEnd) return
+        if (!canPlayMiniGames || !journeyReadyToEnd) return
         if (demoMission == null) {
             soundWasStopped = controller.parentStopRequested
             controller.dispatch(AppEvent.ParentStopChanged(true))
@@ -240,17 +244,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         journeyEndingVisible = false
         if (!soundWasStopped) controller.dispatch(AppEvent.ParentStopChanged(false))
     }
-    fun stopNarration() { if ((demoMission != null || journeyEndingVisible) && !bonusSuspended) controller.stopScreenAudio() }
+    fun stopNarration() { if (demoMission != null || journeyEndingVisible) controller.stopScreenAudio() }
     fun closeDemoMission() {
         controller.stopScreenAudio()
         demoMission = null
         missionSession = null
-        bonusSuspended = false
+        journeyEndingVisible = false
         if (!soundWasStopped) controller.dispatch(AppEvent.ParentStopChanged(false))
     }
     fun restartTrip() {
         journeyEndingVisible = false
-        bonusSuspended = false
+        miniGamesVisible = false
+        placeNotice = ""
         soundWasStopped = false
         missionAudioMuted = false
         reviewingCompletedMission = false

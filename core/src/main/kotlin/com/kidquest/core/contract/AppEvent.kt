@@ -48,11 +48,14 @@ sealed interface AppEvent {
     // 소리와 답. voice가 보낸다.
     data class AudioFocusChanged(val hasFocus: Boolean) : AppEvent
 
-    /** Command.Say의 대사를 끝까지 말했다. 중간에 멈춘 대사는 보내지 않는다. */
+    /** 대사를 끝까지 말했거나 TTS·녹음 모두 실패해 오류를 기록하고 화면으로 잇는다. 명시적으로 중단한 대사는 보내지 않는다. */
     data class LineFinished(val lineId: String) : AppEvent
 
     /** 아이 답. 못 알아듣거나 시간이 지나면 word가 null이다. 내용은 저장하지 않는다. */
     data class AnswerHeard(val word: String?) : AppEvent
+
+    /** 화면에서 직접 고른 답. 마이크 동의와 별개이며, 질문을 다 읽은 답변 대기에서만 받는다. */
+    data class AnswerSelected(val word: String) : AppEvent
 
     // 버튼. screen이 보낸다.
     data class AgeSelected(val group: AgeGroup) : AppEvent

@@ -1,20 +1,16 @@
 // 이동 경로와 대사·보상을 엔진 상태로 표시한다. 장소 버튼은 실제 위치와 같은 PlaceEntered를 보낸다.
 package com.kidquest.app.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kidquest.app.AppViewModel
 import com.kidquest.app.screen.common.*
-import com.kidquest.core.contract.AppEvent
 
 @Composable
 fun EngineJourneyBoard(model: AppViewModel) {
@@ -37,18 +33,18 @@ fun EngineMissionPanel(model: AppViewModel) {
     val controller = model.controller
     val presentation = controller.presentation
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        VoiceStatusPanel(controller.voiceUi)
-        if (presentation.caption.isNotBlank()) Text(presentation.caption, fontSize = 30.sp, lineHeight = 44.sp)
-        if (presentation.stage == "question") presentation.options.forEachIndexed { i, label ->
-            OutlinedButton(onClick = { controller.replay.send(AppEvent.AnswerHeard(label)) }, modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp)) {
-                Text("${i + 1}번 · $label", fontSize = 28.sp)
+        VoiceStatusPanel(controller.voiceUi.copy(caption = presentation.caption))
+        if (presentation.stage == "question") {
+            Text(if (presentation.answerReady) "번호나 답을 골라 주세요." else "질문을 다 읽으면 답을 고를 수 있어요.", fontSize = 26.sp)
+            presentation.options.forEachIndexed { i, label ->
+                OutlinedButton(onClick = { controller.answerChoice(i) }, enabled = presentation.answerReady && controller.screen == com.kidquest.core.contract.Screen.FLYING,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp)) { Text("${i + 1}번 · $label", fontSize = 28.sp) }
             }
         }
-        Text("주차·휴식 중 지역 퍼즐", fontSize = 30.sp, fontWeight = FontWeight.Bold)
-        Text("이동 이야기와 별도로 즐기는 체험이에요. 여기서 얻는 조각은 이동 보물과 구분해요.", fontSize = 24.sp, lineHeight = 34.sp)
-        model.selectedRoute.missions.forEach { mission ->
-            OutlinedButton(onClick = { model.openDemoMission(mission) }, modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp)) { Text(mission.place, fontSize = 28.sp) }
-        }
+        if (model.placeNotice.isNotBlank()) Text(model.placeNotice, Modifier.testTag("place-notice"), fontSize = 24.sp, lineHeight = 34.sp)
+        OutlinedButton(onClick = model::openMiniGames, enabled = model.canPlayMiniGames,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp).testTag("open-mini-games")) { Text("미니게임 놀이터", fontSize = 30.sp) }
+        Text("퍼즐은 P 주차 중에만 열 수 있어요. 본편 보물과는 별도예요.", fontSize = 24.sp, lineHeight = 34.sp)
     }
 }
 

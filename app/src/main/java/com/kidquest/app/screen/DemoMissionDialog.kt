@@ -32,7 +32,7 @@ fun DemoMissionDialog(model: AppViewModel) {
             ) {
                 Text("Vroomie · ${if (session.preschool) "꼬마" else "어린이"} 탐험", color = Mint, fontSize = 26.sp, fontWeight = FontWeight.Bold)
                 TextButton(onClick = model::closeDemoMission, modifier = Modifier.heightIn(min = 56.dp)) {
-                    Text("지도로 돌아가기", fontSize = 26.sp)
+                    Text("미니게임 목록으로", fontSize = 26.sp)
                 }
             }
             HorizontalDivider()
@@ -51,7 +51,7 @@ fun DemoMissionDialog(model: AppViewModel) {
                         if (session.done && !model.reviewingCompletedMission) {
                             MissionSuccess(model)
                         } else {
-                            VoiceStatusPanel(model.controller.voiceUi)
+                            VoiceStatusPanel(model.controller.voiceUi.copy(caption = ""))
                             if (session.voiceMode) VoiceChoicePanel(model)
                             else {
                                 MissionGame(session, onAction = model::missionAction)
@@ -93,7 +93,7 @@ private fun MissionBriefing(model: AppViewModel, wide: Boolean) {
     val explanation: @Composable () -> Unit = {
         Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
             Text("${mission.place} · ${if (session.preschool) "꼬마" else "어린이"} 탐험", fontSize = 34.sp, lineHeight = 46.sp, fontWeight = FontWeight.Bold)
-            VoiceStatusPanel(model.controller.voiceUi)
+            VoiceStatusPanel(model.controller.voiceUi.copy(caption = ""))
             Text(mission.description, modifier = Modifier.fillMaxWidth(), fontSize = 28.sp, lineHeight = 44.sp)
             // 좁은 창에서도 조작이 잘리지 않도록 음성 버튼은 줄을 나눠 배치한다.
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

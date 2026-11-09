@@ -41,6 +41,7 @@ class AppController(
         private set
     private val voice: VoicePort = voice ?: VoiceOutput(context, report = { voiceStatus = it }, ui = { voiceUi = it })
 
+    var vehicleChanged: ((VehicleUiState) -> Unit)? = null
     var vehicle by mutableStateOf(VehicleUiState())
         private set
 
@@ -84,6 +85,13 @@ class AppController(
         replay.stop()
     }
 
+    fun answerChoice(index: Int) {
+        if (screen != Screen.FLYING || !presentation.answerReady) return
+        val word = presentation.options.getOrNull(index) ?: return
+        presentation.closeAnswer()
+        voice.handle(Command.StopAudio)
+        dispatch(AppEvent.AnswerSelected(word))
+    }
     fun retryAudioFocus() { (voice as? VoiceOutput)?.retryAudioFocus() }
     fun resumeAudio() { retryAudioFocus(); dispatch(AppEvent.ParentStopChanged(false)) }
     fun speakScreen(text: String, finished: (() -> Unit)? = null) { main.post { (voice as? VoiceOutput)?.readScreen(text, finished) } }
@@ -99,6 +107,8 @@ class AppController(
             val actual = if (event is AppEvent.AnswerHeard) AppEvent.AnswerHeard(presentation.answer(event.word)) else event
             if (event == AppEvent.RestartPressed) presentation.reset()
             vehicle = vehicle.accept(actual)
+            vehicleChanged?.invoke(vehicle)
+            if (actual is AppEvent.LineFinished && screen == Screen.FLYING) presentation.lineFinished(actual.lineId)
             if (event is AppEvent.ListeningConsentChanged) (voice as? VoiceOutput)?.setListeningAllowed(event.allowed)
             engine.onEvent(actual).forEach(::perform)
         }
@@ -109,6 +119,7 @@ class AppController(
             is Command.ShowScreen -> {
                 screen = command.screen
                 status = command.status
+                if (screen != Screen.FLYING) presentation.closeAnswer()
                 if (command.screen == Screen.START) { items.clear(); parentStopRequested = false }
             }
             is Command.AwardItem -> if (items.none { it.itemId == command.itemId }) items += command

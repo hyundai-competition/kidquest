@@ -108,7 +108,7 @@
       "question": "보물 상자 열쇠는 파란색일까요, 빨간색일까요?",
       "answers": ["파란색", "파랑"],
       "correctLine": "맞아요, 파란색! 열쇠로 보물 지도 조각을 꺼냈어요.",
-      "wrongLine": "괜찮아요, 열쇠는 파란색이었어요. 보물 지도 조각을 꺼냈어요.",
+      "wrongLine": "열쇠 색은 파란색이었어요. 보물 지도 조각을 꺼냈어요.",
       "rewardItem": "map_piece",
       "fallbackEvent": "오늘은 비가 안 와서 지도에 물방울이 없어요. 글씨가 잘 보여요!"
     },
@@ -124,7 +124,7 @@
       "question": "갈림길 보물 표시는 별 모양일까요, 하트 모양일까요?",
       "answers": ["별"],
       "correctLine": "맞아요, 별 모양이에요! 갈림길 보물 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 보물 표시는 별 모양이었어요. 갈림길 보물 조각을 찾았어요.",
+      "wrongLine": "이번 보물 표시는 별 모양이었어요. 갈림길 보물 조각을 찾았어요.",
       "rewardItem": "crossroads_piece"
     },
     {
@@ -139,7 +139,7 @@
       "question": "독립기념관이 문을 연 날은 8월 15일일까요, 3월 1일일까요?",
       "answers": ["8월 15일", "팔월 십오일", "15일", "십오일", "광복절"],
       "correctLine": "맞아요, 8월 15일이에요! 독립 태극기 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 8월 15일이에요. 독립 태극기 조각을 찾았어요.",
+      "wrongLine": "이번 정답은 8월 15일이에요. 독립 태극기 조각을 찾았어요.",
       "rewardItem": "independence_flag",
       "factSource": "[출처 : 독립기념관 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0015975 (독립운동에 관한 유물과 자료를 수집·전시, 1987년 8월 15일 개관, 2026-11-09 확인)"
     },
@@ -155,7 +155,7 @@
       "question": "국채보상운동은 나라 빚을 갚자는 운동일까요, 나라 땅을 넓히자는 운동일까요?",
       "answers": ["빚"],
       "correctLine": "맞아요, 나라 빚을 갚자는 운동이에요! 나라 사랑 동전을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 나라 빚을 갚자는 운동이에요. 나라 사랑 동전을 찾았어요.",
+      "wrongLine": "이번 정답은 나라 빚을 갚자는 운동이에요. 나라 사랑 동전을 찾았어요.",
       "rewardItem": "debt_coin",
       "factSource": "[출처 : 국채보상운동 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0006527 (1907년 2월 대구 광문사에서 제창, 국채를 국민들의 모금으로 갚기 위한 운동, 2026-11-09 확인)"
     },
@@ -171,7 +171,7 @@
       "question": "수원 화성을 쌓은 임금님은 정조일까요, 세종일까요?",
       "answers": ["정조"],
       "correctLine": "맞아요, 정조 임금님이에요! 화성 벽돌을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 정조 임금님이에요. 화성 벽돌을 찾았어요.",
+      "wrongLine": "이번 정답은 정조 임금님이에요. 화성 벽돌을 찾았어요.",
       "rewardItem": "hwaseong_brick",
       "factSource": "[출처 : 수원 화성 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0064671 (정조, 1796년 완성), https://whc.unesco.org/en/list/817 (Date of Inscription 1997) (2026-11-09 확인)"
     },
@@ -187,7 +187,7 @@
       "question": "대전의 옛 이름은 한밭일까요, 한양일까요?",
       "answers": ["한밭", "밭", "한받"],
       "correctLine": "맞아요, 한밭이에요! 한밭 씨앗을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 한밭이에요. 한밭 씨앗을 찾았어요.",
+      "wrongLine": "이번 정답은 한밭이에요. 한밭 씨앗을 찾았어요.",
       "rewardItem": "hanbat_seed",
       "factSource": "[출처 : 대전광역시 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0014708 (「대전(大田: 한밭)이라고 불렸다」, 2026-11-09 확인)"
     },
@@ -203,7 +203,7 @@
       "question": "우륵이 탄금대에서 탔던 악기는 가야금일까요, 거문고일까요?",
       "answers": ["가야금"],
       "correctLine": "맞아요, 가야금이에요! 가야금 줄을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 가야금이에요. 가야금 줄을 찾았어요.",
+      "wrongLine": "이번 정답은 가야금이에요. 가야금 줄을 찾았어요.",
       "rewardItem": "gayageum_string",
       "factSource": "[출처 : 충주 탄금대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0058228 (「탄금대라는 명칭도 우륵이 가야금을 타던 곳이라는 데에서 유래한다」, 2026-11-09 확인)"
     },
@@ -219,7 +219,7 @@
       "question": "문경새재에 있는 관문은 세 개일까요, 다섯 개일까요?",
       "answers": ["세 개", "3개", "셋"],
       "correctLine": "맞아요, 세 개예요! 새재 짚신을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 세 개예요. 새재 짚신을 찾았어요.",
+      "wrongLine": "이번 정답은 세 개예요. 새재 짚신을 찾았어요.",
       "rewardItem": "saejae_straw_shoes",
       "factSource": "[출처 : 조령 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0051706 (철도가 없던 옛날 서울∼부산 간 주요 도로가 대개 이 고개를 통함, 조선시대에 축성한 제1·2·3관문), [출처 : 문경새재 도립공원 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0019398 (새재가 조령) (2026-11-09 확인)"
     },
@@ -235,7 +235,7 @@
       "question": "도담삼봉이 솟아 있는 강은 남한강일까요, 낙동강일까요?",
       "answers": ["남한강", "남한"],
       "correctLine": "맞아요, 남한강이에요! 삼봉 조약돌을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 남한강이에요. 삼봉 조약돌을 찾았어요.",
+      "wrongLine": "이번 정답은 남한강이에요. 삼봉 조약돌을 찾았어요.",
       "rewardItem": "sambong_pebble",
       "factSource": "[출처 : 단양팔경 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0013634 (「도담삼봉은 남한강 물줄기 가운데 솟은 세 개의 봉우리」), [출처 : 단양 도담삼봉 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0068786 (2026-11-09 확인)"
     },
@@ -251,7 +251,7 @@
       "question": "부석사를 세운 스님은 의상일까요, 원효일까요?",
       "answers": ["의상"],
       "correctLine": "맞아요, 의상 스님이에요! 부석사 기와 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 의상 스님이에요. 부석사 기와 조각을 찾았어요.",
+      "wrongLine": "이번 정답은 의상 스님이에요. 부석사 기와 조각을 찾았어요.",
       "rewardItem": "buseoksa_tile",
       "factSource": "[출처 : 봉황산 부석사 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0024295 (676년 의상 창건, 2018년 산사 세계유산), https://whc.unesco.org/en/list/1562 (2026-11-09 확인)"
     },
@@ -267,7 +267,7 @@
       "question": "첨성대에서 별을 보던 사람들은 신라 사람들일까요, 조선 사람들일까요?",
       "answers": ["신라"],
       "correctLine": "맞아요, 신라 사람들이에요! 첨성대 보물 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 신라 사람들이에요. 첨성대 보물 조각을 찾았어요.",
+      "wrongLine": "이번 정답은 신라 사람들이에요. 첨성대 보물 조각을 찾았어요.",
       "rewardItem": "cheomseongdae_piece",
       "factSource": "[출처 : 경주 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002925, [출처 : 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0056197 (2026-11-08 확인)"
     },
@@ -283,7 +283,7 @@
       "question": "6·25 전쟁 때 피란 수도였던 도시는 부산일까요, 제주일까요?",
       "answers": ["부산"],
       "correctLine": "맞아요, 부산이에요! 임시수도 보물 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 부산이에요. 임시수도 보물 조각을 찾았어요.",
+      "wrongLine": "이번 정답은 부산이에요. 임시수도 보물 조각을 찾았어요.",
       "rewardItem": "capital_piece",
       "factSource": "[출처 : 부산 임시수도 대통령관저 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0077059 (2026-11-08 확인)"
     },
@@ -299,7 +299,7 @@
       "question": "하회마을은 한 집안 사람들이 모여 살아온 마을일까요, 여러 나라 사람들이 모여 살아온 마을일까요?",
       "answers": ["집안"],
       "correctLine": "맞아요, 한 집안 사람들이 모여 살아온 마을이에요! 하회마을 보물 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 하회마을은 한 집안 사람들이 모여 살아온 마을이에요. 하회마을 보물 조각을 찾았어요.",
+      "wrongLine": "하회마을은 한 집안 사람들이 모여 살아온 마을이에요. 하회마을 보물 조각을 찾았어요.",
       "rewardItem": "hahoe_piece",
       "factSource": "https://whc.unesco.org/en/list/1324/ (Date of Inscription 2010), [출처 : 안동 하회마을 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0034689 (2026-11-08 확인)"
     },
@@ -315,7 +315,7 @@
       "question": "경복궁은 조선의 궁궐일까요, 신라의 궁궐일까요?",
       "answers": ["조선"],
       "correctLine": "맞아요, 조선의 궁궐이에요! 경복궁 보물 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 조선의 궁궐이에요. 경복궁 보물 조각을 찾았어요.",
+      "wrongLine": "이번 정답은 조선의 궁궐이에요. 경복궁 보물 조각을 찾았어요.",
       "rewardItem": "palace_piece",
       "factSource": "[출처 : 경복궁 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002434 (건립 시기 1395년, 정궁, 2026-11-08 확인)"
     }

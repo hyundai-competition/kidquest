@@ -29,11 +29,11 @@ fun VoiceStatusPanel(state: VoiceUiState, compact: Boolean = false) {
             VoicePhase.LISTENING -> "이제 내 차례! 듣고 있어요"
             VoicePhase.PREPARING -> "잠깐만 기다려 주세요"
             VoicePhase.PROCESSING -> "답을 확인하고 있어요"
-            VoicePhase.ERROR -> "다시 시도해도 괜찮아요"
+            VoicePhase.ERROR -> "음성을 사용할 수 없어요"
             VoicePhase.IDLE -> "브루미와 함께해요"
         }, color = color, fontSize = if (compact) 28.sp else 30.sp, fontWeight = FontWeight.Bold)
         Text(when { state.phase == VoicePhase.LISTENING -> "마이크 켜짐 · 지금 대답해 주세요"; state.phase == VoicePhase.PREPARING && state.caption.isBlank() -> "마이크 준비 중"; else -> "마이크 꺼짐" }, color = color, fontSize = 24.sp)
-        if (!compact && state.caption.isNotBlank()) Text(state.caption, fontSize = 26.sp, lineHeight = 38.sp, maxLines = 4, overflow = TextOverflow.Ellipsis)
+        if (!compact && state.caption.isNotBlank()) Text(state.caption, Modifier.testTag("spoken-caption"), fontSize = 26.sp, lineHeight = 38.sp, maxLines = Int.MAX_VALUE)
         Text(state.hint, fontSize = 24.sp, lineHeight = 34.sp, maxLines = if (compact) 2 else 4, overflow = TextOverflow.Ellipsis)
     }
 }

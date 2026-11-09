@@ -113,12 +113,12 @@ private fun TripButtons(replay: ReplaySource, episode: Episode?) = ReplayRow {
     ReplayButton("도착") { replay.send(AppEvent.DestinationArrived) }
 }
 
-/** 실제 아이 목소리를 쓰지 않고 답을 넣는다. 단어는 예시 에피소드의 정답이다. 듣기 동의가 있어야 쓰인다. */
+/** 실제 아이 목소리를 쓰지 않고 답을 넣는다. 단어는 예시 에피소드의 정답이다. 듣기 동의는 마이크에만 적용하고 화면 답은 별개다. */
 @Composable
 private fun AnswerButtons(replay: ReplaySource, episode: Episode?) = ReplayRow {
     val answers = episode?.missions?.mapNotNull { it.answers.firstOrNull() }?.distinct() ?: ANSWERS
     answers.forEach { word ->
-        ReplayButton("답 : $word") { replay.send(AppEvent.AnswerHeard(word)) }
+        ReplayButton("답 : $word") { replay.send(AppEvent.AnswerSelected(word)) }
     }
     ReplayButton("못 알아들음") { replay.send(AppEvent.AnswerHeard(null)) }
 }
