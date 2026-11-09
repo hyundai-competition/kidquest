@@ -54,3 +54,11 @@
 - [ ] 파일 페이지의 라이선스가 여전히 CC0다
 - [ ] 소리를 직접 들어 아이가 놀랄 만큼 크거나 무섭지 않다
 - [ ] 내가 만들었다고 적지 않는다
+
+## 2026-11-06 앱 연결 상태
+
+후보 파일은 아직 확보·청취 확인 전이다. 현재 앱은 `scripts/generate_test_effects.py`에서 직접 합성한 임시 시험용 효과음 네 개를 재생한다. 후보 음원을 적용했다고 표시하지 않는다. ID별 파일과 교체 방법은 [voice_output.md](voice_output.md)에 있다.
+
+## 장소 체험 임시 시연음
+
+`audio/instruments/metal_preview.wav`, `stone_preview.wav`는 `scripts/generate_instrument_previews.py`로 직접 합성했다. 외부 음원을 복사하지 않았고 실제 편종·편경 녹음으로 표시하지 않는다. 실제 악기 음원 교체는 후속 작업이다.

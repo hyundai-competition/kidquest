@@ -6,7 +6,7 @@
 
 - main을 받고 `gradlew.bat :core:test :app:assembleDebug`가 통과하는지 본다.
 - 앱 로그 : `adb logcat -s KQEpisode KidQuestVoice`. 음성에 간 명령(`Say`, `PlaySound`, `Listen`, `StopAudio`)이 `KidQuestVoice`에 찍힌다.
-- 지금 음성은 가짜다. 말을 받으면 바로 끝냈다고 알리고, 듣기를 받으면 바로 「못 알아들음」을 돌려준다. 그래서 대사가 순식간에 넘어간다.
+- 이 브랜치는 실제 ON_DEVICE TTS와 임시 효과음을 재생한다. STT는 ON_DEVICE로 연결했고, 동의한 경우에만 요청한다. 서비스 준비·취소는 확인했으며 실제 발화 정확도는 추가 검증이 필요하다. [음성 출력](voice_output.md)을 참고한다.
 
 ## 1. 앱 통합 : 앱이 켜지고 에피소드가 읽히나
 
@@ -15,7 +15,7 @@
 
 ## 2. 시연·품질 : 재생 패널로 한 판 돌리기
 
-예시 파일 기준이다. 재생 패널을 펼치고 위에서부터 누른다. 시작 화면에서 목적지를 안 고른 기본 이야기다. 목적지를 고르면 5절을 본다.
+예시 파일 기준이다. 아래 표는 공통 임무 설명이며, 현재 시작 화면에서 고른 경로로 끝까지 시연하려면 [main_integration.md](main_integration.md)의 경주 시연 순서를 따른다.
 
 | 순서 | 누를 것 | `KidQuestVoice`에 나와야 하는 것 |
 |---|---|---|
@@ -25,7 +25,7 @@
 | 4 | D | `take_off`, 이어서 `rain_map/briefing` |
 | 5 | 와이퍼 켜기(D를 누르고 2분 안에) | `PlaySound(wipe_drops)`, 3~4초 뒤 `rain_map/event`, `rain_map/question`. 2분이 지나면 파일의 120초가 되어 임무가 저절로 열리고, 그 뒤 와이퍼를 눌러도 아무것도 안 나온다 |
 | 6 | 기다리기 | 듣기 동의가 없으면 8초 뒤 `rain_map/answer`. 이어서 다음 임무 `crossroads/briefing` |
-| 6-1 | 기다리기 | 3분 뒤 `crossroads/event`(효과음 없음). 재생 패널은 내비 회전 안내를 안 보내서 시간으로 열린다. 깜빡이 버튼으로는 안 열린다. 갈림길 버튼을 만들면 `NextTurnDistance(200)` 다음 `NextTurnDistance(1500)`을 보낸다 |
+| 6-1 | 갈림길 통과 | `NextTurnDistance(200)` 다음 `NextTurnDistance(1500)`을 보내 `crossroads/event`를 연다. 깜빡이 버튼으로는 안 열린다 |
 | 7 | 벨트 풀기, 벨트 매기 | 풀면 `StopAudio`와 `belt_off`. 매면 하던 단계에 따라 `StopAudio` 뒤 다시 말한다. 대사 중이었으면 그 대사를, 효과음 뒤 기다리던 중이면 사건 대사를, 답을 기다리던 중이면 질문을 말한다. 신호를 기다리던 중이면 아무것도 안 나온다(6 다음이 이 경우다) |
 | 8 | P | 임무가 남았으니 `StopAudio`, `docked`(정박) |
 | 9 | 화면의 「여기서 착륙」 | `StopAudio`, `landed` |
@@ -33,13 +33,13 @@
 - 5에서 와이퍼를 안 켜 임무가 저절로 열리면 효과음 없이 맑은 날 대사(`rain_map/event`, 「오늘은 비가 안 와서…」)를 말한다.
 - 답 버튼은 부모가 듣기에 동의했을 때만 쓰인다. 동의 버튼은 시작 화면 일(#23)이다. 그 전에는 답 버튼을 눌러도 8초 뒤 넘어간다.
 - 임무를 다 끝낸 뒤 P를 누르면 결말(`ending`)을 말하고 착륙한다.
-- 재생 패널의 「강 근처」(`river`)와 「답 : 고래」는 예전 파일 것이라 이제 쓰이지 않는다. 장소 버튼은 5절의 장소 id로 바꾼다.
+- 재생 패널의 장소 버튼과 답 버튼은 현재 에피소드 기준이다. 지도 카드는 선택 경로의 장소 세 곳을 표시한다. 별도 지역 퍼즐은 정차 중 보너스이며 본편 보물과 따로 센다.
 
 ## 3. 화면·음성 : 가짜 음성을 진짜로 바꿀 때
 
 | 명령 | 지킬 것 |
 |---|---|
-| `Say(lineId, text)` | 끝까지 말하면 `LineFinished(lineId)`를 보낸다. 어떤 경우에도 보낸다. 안 보내면 임무가 그 자리에 멈춘다. `StopAudio`로 끊긴 대사는 보내지 않는다 |
+| `Say(lineId, text)` | 끝까지 말하면 `LineFinished(lineId)`를 보낸다. 정상 완료일 때만 한 번 보낸다. 실패하면 녹음 대체를 시도하고, 녹음도 없으면 오류를 표시한다. `StopAudio`로 끊긴 대사는 보내지 않는다 |
 | `PlaySound(soundId)` | 말하는 중에도 온다. 말을 끊지 말고 같이 낸다 |
 | `Listen(words, 8)` | 결과를 `AnswerHeard(word)`로, 못 알아들으면 `AnswerHeard(null)`로 보낸다. 10초 안에 안 오면 엔진이 `StopAudio`를 보내고 넘어간다 |
 | `StopAudio` | 말하기와 듣기를 둘 다 멈춘다 |

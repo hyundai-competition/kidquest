@@ -24,9 +24,10 @@ import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.Gear
 import com.kidquest.core.contract.RearSeat
 import com.kidquest.core.contract.TurnSide
+import com.kidquest.core.contract.Episode
 
 @Composable
-fun ReplayPanel(replay: ReplaySource) {
+fun ReplayPanel(replay: ReplaySource, episode: Episode? = null) {
     var open by rememberSaveable { mutableStateOf(false) }
     OutlinedButton(onClick = { open = !open }) {
         Text(text = if (open) "재생 모드 접기" else "재생 모드", fontSize = LABEL_SIZE.sp)
@@ -42,8 +43,8 @@ fun ReplayPanel(replay: ReplaySource) {
         DrivingButtons(replay)
         EnergyButtons(replay)
         TemperatureButtons(replay)
-        TripButtons(replay)
-        AnswerButtons(replay)
+        TripButtons(replay, episode)
+        AnswerButtons(replay, episode)
     }
 }
 
@@ -98,8 +99,13 @@ private fun SetupButtons(replay: ReplaySource) = ReplayRow {
 
 /** 장소 id는 에피소드 파일의 places와 같아야 임무가 열린다. 진짜 위치 대신 「근처에 왔다」를 넣는다. */
 @Composable
-private fun TripButtons(replay: ReplaySource) = ReplayRow {
-    PLACES.forEach { (id, label) ->
+private fun TripButtons(replay: ReplaySource, episode: Episode?) = ReplayRow {
+    val places = episode?.places?.map { it.id to com.kidquest.app.screen.model.TripCatalog(episode).placeName(it.id) } ?: PLACES
+    ReplayButton("갈림길 통과") {
+        replay.send(AppEvent.NextTurnDistance(200))
+        replay.send(AppEvent.NextTurnDistance(1500))
+    }
+    places.forEach { (id, label) ->
         ReplayButton("$label 근처") { replay.send(AppEvent.PlaceEntered(id)) }
     }
     ReplayButton("20분 남음") { replay.send(AppEvent.RemainingTimeChanged(20 * 60)) }
@@ -109,8 +115,9 @@ private fun TripButtons(replay: ReplaySource) = ReplayRow {
 
 /** 실제 아이 목소리를 쓰지 않고 답을 넣는다. 단어는 예시 에피소드의 정답이다. 듣기 동의가 있어야 쓰인다. */
 @Composable
-private fun AnswerButtons(replay: ReplaySource) = ReplayRow {
-    ANSWERS.forEach { word ->
+private fun AnswerButtons(replay: ReplaySource, episode: Episode?) = ReplayRow {
+    val answers = episode?.missions?.mapNotNull { it.answers.firstOrNull() }?.distinct() ?: ANSWERS
+    answers.forEach { word ->
         ReplayButton("답 : $word") { replay.send(AppEvent.AnswerHeard(word)) }
     }
     ReplayButton("못 알아들음") { replay.send(AppEvent.AnswerHeard(null)) }
