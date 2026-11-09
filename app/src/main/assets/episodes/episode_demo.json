@@ -10,7 +10,15 @@
       "approachLine": "경주가 거의 다 왔어요. 마지막 보물이 기다리고 있어요.",
       "deliveryLine": "경주에 도착했어요! 오늘 찾은 보물 조각을 모아 경주 보물 상자를 열었어요.",
       "landingFact": "첨성대는 별을 관측하려고 높이 쌓은 대예요. 삼국유사라는 옛 책에 신라 선덕여왕 때 돌을 다듬어 쌓았다고 적혀 있어요.",
-      "factSource": "[출처 : 경주 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002925, [출처 : 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0056197 (2026-11-08 확인)"
+      "factSource": "[출처 : 경주 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002925, [출처 : 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0056197 (2026-11-08 확인)",
+      "routes": [
+        {
+          "id": "gyeongju_gyeongbu",
+          "name": "경부고속도로 (천안·대구)",
+          "missionIds": ["cheonan_independence", "daegu_debt", "gyeongju_star"],
+          "departureLine": "오늘은 서울에서 경주까지 가요. 천안과 대구를 지나 신라 사람들이 남긴 보물을 찾으러 출발해요!"
+        }
+      ]
     },
     {
       "id": "busan",
@@ -20,7 +28,21 @@
       "approachLine": "부산이 거의 다 왔어요. 마지막 보물이 기다리고 있어요.",
       "deliveryLine": "부산에 도착했어요! 오늘 찾은 보물 조각을 모아 부산 보물 상자를 열었어요.",
       "landingFact": "부산 임시수도기념관은 6·25 전쟁 때 대통령이 일하고 머무는 곳으로 쓰인 집이고, 1984년에 박물관이 되었어요.",
-      "factSource": "[출처 : 부산 임시수도 대통령관저 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0077059 (2026-11-08 확인)"
+      "factSource": "[출처 : 부산 임시수도 대통령관저 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0077059 (2026-11-08 확인)",
+      "routes": [
+        {
+          "id": "busan_gyeongbu",
+          "name": "경부고속도로 (수원·대전)",
+          "missionIds": ["suwon_hwaseong", "daejeon_hanbat", "busan_capital"],
+          "departureLine": "오늘은 서울에서 부산까지 가요. 수원과 대전을 지나 바다 도시 부산에 숨은 보물을 찾으러 출발해요!"
+        },
+        {
+          "id": "busan_jungbu",
+          "name": "중부내륙고속도로 (충주·문경)",
+          "missionIds": ["chungju_tangeumdae", "mungyeong_saejae", "busan_capital"],
+          "departureLine": "오늘은 서울에서 부산까지 가요. 충주와 문경을 지나 바다 도시 부산에 숨은 보물을 찾으러 출발해요!"
+        }
+      ]
     },
     {
       "id": "andong",
@@ -30,7 +52,15 @@
       "approachLine": "안동이 거의 다 왔어요. 마지막 보물이 기다리고 있어요.",
       "deliveryLine": "안동에 도착했어요! 오늘 찾은 보물 조각을 모아 안동 보물 상자를 열었어요.",
       "landingFact": "하회마을은 2010년에 경주 양동마을과 함께 유네스코 세계유산이 되었어요.",
-      "factSource": "https://whc.unesco.org/en/list/1324/ (Date of Inscription 2010), [출처 : 안동 하회마을 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0034689 (2026-11-08 확인)"
+      "factSource": "https://whc.unesco.org/en/list/1324/ (Date of Inscription 2010), [출처 : 안동 하회마을 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0034689 (2026-11-08 확인)",
+      "routes": [
+        {
+          "id": "andong_jungang",
+          "name": "중앙고속도로 (단양·영주)",
+          "missionIds": ["danyang_dodam", "yeongju_buseoksa", "andong_village"],
+          "departureLine": "오늘은 서울에서 안동까지 가요. 단양과 영주를 지나 옛날 마을이 그대로 남은 안동의 보물을 찾으러 출발해요!"
+        }
+      ]
     },
     {
       "id": "seoul",
@@ -40,14 +70,30 @@
       "approachLine": "서울이 거의 다 왔어요. 마지막 보물이 기다리고 있어요.",
       "deliveryLine": "서울에 도착했어요! 오늘 찾은 보물 조각을 모아 서울 보물 상자를 열었어요.",
       "landingFact": "경복궁은 1395년에 처음 지은 조선의 으뜸 궁궐이에요.",
-      "factSource": "[출처 : 경복궁 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002434 (건립 시기 1395년, 정궁, 2026-11-08 확인)"
+      "factSource": "[출처 : 경복궁 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002434 (건립 시기 1395년, 정궁, 2026-11-08 확인)",
+      "routes": [
+        {
+          "id": "seoul_gyeongbu",
+          "name": "경부고속도로 (천안·수원)",
+          "missionIds": ["cheonan_independence", "suwon_hwaseong", "seoul_palace"],
+          "departureLine": "오늘은 대전에서 서울까지 가요. 천안과 수원을 지나 옛날 임금님이 살던 서울에 숨은 보물을 찾으러 출발해요!"
+        }
+      ]
     }
   ],
   "places": [
     { "id": "cheomseongdae", "latitude": 35.83472, "longitude": 129.21917, "radiusMeters": 1000, "missionId": "gyeongju_star" },
     { "id": "temporary_capital", "latitude": 35.1034, "longitude": 129.0174, "radiusMeters": 1000, "missionId": "busan_capital" },
     { "id": "hahoe", "latitude": 36.53806, "longitude": 128.52056, "radiusMeters": 1000, "missionId": "andong_village" },
-    { "id": "gyeongbokgung", "latitude": 37.57861, "longitude": 126.97722, "radiusMeters": 1000, "missionId": "seoul_palace" }
+    { "id": "gyeongbokgung", "latitude": 37.57861, "longitude": 126.97722, "radiusMeters": 1000, "missionId": "seoul_palace" },
+    { "id": "cheonan", "latitude": 36.82641, "longitude": 127.16881, "radiusMeters": 3000, "missionId": "cheonan_independence" },
+    { "id": "daegu", "latitude": 35.90882, "longitude": 128.57985, "radiusMeters": 3000, "missionId": "daegu_debt" },
+    { "id": "suwon", "latitude": 37.26441, "longitude": 127.10384, "radiusMeters": 3000, "missionId": "suwon_hwaseong" },
+    { "id": "daejeon", "latitude": 36.36544, "longitude": 127.44937, "radiusMeters": 3000, "missionId": "daejeon_hanbat" },
+    { "id": "chungju", "latitude": 36.98098, "longitude": 127.84602, "radiusMeters": 3000, "missionId": "chungju_tangeumdae" },
+    { "id": "mungyeong", "latitude": 36.70141, "longitude": 128.11131, "radiusMeters": 3000, "missionId": "mungyeong_saejae" },
+    { "id": "danyang", "latitude": 36.91789, "longitude": 128.36526, "radiusMeters": 3000, "missionId": "danyang_dodam" },
+    { "id": "yeongju", "latitude": 36.76771, "longitude": 128.57196, "radiusMeters": 3000, "missionId": "yeongju_buseoksa" }
   ],
   "missions": [
     {
@@ -81,6 +127,134 @@
       "rewardItem": "crossroads_piece"
     },
     {
+      "id": "cheonan_independence",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 다음 보물은 천안 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "천안 근처에 왔어요! 천안에는 독립운동에 관한 물건과 자료를 모아 보여 주는 독립기념관이 있어요. 1987년 8월 15일에 문을 열었어요.",
+      "question": "독립기념관이 문을 연 날은 8월 15일일까요, 3월 1일일까요?",
+      "answers": ["8월 15일", "팔월 십오일", "15일", "십오일", "광복절"],
+      "correctLine": "맞아요, 8월 15일이에요! 독립 태극기 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 8월 15일이에요. 독립 태극기 조각을 찾았어요.",
+      "rewardItem": "independence_flag",
+      "factSource": "[출처 : 독립기념관 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0015975 (독립운동에 관한 유물과 자료를 수집·전시, 1987년 8월 15일 개관, 2026-11-09 확인)"
+    },
+    {
+      "id": "daegu_debt",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 다음 보물은 대구 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "대구 근처에 왔어요! 1907년에 대구에서 국채보상운동이 시작됐어요. 나라가 진 빚을 국민이 돈을 모아 갚자는 운동이에요.",
+      "question": "국채보상운동은 나라 빚을 갚자는 운동일까요, 나라 땅을 넓히자는 운동일까요?",
+      "answers": ["빚"],
+      "correctLine": "맞아요, 나라 빚을 갚자는 운동이에요! 나라 사랑 동전을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 나라 빚을 갚자는 운동이에요. 나라 사랑 동전을 찾았어요.",
+      "rewardItem": "debt_coin",
+      "factSource": "[출처 : 국채보상운동 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0006527 (1907년 2월 대구 광문사에서 제창, 국채를 국민들의 모금으로 갚기 위한 운동, 2026-11-09 확인)"
+    },
+    {
+      "id": "suwon_hwaseong",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 다음 보물은 수원 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "수원 근처에 왔어요! 수원 화성은 조선의 정조 임금 때 쌓은 성이에요. 1796년에 다 지었고, 1997년에 유네스코 세계유산이 되었어요.",
+      "question": "수원 화성을 쌓은 임금님은 정조일까요, 세종일까요?",
+      "answers": ["정조"],
+      "correctLine": "맞아요, 정조 임금님이에요! 화성 벽돌을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 정조 임금님이에요. 화성 벽돌을 찾았어요.",
+      "rewardItem": "hwaseong_brick",
+      "factSource": "[출처 : 수원 화성 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0064671 (정조, 1796년 완성), https://whc.unesco.org/en/list/817 (Date of Inscription 1997) (2026-11-09 확인)"
+    },
+    {
+      "id": "daejeon_hanbat",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 다음 보물은 대전 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "대전 근처에 왔어요! 대전은 옛날에 한밭이라고도 불렸어요.",
+      "question": "대전의 옛 이름은 한밭일까요, 한양일까요?",
+      "answers": ["한밭", "밭", "한받"],
+      "correctLine": "맞아요, 한밭이에요! 한밭 씨앗을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 한밭이에요. 한밭 씨앗을 찾았어요.",
+      "rewardItem": "hanbat_seed",
+      "factSource": "[출처 : 대전광역시 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0014708 (「대전(大田: 한밭)이라고 불렸다」, 2026-11-09 확인)"
+    },
+    {
+      "id": "chungju_tangeumdae",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 다음 보물은 충주 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "충주 근처에 왔어요! 충주 탄금대라는 이름은 옛날에 우륵이 가야금을 타던 곳이라서 붙었어요.",
+      "question": "우륵이 탄금대에서 탔던 악기는 가야금일까요, 거문고일까요?",
+      "answers": ["가야금"],
+      "correctLine": "맞아요, 가야금이에요! 가야금 줄을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 가야금이에요. 가야금 줄을 찾았어요.",
+      "rewardItem": "gayageum_string",
+      "factSource": "[출처 : 충주 탄금대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0058228 (「탄금대라는 명칭도 우륵이 가야금을 타던 곳이라는 데에서 유래한다」, 2026-11-09 확인)"
+    },
+    {
+      "id": "mungyeong_saejae",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 다음 보물은 문경 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "문경 근처에 왔어요! 문경새재는 기차가 없던 옛날, 서울과 부산을 오가는 큰길이 대개 지나던 고개예요. 조선 시대에 쌓은 관문이 세 개 있어요.",
+      "question": "문경새재에 있는 관문은 세 개일까요, 다섯 개일까요?",
+      "answers": ["세 개", "3개", "셋"],
+      "correctLine": "맞아요, 세 개예요! 새재 짚신을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 세 개예요. 새재 짚신을 찾았어요.",
+      "rewardItem": "saejae_straw_shoes",
+      "factSource": "[출처 : 조령 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0051706 (철도가 없던 옛날 서울∼부산 간 주요 도로가 대개 이 고개를 통함, 조선시대에 축성한 제1·2·3관문), [출처 : 문경새재 도립공원 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0019398 (새재가 조령) (2026-11-09 확인)"
+    },
+    {
+      "id": "danyang_dodam",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 다음 보물은 단양 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "단양 근처에 왔어요! 도담삼봉은 남한강 물줄기 가운데 솟은 봉우리 세 개예요.",
+      "question": "도담삼봉이 솟아 있는 강은 남한강일까요, 낙동강일까요?",
+      "answers": ["남한강", "남한"],
+      "correctLine": "맞아요, 남한강이에요! 삼봉 조약돌을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 남한강이에요. 삼봉 조약돌을 찾았어요.",
+      "rewardItem": "sambong_pebble",
+      "factSource": "[출처 : 단양팔경 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0013634 (「도담삼봉은 남한강 물줄기 가운데 솟은 세 개의 봉우리」), [출처 : 단양 도담삼봉 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0068786 (2026-11-09 확인)"
+    },
+    {
+      "id": "yeongju_buseoksa",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "대장님, 다음 보물은 영주 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
+      "eventSoundId": null,
+      "event": "영주 근처에 왔어요! 영주 부석사는 676년에 의상 스님이 세운 절이에요. 2018년에 다른 산사들과 함께 유네스코 세계유산이 되었어요.",
+      "question": "부석사를 세운 스님은 의상일까요, 원효일까요?",
+      "answers": ["의상"],
+      "correctLine": "맞아요, 의상 스님이에요! 부석사 기와 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 의상 스님이에요. 부석사 기와 조각을 찾았어요.",
+      "rewardItem": "buseoksa_tile",
+      "factSource": "[출처 : 봉황산 부석사 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0024295 (676년 의상 창건, 2018년 산사 세계유산), https://whc.unesco.org/en/list/1562 (2026-11-09 확인)"
+    },
+    {
       "id": "gyeongju_star",
       "ageGroups": [],
       "destinationId": "gyeongju",
@@ -88,12 +262,13 @@
       "autoAfterSeconds": 600,
       "briefing": "대장님, 경주 보물은 별을 보던 돌 건물 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
       "eventSoundId": null,
-      "event": "경주에 들어왔어요! 옛날 신라 사람들이 별을 보던 첨성대가 이 근처에 있어요.",
-      "question": "첨성대는 별을 보던 곳일까요, 물고기를 잡던 곳일까요?",
-      "answers": ["별"],
-      "correctLine": "맞아요, 별을 보던 곳이에요! 첨성대 보물 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 첨성대는 별을 보던 곳이에요. 첨성대 보물 조각을 찾았어요.",
-      "rewardItem": "cheomseongdae_piece"
+      "event": "경주에 들어왔어요! 경주에는 옛날 신라 사람들이 별을 보던 첨성대가 있어요.",
+      "question": "첨성대에서 별을 보던 사람들은 신라 사람들일까요, 조선 사람들일까요?",
+      "answers": ["신라"],
+      "correctLine": "맞아요, 신라 사람들이에요! 첨성대 보물 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 신라 사람들이에요. 첨성대 보물 조각을 찾았어요.",
+      "rewardItem": "cheomseongdae_piece",
+      "factSource": "[출처 : 경주 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002925, [출처 : 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0056197 (2026-11-08 확인)"
     },
     {
       "id": "busan_capital",
@@ -103,12 +278,13 @@
       "autoAfterSeconds": 600,
       "briefing": "대장님, 부산 보물은 옛날 대통령이 머물던 집 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
       "eventSoundId": null,
-      "event": "부산에 들어왔어요! 6·25 전쟁 때 부산은 피란 수도였고, 이 근처 집은 대통령이 일하고 머무는 곳으로 쓰였어요.",
+      "event": "부산에 들어왔어요! 6·25 전쟁 때 부산은 피란 수도였고, 부산에는 대통령이 일하고 머무는 곳으로 쓰인 집이 있어요.",
       "question": "6·25 전쟁 때 피란 수도였던 도시는 부산일까요, 제주일까요?",
       "answers": ["부산"],
       "correctLine": "맞아요, 부산이에요! 임시수도 보물 조각을 찾았어요.",
       "wrongLine": "괜찮아요, 정답은 부산이에요. 임시수도 보물 조각을 찾았어요.",
-      "rewardItem": "capital_piece"
+      "rewardItem": "capital_piece",
+      "factSource": "[출처 : 부산 임시수도 대통령관저 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0077059 (2026-11-08 확인)"
     },
     {
       "id": "andong_village",
@@ -118,12 +294,13 @@
       "autoAfterSeconds": 600,
       "briefing": "대장님, 안동 보물은 옛날 집들이 모여 있는 마을에 숨어 있대요. 가까워지면 알려 줄게요.",
       "eventSoundId": null,
-      "event": "안동에 들어왔어요! 이 근처 하회마을은 고려 말부터 한 집안 사람들이 모여 살아온 마을이고, 옛날 집들이 지금도 남아 있어요.",
-      "question": "하회마을에 남아 있는 건 옛날 집일까요, 높은 빌딩일까요?",
-      "answers": ["옛날"],
-      "correctLine": "맞아요, 옛날 집이에요! 하회마을 보물 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 옛날 집이에요. 하회마을 보물 조각을 찾았어요.",
-      "rewardItem": "hahoe_piece"
+      "event": "안동에 들어왔어요! 안동에는 하회마을이 있어요. 고려 말부터 한 집안 사람들이 모여 살아온 마을이고, 옛날 집들이 지금도 남아 있어요.",
+      "question": "하회마을은 한 집안 사람들이 모여 살아온 마을일까요, 여러 나라 사람들이 모여 살아온 마을일까요?",
+      "answers": ["집안"],
+      "correctLine": "맞아요, 한 집안 사람들이 모여 살아온 마을이에요! 하회마을 보물 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 하회마을은 한 집안 사람들이 모여 살아온 마을이에요. 하회마을 보물 조각을 찾았어요.",
+      "rewardItem": "hahoe_piece",
+      "factSource": "https://whc.unesco.org/en/list/1324/ (Date of Inscription 2010), [출처 : 안동 하회마을 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0034689 (2026-11-08 확인)"
     },
     {
       "id": "seoul_palace",
@@ -133,17 +310,26 @@
       "autoAfterSeconds": 600,
       "briefing": "대장님, 서울 보물은 옛날 임금님이 살던 궁궐 근처에 숨어 있대요. 가까워지면 알려 줄게요.",
       "eventSoundId": null,
-      "event": "서울에 들어왔어요! 이 근처 경복궁은 조선 임금님의 으뜸 궁궐이에요.",
-      "question": "경복궁에 살던 사람은 임금님일까요, 해적일까요?",
-      "answers": ["임금"],
-      "correctLine": "맞아요, 임금님이에요! 경복궁 보물 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 임금님이에요. 경복궁 보물 조각을 찾았어요.",
-      "rewardItem": "palace_piece"
+      "event": "서울에 들어왔어요! 서울에는 조선 임금님의 으뜸 궁궐인 경복궁이 있어요.",
+      "question": "경복궁은 조선의 궁궐일까요, 신라의 궁궐일까요?",
+      "answers": ["조선"],
+      "correctLine": "맞아요, 조선의 궁궐이에요! 경복궁 보물 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 정답은 조선의 궁궐이에요. 경복궁 보물 조각을 찾았어요.",
+      "rewardItem": "palace_piece",
+      "factSource": "[출처 : 경복궁 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002434 (건립 시기 1395년, 정궁, 2026-11-08 확인)"
     }
   ],
   "items": [
     { "id": "map_piece", "name": "보물 지도 조각" },
     { "id": "crossroads_piece", "name": "갈림길 보물 조각" },
+    { "id": "independence_flag", "name": "독립 태극기 조각" },
+    { "id": "debt_coin", "name": "나라 사랑 동전" },
+    { "id": "hwaseong_brick", "name": "화성 벽돌" },
+    { "id": "hanbat_seed", "name": "한밭 씨앗" },
+    { "id": "gayageum_string", "name": "가야금 줄" },
+    { "id": "saejae_straw_shoes", "name": "새재 짚신" },
+    { "id": "sambong_pebble", "name": "삼봉 조약돌" },
+    { "id": "buseoksa_tile", "name": "부석사 기와 조각" },
     { "id": "cheomseongdae_piece", "name": "첨성대 보물 조각" },
     { "id": "capital_piece", "name": "임시수도 보물 조각" },
     { "id": "hahoe_piece", "name": "하회마을 보물 조각" },
@@ -155,5 +341,6 @@
     { "signal": "road_tunnel", "soundId": "wormhole", "line": null, "cooldownSeconds": 60 }
   ],
   "finalLine": "마지막 보물이 거의 다 왔어요!",
-  "endingLine": "오늘 찾은 보물 조각을 하나로 맞췄어요. 정말 멋진 탐험이었어요, 대장님!"
+  "endingLine": "오늘 찾은 보물 조각을 하나로 맞췄어요. 정말 멋진 탐험이었어요, 대장님!",
+  "credits": ["역사 내용 출처 : 한국민족문화대백과사전(encykorea.aks.ac.kr), 유네스코 세계유산센터(whc.unesco.org)", "위치 데이터 © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright)"]
 }

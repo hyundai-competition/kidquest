@@ -4,10 +4,12 @@
 // 시간은 Tick으로만 잰다. 각 단계에 들어간 뒤 처음 받은 Tick부터 센다.
 // 신호를 기다리는 동안 멈춘 시간도 기다린 시간에 들어간다(가정). 답을 기다리다 멈추면 질문부터 다시 해서 새로 센다.
 // 고른 목적지에 출발 문장이 있으면 첫 임무 전에 한 번 말한다. 장소는 차례가 오기 전에 지나가도 기억했다가 그 임무 차례에 연다.
-// 도착 직전 문장 같은 알림은 대사를 끊지 않고, 신호를 기다리거나 임무를 다 끝내 조용할 때 끼워 넣는다.
+// 다른 길로 와서 못 지난 장소 임무는 보물 없이 건너뛰고, 도착이 가까우면 남은 중간 장소를 건너뛰어 마지막 장소 임무를 연다.
+// 도착 직전 문장 같은 알림은 대사를 끊지 않고, 신호를 기다리거나 임무 사이, 임무를 다 끝내 조용할 때 끼워 넣는다.
 // 차 신호 기억과 반응 소리는 CarCues, 답 맞춰 보기는 Answers가 한다.
 package com.kidquest.core.engine
 
+import com.kidquest.core.contract.CarSignal
 import com.kidquest.core.contract.Command
 import com.kidquest.core.contract.Episode
 import com.kidquest.core.contract.Mission
@@ -30,16 +32,11 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
     private var step: Step? = null
     private var line: Command.Say? = null
 
-    /** 부모가 동의해야 듣는다. 기본은 듣지 않는다. 이번 이동이 끝나도 부모 설정이니 남겨 둔다. */
-    private var listeningAllowed = false
-    private var listening = false
+    /** 아이 답 듣기. 부모 동의는 이번 이동이 끝나도 남긴다. */
+    private val listen = Listening()
 
-    /** 출발 문장을 이미 말했거나 말할 게 없다. */
-    private var introDone = false
-
-    /** 아직 못 한 알림과, 알림 때문에 잠깐 멈춘 신호 기다리기를 시작한 시계 값. */
-    private var notice: Command.Say? = null
-    private var waitStartedAt: Long? = null
+    /** 도착 직전 문장 같은 알림. 조용할 때 끼워 넣는다. */
+    private val notice = NoticeSlot()
 
     /** 지금 단계에 들어간 뒤 처음 받은 시계 값. */
     private var stepStartedAt: Long? = null
@@ -60,11 +57,11 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
     fun speakCurrent(): List<Command> {
         val now = mission ?: return emptyList()
         return when (step) {
-            null -> sayIntro() ?: sayStep(Step.BRIEFING, "briefing", now.briefing)
-            Step.WAIT_TRIGGER -> if (cues.active(now)) openEvent(now) else sayNoticeIfQuiet()
+            null -> plan.takeDeparture()?.let { sayLine(Step.INTRO, it) } ?: startMission()
+            Step.WAIT_TRIGGER -> waitOrOpen(now)
             Step.SOUND -> sayStep(Step.EVENT, "event", now.event) // 효과음이 끊겼으니 사건 대사부터 한다.
             Step.WAIT_ANSWER -> {
-                listening = false // 멈출 때 듣기도 멈췄다. 질문을 다 말한 뒤 다시 듣는다.
+                listen.stop() // 멈출 때 듣기도 멈췄다. 질문을 다 말한 뒤 다시 듣는다.
                 sayStep(Step.QUESTION, "question", now.question)
             }
             else -> listOfNotNull(line)
@@ -96,7 +93,7 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
 
     fun onAnswer(word: String?): List<Command> {
         val now = mission ?: return emptyList()
-        if (step != Step.WAIT_ANSWER || !listening) return emptyList()
+        if (step != Step.WAIT_ANSWER || !listen.active) return emptyList()
         return sayAnswer(now, word)
     }
 
@@ -117,7 +114,7 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
 
     /** 알림을 맡긴다. 비행 중이고 조용하면 바로 말하고, 아니면 조용해질 때 말한다. */
     fun announce(say: Command.Say, flying: Boolean): List<Command> {
-        notice = say
+        notice.hold(say)
         return if (flying) sayNoticeIfQuiet() else emptyList()
     }
 
@@ -125,10 +122,22 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
 
     /** 장소에 들어왔다. 그 장소 임무가 신호를 기다리는 중이면 열고, 아직 차례가 아니면 기억만 한다. 같은 장소는 한 번만 센다. */
     fun onPlace(placeId: String, flying: Boolean): List<Command> {
-        val missionId = cues.reach(placeId) ?: return emptyList()
-        val now = mission
-        if (!flying || now == null || now.id != missionId || step != Step.WAIT_TRIGGER) return emptyList()
-        return if (cues.active(now)) openEvent(now) else emptyList()
+        cues.reach(placeId) ?: return emptyList()
+        return recheck(flying) // 뒤 장소에 먼저 왔으면 지금 장소 임무를 건너뛴다.
+    }
+
+    /** 위치를 못 읽는 차면 장소 임무도 시간으로 연다. */
+    fun onSignalUnavailable(signal: CarSignal) {
+        if (signal == CarSignal.LOCATION) cues.locationMissing = true
+    }
+
+    /** 도착이 가깝다(남은 시간 5분 이하). 마지막 장소에 온 것으로 보고, 남은 중간 장소는 차례가 오면 건너뛴다. 도착 직전 문장이 먼저 나가게 여기서는 말하지 않는다. */
+    fun nearArrival() = cues.reachFinal(missions)
+
+    /** 도착했다. 마지막 장소에 온 것으로 보고, 비행 중에 신호를 기다리고 있었으면 바로 따진다. */
+    fun onArrived(flying: Boolean): List<Command> {
+        cues.reachFinal(missions)
+        return recheck(flying)
     }
 
     fun onTick(nowMillis: Long): List<Command> {
@@ -141,7 +150,7 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         }
         val waited = nowMillis - startedAt
         return when (step) {
-            Step.WAIT_TRIGGER -> if (waited >= now.autoAfterSeconds * 1_000L) openEvent(now) else emptyList()
+            Step.WAIT_TRIGGER -> if (cues.opensByTime(now) && waited >= now.autoAfterSeconds * 1_000L) openEvent(now) else emptyList()
             Step.SOUND -> if (waited >= EVENT_DELAY_SECONDS * 1_000L) sayStep(Step.EVENT, "event", now.event) else emptyList()
             Step.WAIT_ANSWER -> answerTimeout(now, waited)
             else -> emptyList()
@@ -149,9 +158,9 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
     }
 
     fun setListeningAllowed(allowed: Boolean): List<Command> {
-        listeningAllowed = allowed
-        if (allowed || !listening) return emptyList()
-        listening = false
+        listen.allowed = allowed
+        if (allowed || !listen.active) return emptyList()
+        listen.stop()
         stepStartedAt = null
         return listOf(Command.StopAudio)
     }
@@ -159,28 +168,19 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
     /** 이번 이동의 기록만 지운다. */
     fun reset() {
         index = 0
-        introDone = false
-        notice = null
-        waitStartedAt = null
+        plan.newTrip()
+        notice.reset()
         cues.reset()
         clearStep()
     }
 
-    private fun sayStep(next: Step, part: String, text: String): List<Command> {
-        val say = Command.Say("${mission?.id}/$part", text)
+    private fun sayStep(next: Step, part: String, text: String) = sayLine(next, Command.Say("${mission?.id}/$part", text))
+
+    /** 다음 단계로 들어가 대사 하나를 말한다. 이 대사가 끝났다는 사건을 받아야 다음으로 간다. */
+    private fun sayLine(next: Step, say: Command.Say): List<Command> {
         enter(next)
         line = say
         return listOf(say)
-    }
-
-    /** 첫 임무 전에 출발 문장을 한 번 말한다. 말할 게 없으면 null. */
-    private fun sayIntro(): List<Command>? {
-        if (introDone) return null
-        introDone = true
-        val intro = plan.departure() ?: return null
-        enter(Step.INTRO)
-        line = intro
-        return listOf(intro)
     }
 
     private fun enter(next: Step) {
@@ -189,34 +189,57 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         stepStartedAt = null
     }
 
-    /** 신호가 오거나 시간이 지나면 연다. 신호를 못 읽는 차도 시간이 지나면 열린다. */
+    /** 임무를 시작한다. 다른 길로 와서 못 지난 장소 임무는 보물 없이 건너뛴다. */
+    private fun startMission(): List<Command> {
+        while (cues.missed(missions, index)) index++
+        val now = mission ?: return emptyList()
+        return sayStep(Step.BRIEFING, "briefing", now.briefing)
+    }
+
+    /** 신호가 오거나 시간이 지나면 연다. 신호를 못 읽는 차도 시간이 지나면 열린다(장소 임무는 위치를 못 읽을 때만). */
     private fun waitForTrigger(now: Mission): List<Command> {
         enter(Step.WAIT_TRIGGER)
-        return if (cues.active(now)) openEvent(now) else sayNoticeIfQuiet()
+        return waitOrOpen(now)
+    }
+
+    /** 차 신호가 바뀌었다. 비행 중에 신호를 기다리고 있으면 지금 임무를 다시 따진다. */
+    private fun recheck(flying: Boolean): List<Command> {
+        val now = mission
+        return if (flying && now != null && step == Step.WAIT_TRIGGER) waitOrOpen(now) else emptyList()
+    }
+
+    /** 신호를 기다리는 중에 따진다. 신호가 이미 와 있으면 열고, 미뤄 둔 알림이 있으면 먼저 말하고, 못 지난 장소면 건너뛴다. */
+    private fun waitOrOpen(now: Mission): List<Command> = when {
+        cues.active(now) -> openEvent(now)
+        notice.pending != null -> sayNoticeIfQuiet()
+        cues.missed(missions, index) -> {
+            clearStep()
+            startMission()
+        }
+        else -> emptyList()
     }
 
     /** 알림을 끼워 넣어도 되는 때만 말한다. 신호를 기다리는 중이거나 임무를 다 끝내 조용할 때다. */
-    private fun sayNoticeIfQuiet(): List<Command> {
-        val say = notice ?: return emptyList()
-        val waiting = step == Step.WAIT_TRIGGER
-        if (!waiting && !(allDone && step == null)) return emptyList()
-        notice = null
-        waitStartedAt = if (waiting) stepStartedAt else null
-        enter(Step.NOTICE)
-        line = say
-        return listOf(say)
+    private fun sayNoticeIfQuiet(): List<Command> = when {
+        step == Step.WAIT_TRIGGER -> sayNotice(waiting = true)
+        allDone && step == null -> sayNotice(waiting = false)
+        else -> emptyList()
     }
 
-    /** 알림이 끝나면 하던 신호 기다리기로 돌아간다. 기다린 시간은 이어서 세고, 그사이 온 신호는 바로 연다. */
+    /** 알림을 말한다. 신호를 기다리던 중이었으면 기다린 시간을 남겨 둔다. */
+    private fun sayNotice(waiting: Boolean): List<Command> =
+        notice.take(waiting, stepStartedAt)?.let { sayLine(Step.NOTICE, it) }.orEmpty()
+
+    /** 알림이 끝나면 하던 일로 돌아간다. 신호를 기다리던 중이면 기다린 시간을 이어서 세고 그사이 온 신호를 바로 연다. 임무 사이였으면 다음 임무를 시작한다. */
     private fun afterNotice(): List<Command> {
         val now = mission
-        if (now == null) {
+        if (!notice.fromWait || now == null) {
             clearStep()
-            return emptyList()
+            return speakCurrent()
         }
         enter(Step.WAIT_TRIGGER)
-        stepStartedAt = waitStartedAt
-        return if (cues.active(now)) openEvent(now) else emptyList()
+        stepStartedAt = notice.waitStartedAt
+        return waitOrOpen(now)
     }
 
     /** 효과음을 먼저 내고 몇 초 뒤에 사건을 말한다. 효과음이 없으면 바로 말한다. */
@@ -228,21 +251,19 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
 
     private fun waitForAnswer(now: Mission): List<Command> {
         enter(Step.WAIT_ANSWER)
-        listening = listeningAllowed
-        return if (listening) listOf(Command.Listen(now.answers, ANSWER_SECONDS)) else emptyList()
+        return listen.start(now.answers)
     }
 
-    /** 듣지 않으면 8초 뒤에 넘어간다. 들을 때는 음성이 답을 안 줘도 임무가 멈추지 않게 조금 더 기다린다. */
+    /** 답을 기다릴 시간이 지나면 정답을 말해 준다. 듣는 중이었으면 듣기를 먼저 멈춘다. */
     private fun answerTimeout(now: Mission, waited: Long): List<Command> {
-        val limitSeconds = if (listening) ANSWER_SECONDS + LISTEN_GRACE_SECONDS else ANSWER_SECONDS
-        if (waited < limitSeconds * 1_000L) return emptyList()
-        val stop = if (listening) listOf(Command.StopAudio) else emptyList()
+        if (!listen.timedOut(waited)) return emptyList()
+        val stop = if (listen.active) listOf(Command.StopAudio) else emptyList()
         return stop + sayAnswer(now, null)
     }
 
     /** 못 알아들었거나 틀려도 혼내지 않고 정답을 말해 준다. */
     private fun sayAnswer(now: Mission, word: String?): List<Command> {
-        listening = false
+        listen.stop()
         return sayStep(Step.ANSWER_LINE, "answer", if (Answers.isCorrect(now, word)) now.correctLine else now.wrongLine)
     }
 
@@ -250,21 +271,17 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         val award = Command.AwardItem(now.rewardItem, itemNames[now.rewardItem] ?: now.rewardItem)
         index++
         clearStep()
-        val next = speakCurrent()
-        return listOf(award) + next + (if (mission == null) sayNoticeIfQuiet() else emptyList())
+        return listOf(award) + sayNotice(waiting = false).ifEmpty { speakCurrent() } // 미뤄 둔 알림은 다음 임무 전에 말한다.
     }
 
     private fun clearStep() {
         step = null
         line = null
-        listening = false
+        listen.stop()
         stepStartedAt = null
     }
 
     private companion object {
-        const val ANSWER_SECONDS = 8
-        const val LISTEN_GRACE_SECONDS = 2
-
         /** 효과음 뒤 사건 대사까지 기다리는 시간. 정해진 값이 없어서 3초로 둔다(가정). */
         const val EVENT_DELAY_SECONDS = 3
     }

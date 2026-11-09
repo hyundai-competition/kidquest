@@ -29,6 +29,11 @@ gradlew.bat :core:test
 
 `apk/` 폴더에 `팀명_앱이름_release.apk`로 둔다. 아직 올리지 않았다.
 
+## 출처
+
+- 역사 내용 : 한국민족문화대백과사전(https://encykorea.aks.ac.kr), 유네스코 세계유산센터(https://whc.unesco.org). 항목별 출처는 에피소드 파일의 `factSource`에 있다.
+- 위치 데이터 : © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright). 에피소드 파일 `places`의 고속도로 나들목 좌표를 OpenStreetMap에서 가져왔다.
+
 ## 더 보기
 
 - 폴더와 역할 : [docs/structure.md](docs/structure.md)

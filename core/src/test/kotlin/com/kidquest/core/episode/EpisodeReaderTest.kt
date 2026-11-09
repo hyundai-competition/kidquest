@@ -173,6 +173,44 @@ class EpisodeReaderTest {
         expectProblem(good.swap(""""autoAfterSeconds": 120""", """"autoAfterSeconds": 0"""), "autoAfterSeconds")
     }
 
+    /** 시험 목적지에 경로를 붙인다. */
+    private fun withRoute(route: String) =
+        good.swap(""""factSource": "출처"""", """"factSource": "출처", "routes": [ $route ]""")
+
+    @Test
+    fun `경로를 읽고, 경로 출발 문장은 없어도 된다`() {
+        val route = expectOk(withRoute("""{ "id": "road", "name": "고속도로", "missionIds": ["meteor"] }""")).destinations[0].routes[0]
+        assertEquals(listOf("meteor"), route.missionIds)
+        assertEquals("", route.departureLine)
+        assertTrue(expectOk(good).destinations[0].routes.isEmpty())
+    }
+
+    @Test
+    fun `경로가 없는 임무를 가리키거나 비어 있으면 실패한다`() {
+        expectProblem(withRoute("""{ "id": "road", "name": "고속도로", "missionIds": ["ghost"] }"""), "없는 임무 ghost")
+        expectProblem(withRoute("""{ "id": "road", "name": "고속도로", "missionIds": [] }"""), "임무가 없다")
+        expectProblem(withRoute("""{ "id": "road", "name": " ", "missionIds": ["meteor"] }"""), "name")
+        expectProblem(withRoute("""{ "id": "road", "name": "길", "missionIds": ["meteor", "meteor"] }"""), "두 번 나온다")
+    }
+
+    @Test
+    fun `목적지 임무가 그 목적지의 어느 경로에도 없으면 실패한다`() {
+        // 경로가 있는 목적지는 경로에 적힌 임무만 나와서, 빠진 목적지 임무는 조용히 사라진다.
+        val text = withRoute("""{ "id": "road", "name": "고속도로", "missionIds": ["ghost"] }""")
+            .swap(""""destinationId": null""", """"destinationId": "planet"""")
+        expectProblem(text, "어느 경로에도 없어서")
+    }
+
+    @Test
+    fun `경로가 다른 목적지의 임무를 가리키면 실패한다`() {
+        val moon = """{ "id": "moon", "name": "달", "planetName": "달", "departureLine": "출발", "approachLine": "접근",
+            "deliveryLine": "전달", "landingFact": "사실", "factSource": "출처",
+            "routes": [ { "id": "sky", "name": "하늘길", "missionIds": ["meteor"] } ] },"""
+        val text = good.swap(""""destinations": [""", """"destinations": [ $moon""")
+            .swap(""""destinationId": null""", """"destinationId": "planet"""")
+        expectProblem(text, "다른 목적지 planet")
+    }
+
     @Test
     fun `틀린 곳이 여럿이면 한 번에 다 적는다`() {
         val text = good

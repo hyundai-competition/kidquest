@@ -4,6 +4,7 @@ package com.kidquest.core.engine
 
 import com.kidquest.core.contract.AgeGroup
 import com.kidquest.core.contract.AppEvent
+import com.kidquest.core.contract.CarSignal
 import com.kidquest.core.contract.Command
 import com.kidquest.core.contract.Destination
 import com.kidquest.core.contract.Gear
@@ -188,12 +189,19 @@ class TripPlanTest : MissionTestBase() {
 
     @Test
     fun `차례가 오기 전에 지나간 장소는 기억했다가 그 임무 브리핑이 끝나면 바로 연다`() {
+        engine = MissionEngine(routes(timeMission("common"), placeMission("g1", "gyeongju")))
         send(AppEvent.ListeningConsentChanged(true))
         choose("gyeongju")
-        untilFirstBriefing()
-        assertTrue(send(AppEvent.PlaceEntered("tower")).isEmpty())
-        assertEquals(listOf("g2 브리핑"), said(clearPlaceMission("g1", "cheonan")))
-        assertEquals(listOf("g2 사건"), said(finish("g2/briefing")))
+        assertEquals(listOf("common 브리핑"), said(untilFirstBriefing()))
+        assertTrue(send(AppEvent.PlaceEntered("cheonan")).isEmpty())
+        finish("common/briefing")
+        tick(0)
+        tick(120)
+        finish("common/event")
+        finish("common/question")
+        send(AppEvent.AnswerHeard("초록색"))
+        assertEquals(listOf("g1 브리핑"), said(finish("common/answer")))
+        assertEquals(listOf("g1 사건"), said(finish("g1/briefing")))
     }
 
     @Test
@@ -226,11 +234,33 @@ class TripPlanTest : MissionTestBase() {
     }
 
     @Test
-    fun `장소가 안 오면 정해 둔 시간이 지나 열린다`() {
+    fun `장소 임무는 정해 둔 시간이 지나도 열지 않는다`() {
+        // 시간으로 열면 서울에서 「경주에 왔어요」라고 할 수 있다.
+        choose("gyeongju")
+        untilFirstBriefing()
+        finish("g1/briefing")
+        tick(0)
+        assertTrue(said(tick(120)).isEmpty())
+        assertTrue(said(tick(7_200)).isEmpty())
+    }
+
+    @Test
+    fun `위치를 못 읽는 차는 장소 임무도 정해 둔 시간이 지나 열린다`() {
+        send(AppEvent.SignalUnavailable(CarSignal.LOCATION))
         choose("gyeongju")
         untilFirstBriefing()
         finish("g1/briefing")
         tick(0)
         assertEquals(listOf("g1 사건"), said(tick(120)))
+    }
+
+    @Test
+    fun `위치 말고 다른 신호를 못 읽는다고 장소 임무를 시간으로 열지는 않는다`() {
+        send(AppEvent.SignalUnavailable(CarSignal.NAVIGATION), AppEvent.SignalUnavailable(CarSignal.WIPER))
+        choose("gyeongju")
+        untilFirstBriefing()
+        finish("g1/briefing")
+        tick(0)
+        assertTrue(said(tick(120)).isEmpty())
     }
 }
