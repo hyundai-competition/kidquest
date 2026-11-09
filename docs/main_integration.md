@@ -1,6 +1,6 @@
 # main 통합 (2026-11-09)
 
-기준 main: 25f18c8 (#53까지 머지). 기존 작업은 e317753과 codex/pre-main-integration-20261109 브랜치에 보존했다. 통합 브랜치는 codex/main-integration-20261109이며 원격에 푸시하지 않았다.
+기준 main: 25f18c8 (#53까지 머지). 기존 작업은 e317753과 codex/pre-main-integration-20261109 브랜치에 보존했다. 통합 브랜치는 codex/route-voice-integration이며 원격에 푸시하지 않았다.
 
 ## 연결한 것
 
@@ -44,4 +44,10 @@
 
 - core 170개, 앱 JVM 35개 테스트 통과. 디버그 APK와 AndroidTest APK 빌드 통과.
 - 일반 Android 에뮬레이터에서 IntegratedTripTest 1개 통과. 실제 대본과 AppController에 가짜 차량·위치 사건과 번호 답변을 넣어 보물 다섯 개, 결말 → 전달 → 사실 → 착륙 순서를 확인했다. 음성은 테스트 대역이다.
-- Pleos 에뮬레이터는 앱 설치 전 부팅 과정에서 QEMU가 반복 종료돼 이번 통합본의 차량 SDK·TTS/STT 실기기 확인은 완료하지 못했다. 일반 Android 테스트 결과로 이를 대신하지 않는다.
+- Pleos 부팅 후 종료 원인은 macOS 오디오 입력의 교착이었다. 충돌 보고서의 QEMU 메인 루프가 `coreaudio_run_in`에서 잠금을 기다렸다. 로컬 AVD의 `hw.audioInput=no`로 변경한 뒤 기본 그래픽 설정으로 부팅·APK 설치·브루미 시작 화면 표시를 확인했다. 출력은 `hw.audioOutput=yes`를 유지한다. 이 설정에서는 실제 마이크 STT를 검증할 수 없다. 차량 SDK·TTS/STT 전체 통합 검증이 끝났다는 뜻은 아니다.
+
+## 로컬 Pleos 실행 복구
+
+- Android Studio에서 `Pleos_KidQuest`를 선택해 실행한다. 기존 기기 데이터는 초기화하지 않았다.
+- AVD의 `config.ini`는 같은 폴더의 `config.ini.before-audio-repair`로 백업했다. 변경은 가상 마이크 입력 비활성화 한 항목이다. SDK나 앱 소스에 마이크 차단을 넣지 않았다.
+- 이후 마이크 입력을 다시 켜면 같은 환경에서 멈춤이 재발할 수 있다. STT 실발화 검증에는 호스트 오디오 입력 문제의 추가 해결이 필요하다.
