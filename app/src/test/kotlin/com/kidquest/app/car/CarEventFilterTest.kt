@@ -1,4 +1,4 @@
-// 같은 값의 반복을 거르는지 본다. 달라지면 보내고, 자리가 다르면 따로 보는지 확인한다.
+// 같은 값의 반복을 거르는지 본다. 달라지면 보내고, 자리가 다르면 따로 보는지, 방향지시등은 켜질 때만 보내는지 확인한다.
 package com.kidquest.app.car
 
 import com.kidquest.core.contract.AppEvent
@@ -43,6 +43,17 @@ class CarEventFilterTest {
         filter.unavailable(CarSignal.BELT)
         filter.unavailable(CarSignal.WIPER)
         assertEquals(2, sent.size)
+    }
+
+    @Test
+    fun `방향지시등은 켜질 때만 보낸다`() {
+        filter.turnSignal(TurnSide.LEFT)
+        filter.turnSignal(TurnSide.LEFT)
+        filter.turnSignal(null)
+        filter.turnSignal(TurnSide.LEFT)
+        filter.turnSignal(TurnSide.RIGHT)
+        val expected = listOf(TurnSide.LEFT, TurnSide.LEFT, TurnSide.RIGHT).map { AppEvent.TurnSignalOn(it) }
+        assertEquals(expected, sent)
     }
 
     @Test
