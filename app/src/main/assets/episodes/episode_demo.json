@@ -336,6 +336,8 @@
     { "id": "palace_piece", "name": "경복궁 보물 조각" }
   ],
   "reactions": [
+    { "signal": "turn_left", "soundId": "thruster_left", "line": null, "cooldownSeconds": 60 },
+    { "signal": "turn_right", "soundId": "thruster_right", "line": null, "cooldownSeconds": 60 },
     { "signal": "road_tunnel", "soundId": "wormhole", "line": null, "cooldownSeconds": 60 }
   ],
   "finalLine": "마지막 보물이 거의 다 왔어요!",

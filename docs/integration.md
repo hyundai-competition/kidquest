@@ -54,7 +54,7 @@
 ## 4. 차량·내비 연결 : `CarSignalCollector`가 보낼 사건
 
 - `SeatOccupied(seat, occupied)`, `BeltBuckled(seat, buckled)`, `GearChanged(gear)`
-- `TurnSignalOn(side)`, `WiperChanged(on)`. 와이퍼는 켜짐과 꺼짐을 둘 다 보낸다. 깜빡이는 예시 파일에서 임무도 소리도 안 연다(아이가 깜빡이를 조르지 않게).
+- `TurnSignalOn(side)`, `WiperChanged(on)`. 와이퍼는 켜짐과 꺼짐을 둘 다 보낸다. 깜빡이는 짧은 반응 소리만 내고 임무는 안 연다.
 - 못 읽는 신호는 `SignalUnavailable(signal)`로 알린다.
 - 남은 시간 `RemainingTimeChanged(seconds)`는 초, 앞길 `RoadAhead(kind, meters)`는 미터, 실내 온도 `CabinTemperatureChanged(celsius)`는 섭씨로 보낸다. 같은 값은 다시 안 보내도 되고, 다시 와도 엔진이 한 번만 쓴다.
 - 내비 회전 안내 `onTBTInfo`가 오면 목록 첫 회전까지 거리를 `NextTurnDistance(meters)`로 보낸다. 거리가 줄어드는 동안 몇 초마다 계속 보내야 한다.

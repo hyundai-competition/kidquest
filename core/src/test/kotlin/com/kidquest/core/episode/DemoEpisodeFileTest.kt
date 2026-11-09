@@ -32,11 +32,10 @@ class DemoEpisodeFileTest {
     }
 
     @Test
-    fun `깜빡이에는 보물도 효과음도 걸지 않는다`() {
-        // 아이가 운전자에게 깜빡이를 켜 달라고 조르게 되고, 괜히 켠 깜빡이는 뒤차를 헷갈리게 한다.
+    fun `깜빡이로는 보물이나 임무를 열지 않는다`() {
+        // 아이가 운전자에게 깜빡이를 켜 달라고 조르게 되고, 괜히 켠 깜빡이는 뒤차를 헷갈리게 한다(docs/rules.md 아이 안전). 짧은 반응 소리는 둔다.
         val episode = episode()
         assertTrue(episode.missions.none { it.trigger == MissionTrigger.TURN_SIGNAL })
-        assertTrue(episode.reactions.none { it.signal == "turn_left" || it.signal == "turn_right" })
         episode.missions.forEach { mission ->
             val lines = listOf(mission.briefing, mission.event, mission.question, mission.correctLine, mission.wrongLine)
             assertTrue(mission.id, lines.none { "깜빡" in it })
