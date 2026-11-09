@@ -23,7 +23,7 @@ class VoiceEngineConnectionTest {
             val episode = (EpisodeFile.load(test.targetContext, EpisodeFile.DEMO) as EpisodeResult.Ok).episode
             val voice = VoiceOutput(test.targetContext) {
                 reports += it
-                if (it == "재생 중: meteor_shower/briefing") briefing.countDown()
+                if (it == "재생 중: rain_map/briefing") briefing.countDown()
             }
             val car = object : EventSource {
                 override fun start(listener: EventListener) = Unit

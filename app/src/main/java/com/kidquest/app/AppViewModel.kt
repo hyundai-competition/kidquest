@@ -100,19 +100,19 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private var voiceRetryCount = 0
     fun openDemoMission(mission: CityMission) {
         if (controller.vehicle.restricted || mission !in selectedRoute.missions) return
-        soundWasStopped = controller.vehicle.parentStopped
+        soundWasStopped = controller.parentStopRequested
         controller.dispatch(AppEvent.ParentStopChanged(true))
         bonusSuspended = false
         reviewingCompletedMission = false
-        missionAudioMuted = false
+        missionAudioMuted = soundWasStopped
         voiceRetryCount = 0
         missionSession = MissionSession(mission, age)
         demoMission = mission
         readMission()
     }
     fun readMission() {
-        if (!controller.vehicle.restricted) demoMission?.let {
-            missionAudioMuted = false
+        if (!controller.vehicle.restricted && !missionAudioMuted) demoMission?.let {
+            controller.retryAudioFocus()
             controller.speakScreen("${it.place}. ${it.description}")
         }
     }
@@ -129,8 +129,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (session.done && !wasDone) {
             completeMission(session)
         } else if (value == "편종" || value == "편경") {
-            controller.playScreenInstrument(value)
-        } else if (!session.done && session.mission.kind == com.kidquest.app.screen.model.PuzzleKind.FIND) {
+            if (!missionAudioMuted) controller.playScreenInstrument(value)
+        } else if (!missionAudioMuted && !session.done && session.mission.kind == com.kidquest.app.screen.model.PuzzleKind.FIND) {
             controller.speakScreen(session.feedback)
         }
     }
@@ -138,7 +138,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private fun completeMission(session: MissionSession) {
         skippedDemoMissions = skippedDemoMissions - session.mission.id
         completedDemoMissions = completedDemoMissions + session.mission.id
-        controller.speakScreen("${session.mission.place} 탐험 성공! 보물 조각을 찾았어요. ${completedDemoMissions.size}개의 조각이 모였어요.")
+        if (!missionAudioMuted) controller.speakScreen("${session.mission.place} 탐험 성공! 보물 조각을 찾았어요. ${completedDemoMissions.size}개의 조각이 모였어요.")
     }
     fun skipCurrentMission() {
         val session = missionSession ?: return
@@ -151,7 +151,6 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (session.done) return
         session.voiceMode = true
         session.playing = true
-        missionAudioMuted = false
         voiceRetryCount = 0
         readVoiceQuiz()
     }
@@ -164,8 +163,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             " 지금은 듣기만 해도 좋아요. 정차한 뒤 화면으로 답하거나 건너뛸 수 있어요."
         speakThenListen(prefix + question, session)
     }
-    fun repeatVoiceQuiz() { voiceRetryCount = 0; missionAudioMuted = false; readVoiceQuiz() }
-    fun resumeAnswering() { voiceRetryCount = 0; missionAudioMuted = false; listenAgain() }
+    fun repeatVoiceQuiz() { voiceRetryCount = 0; if (!missionAudioMuted) controller.retryAudioFocus(); readVoiceQuiz() }
+    fun resumeAnswering() { voiceRetryCount = 0; if (!missionAudioMuted) controller.retryAudioFocus(); listenAgain() }
     fun listenAgain() {
         val session = missionSession ?: return
         if (!consent || missionAudioMuted || session.done || !session.voiceMode) return
@@ -204,12 +203,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             if (!soundWasStopped) controller.dispatch(AppEvent.ParentStopChanged(false))
         } else if (!restricted && bonusSuspended) {
             bonusSuspended = false
-            soundWasStopped = controller.vehicle.parentStopped
+            soundWasStopped = controller.parentStopRequested
             controller.dispatch(AppEvent.ParentStopChanged(true))
         }
     }
     fun toggleMissionAudio() {
         missionAudioMuted = !missionAudioMuted
+        soundWasStopped = missionAudioMuted
+        if (!missionAudioMuted) controller.retryAudioFocus()
         if (missionAudioMuted) controller.stopScreenAudio()
         else if (journeyEndingVisible) readJourneyEnding()
         else if (missionSession?.voiceMode == true) readVoiceQuiz()
@@ -220,7 +221,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun showJourneyEnding() {
         if (controller.vehicle.restricted || !journeyReadyToEnd) return
         if (demoMission == null) {
-            soundWasStopped = controller.vehicle.parentStopped
+            soundWasStopped = controller.parentStopRequested
             controller.dispatch(AppEvent.ParentStopChanged(true))
         }
         controller.stopScreenAudio()
@@ -249,6 +250,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun restartTrip() {
         journeyEndingVisible = false
+        bonusSuspended = false
+        soundWasStopped = false
         missionAudioMuted = false
         reviewingCompletedMission = false
         controller.stopScreenAudio()

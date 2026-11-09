@@ -15,10 +15,13 @@ class VoiceOutput(
     context: Context,
     private val ui: (VoiceUiState) -> Unit = {},
     private val recognitionFactory: RecognitionFactory? = null,
+    focus: AudioFocusPort? = null,
     private val report: (String) -> Unit = {},
 ) : VoicePort {
     private val app = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
+    private val focus = focus ?: AudioFocusSource(app)
+    private var hasFocus = true
     private val recordings = runCatching { RecordingCatalog(app) }.getOrNull()
     private var listener: EventListener? = null
     private var instrument: SpeechPlayback? = null
@@ -42,13 +45,25 @@ class VoiceOutput(
         onSpeaking = { show(VoiceUiState(VoicePhase.SPEAKING, it.text, "브루미가 이야기하고 있어요 · 마이크는 꺼져 있어요")) },
     )
 
-    override fun start(listener: EventListener) { this.listener = listener }
+    override fun start(listener: EventListener) {
+        this.listener = listener
+        focus.start { available -> onMain {
+            if (listener !== this.listener || available == hasFocus) return@onMain
+            hasFocus = available
+            if (!available) {
+                stopAudio()
+                show(VoiceUiState(VoicePhase.IDLE, hint = "다른 안내가 끝날 때까지 기다려요"))
+            }
+            listener.onEvent(AppEvent.AudioFocusChanged(available))
+        } }
+    }
+    fun retryAudioFocus() = onMain { focus.request(userInitiated = true) }
 
     override fun handle(command: Command) = onMain {
         if (listener == null) return@onMain
         when (command) {
-            is Command.Say -> { cancelListening(); speech.say(command) }
-            is Command.PlaySound -> effects.play(command.soundId)
+            is Command.Say -> { if (focus.request()) { cancelListening(); speech.say(command) } }
+            is Command.PlaySound -> if (focus.request()) effects.play(command.soundId)
             Command.StopAudio -> stopAudio()
             is Command.Listen -> listen(command.timeoutSeconds) { listener?.onEvent(AppEvent.AnswerHeard(it)) }
             else -> Unit
@@ -58,6 +73,7 @@ class VoiceOutput(
     // 체험 대사도 같은 재생기를 사용해 SDK 인스턴스 간 중단 경쟁을 피한다.
     fun readScreen(text: String, finished: (() -> Unit)? = null) = onMain {
         stopAudio()
+        if (!focus.request()) return@onMain
         val id = "screen_mission_${++screenSerial}"
         val token = generation
         screenDone = finished?.let { action -> id to {
@@ -69,6 +85,7 @@ class VoiceOutput(
     }
     fun playInstrument(name: String) = onMain {
         stopAudio()
+        if (!focus.request()) return@onMain
         instrument = AssetPlayback(app, "audio/instruments/${if (name == "편종") "metal_preview" else "stone_preview"}.wav", object : PlaybackCallback {
             override fun completed() { instrument?.finish(); instrument = null }
             override fun failed(reason: String) { status(reason); instrument?.cancel(); instrument = null }
@@ -89,6 +106,12 @@ class VoiceOutput(
             result(null)
             return
         }
+        if (androidx.core.content.ContextCompat.checkSelfPermission(app, "pleos.car.permission.STT_SERVICE") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            show(VoiceUiState(VoicePhase.ERROR, hint = "음성 인식 권한을 확인해 주세요"))
+            result(null)
+            return
+        }
+        if (!focus.request()) return
         val token = ++generation
         show(VoiceUiState(VoicePhase.PREPARING, hint = "마이크를 준비하고 있어요"))
         val callback = object : RecognitionCallback {
@@ -115,6 +138,7 @@ class VoiceOutput(
 
     override fun stop() = onMain {
         listener = null
+        focus.stop()
         stopAudio()
         main.removeCallbacksAndMessages(null)
     }

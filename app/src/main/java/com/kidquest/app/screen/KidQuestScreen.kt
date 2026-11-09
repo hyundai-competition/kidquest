@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kidquest.app.AppViewModel
@@ -34,10 +35,8 @@ fun KidQuestScreen(model: AppViewModel) {
             Background.NORMAL -> Night
         } else Night) {
             if (controller.vehicle.restricted) {
-                Column(Modifier.fillMaxSize().safeDrawingPadding().padding(32.dp), verticalArrangement = Arrangement.Center) {
-                    Text(if (model.demoMission != null || model.journeyEndingVisible) "소리로 이어가는 보물 탐험" else controller.status ?: titleOf(controller.screen), fontSize = 40.sp)
-                    VoiceStatusPanel(controller.voiceUi, compact = true)
-                    Text("퍼즐은 주차·휴식 중에 이어갈 수 있어요", fontSize = 26.sp)
+                Column(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
+                    Text(controller.status ?: titleOf(controller.screen), fontSize = 32.sp, modifier = Modifier.testTag("restricted-status"))
                     StopButton(model)
                 }
             } else {
@@ -101,6 +100,7 @@ internal fun CurrentScreen(model: AppViewModel) {
             when (controller.screen) {
                 Screen.FLYING, Screen.PAUSED -> StopButton(model)
                 Screen.DOCKED -> {
+                    ParentBeltConfirmation(controller)
                     StopButton(model)
                     Button(onClick = { controller.dispatch(AppEvent.EndTripPressed) }) { Text("여기서 탐험 마치기", fontSize = 36.sp) }
                 }
@@ -117,7 +117,8 @@ private fun StopButton(model: AppViewModel) {
     val stopped = if (inMission) model.missionAudioMuted else model.controller.vehicle.parentStopped
     Button(onClick = {
         if (inMission) model.toggleMissionAudio()
-        else model.controller.dispatch(AppEvent.ParentStopChanged(!stopped))
+        else if (stopped) model.controller.resumeAudio()
+        else model.controller.dispatch(AppEvent.ParentStopChanged(true))
     }, modifier = Modifier.heightIn(min = 88.dp)) {
         Text(if (stopped) "다시 켜기" else "소리 끄기", fontSize = 38.sp)
     }

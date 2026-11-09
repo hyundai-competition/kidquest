@@ -31,6 +31,7 @@ class MissionEngine(episode: Episode? = null) {
 
     /** 착륙 때 차례로 말할 대사. 앞 대사가 끝나면 다음 대사를 말한다. */
     private var landingLines: List<Command.Say> = emptyList()
+    private var landingIndex = 0
 
     /** 사건 하나를 받아 상태를 바꾸고, 음성과 화면에 시킬 명령을 돌려준다. */
     fun onEvent(event: AppEvent): List<Command> = when (event) {
@@ -195,9 +196,12 @@ class MissionEngine(episode: Episode? = null) {
         }
         val stop = on && (wasFlying || reason == PauseReason.AUDIO_FOCUS || reason == PauseReason.PARENT)
         val guide = if (reason == PauseReason.BELT && on && state == EngineState.PAUSED) beltGuide(Lines.BELT_OFF) else emptyList()
-        val held = if (reason == PauseReason.AUDIO_FOCUS && !on) gate.release() else emptyList()
+        val held = if (reason == PauseReason.AUDIO_FOCUS && !on && state != EngineState.LANDED) gate.release() else emptyList()
+        // 도착 후 대사도 중단되면 현재 문장부터 잇는다. 부모 끄기가 남아 있으면 재개하지 않는다.
+        val landing = if (state == EngineState.LANDED && !on && pauseReasons.isEmpty())
+            landingLines.getOrNull(landingIndex)?.let(::speak).orEmpty() else emptyList()
         val next = if (!wasFlying && state == EngineState.FLYING) continueMissions(held) else emptyList()
-        return listOfNotNull(Command.StopAudio.takeIf { stop }, screen) + guide + held + next
+        return listOfNotNull(Command.StopAudio.takeIf { stop }, screen) + guide + held + next + landing
     }
 
     private fun flyingScreen() = Command.ShowScreen(Screen.FLYING, Lines.STATUS_FLYING)
@@ -256,14 +260,16 @@ class MissionEngine(episode: Episode? = null) {
         state = EngineState.LANDED
         pauseReasons.retainAll(setOf(PauseReason.AUDIO_FOCUS, PauseReason.PARENT))
         val arrivalLines = if (arrived || missions.allDone) plan.arrivalLines() else emptyList()
+        landingIndex = 0
         landingLines = listOfNotNull(missions.ending()) + arrivalLines + Lines.LANDED
         return listOf(Command.StopAudio) + speak(landingLines.first()) + Command.ShowScreen(Screen.LANDED)
     }
 
     private fun nextLandingLine(lineId: String): List<Command> {
         val at = landingLines.indexOfFirst { it.lineId == lineId }
-        if (at < 0) return emptyList()
-        return landingLines.getOrNull(at + 1)?.let { speak(it) }.orEmpty()
+        if (at < 0 || at != landingIndex) return emptyList()
+        landingIndex = at + 1
+        return landingLines.getOrNull(landingIndex)?.let { speak(it) }.orEmpty()
     }
 
     /** 몸과 차의 값(탑승, 벨트, 기어, 포커스)과 고른 목적지는 그대로 두고, 이번 이동의 기록만 지운다. */
@@ -277,6 +283,7 @@ class MissionEngine(episode: Episode? = null) {
         gate.reset()
         continueAfterLine = null
         landingLines = emptyList()
+        landingIndex = 0
         missions.reset()
         trip.reset()
         return listOf(Command.ShowScreen(Screen.START))

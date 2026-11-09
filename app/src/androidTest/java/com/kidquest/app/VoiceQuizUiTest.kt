@@ -48,7 +48,7 @@ class VoiceQuizUiTest {
         compose.runOnIdle { model.controller.replay.send(AppEvent.DrivingRestricted(true)) }
         compose.waitUntil { model.controller.vehicle.restricted && model.bonusSuspended }
         compose.onNodeWithTag("mission-page").assertDoesNotExist()
-        compose.onNodeWithText("퍼즐은 주차·휴식 중에 이어갈 수 있어요").assertExists()
+        compose.onNodeWithTag("restricted-status").assertExists()
         compose.runOnIdle { model.controller.replay.send(AppEvent.DrivingRestricted(false)) }
         compose.waitUntil { !model.controller.vehicle.restricted }
         compose.runOnIdle { model.beginVoiceQuiz() }

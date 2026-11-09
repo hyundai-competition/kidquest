@@ -50,6 +50,8 @@ class AppController(
         private set
     var background by mutableStateOf(Background.NORMAL)
         private set
+    var parentStopRequested = false
+        private set
     var replayUsed by mutableStateOf(false)
         private set
     val items = mutableStateListOf<Command.AwardItem>()
@@ -82,12 +84,17 @@ class AppController(
         replay.stop()
     }
 
+    fun retryAudioFocus() { (voice as? VoiceOutput)?.retryAudioFocus() }
+    fun resumeAudio() { retryAudioFocus(); dispatch(AppEvent.ParentStopChanged(false)) }
     fun speakScreen(text: String, finished: (() -> Unit)? = null) { main.post { (voice as? VoiceOutput)?.readScreen(text, finished) } }
     fun listenScreen(result: (String?) -> Unit) { main.post { (voice as? VoiceOutput)?.listenScreen(result) } }
     fun playScreenInstrument(name: String) { main.post { (voice as? VoiceOutput)?.playInstrument(name) } }
     fun stopScreenAudio() { main.post { voice.handle(Command.StopAudio) } }
 
     fun dispatch(event: AppEvent) {
+        if (Looper.myLooper() != Looper.getMainLooper()) { main.post { dispatch(event) }; return }
+        // 화면 전환이 연속돼도 처리 대기 중인 부모 끄기 요청을 내부 퍼즐 멈춤과 혼동하지 않는다.
+        if (event is AppEvent.ParentStopChanged) parentStopRequested = event.stopped
         main.post {
             val actual = if (event is AppEvent.AnswerHeard) AppEvent.AnswerHeard(presentation.answer(event.word)) else event
             if (event == AppEvent.RestartPressed) presentation.reset()
@@ -102,7 +109,7 @@ class AppController(
             is Command.ShowScreen -> {
                 screen = command.screen
                 status = command.status
-                if (command.screen == Screen.START) items.clear()
+                if (command.screen == Screen.START) { items.clear(); parentStopRequested = false }
             }
             is Command.AwardItem -> if (items.none { it.itemId == command.itemId }) items += command
             is Command.Say -> voice.handle(presentation.say(command))
