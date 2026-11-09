@@ -11,7 +11,7 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 | F03 벨트 발사 | `BeltBuckled`, `ParentConfirmedBelt`, `GearChanged` | `Say` | | 엔진 됨 |
 | F04 이륙, 정박, 착륙 | `GearChanged`, `DestinationArrived`, `EndTripPressed` | `Say`, `StopAudio`, `ShowScreen(FLYING, DOCKED, LANDED)` | `Episode.endingLine` | 엔진 됨 |
 | F05 임무 진행 | `LineFinished`, `AnswerHeard`, `Tick` | `Say`, `PlaySound`, `Listen`, `AwardItem` | `Mission`, `Item` | 엔진 됨, 앱 연결 됨(가짜 음성) |
-| F06 차 신호 사건 | `TurnSignalOn`, `WiperChanged`, `Tick` | `PlaySound`, `Say` | `SignalReaction`, `Mission.trigger` | 엔진 됨, 반응 대사(`line`)는 아직 안 씀 |
+| F06 차 신호 사건 | `WiperChanged`, `NextTurnDistance`, `TurnSignalOn`, `Tick` | `PlaySound`, `Say` | `SignalReaction`, `Mission.trigger` | 엔진 됨, 반응 대사(`line`)는 아직 안 씀. 갈림길 임무(`NAVI_TURN`)는 내비가 알려 준 회전을 지나면 열림. 깜빡이는 짧은 반응 소리만 내고 임무는 걸지 않음 |
 | F07 음성 출력 | `LineFinished` | `Say`, `StopAudio` | | 가짜 음성 |
 | F08 아이 답 받기 | `ListeningConsentChanged`, `AnswerHeard` | `Listen` | `Mission.answers` | 엔진 됨, 실제 듣기 전 |
 | F09 벨트 풀림 멈춤 | `BeltBuckled` | `StopAudio`, `Say`, `ShowScreen(PAUSED, 이유)` | | 엔진 됨 |
@@ -19,7 +19,7 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 | F11 주행 중 화면 | `DrivingRestricted` | `ShowScreen(FLYING, 상태 한 줄)` | | 약속만 |
 | F12 착륙 화면 | | `ShowScreen(LANDED)`, `AwardItem` | `Item` | 약속만 |
 | F13 끄기 | `ParentStopChanged` | `StopAudio`, `ShowScreen(PAUSED, 이유)` | | 엔진 됨 |
-| F14 신호 없는 차 처리 | `SignalUnavailable`, `Tick` | | `Mission.autoAfterSeconds` | 엔진 됨(시간이 지나면 열림) |
+| F14 신호 없는 차 처리 | `SignalUnavailable`, `Tick` | | `Mission.autoAfterSeconds`, `Mission.fallbackEvent` | 엔진 됨(시간이 지나면 열림, `fallbackEvent`가 있으면 효과음 없이 그 대사를 말함) |
 | F15, F16 연령별 임무 | `AgeSelected` | | `Mission.ageGroups` | 엔진 됨, 예시 파일에 나이별 임무는 아직 없음 |
 | F17 남은 시간 맞춤 | `RemainingTimeChanged` | | | 약속만 |
 | F19 우주선 에너지 | `EnergyChanged` | `PlaySound`, `Say` | `SignalReaction` | 약속만 |
@@ -50,3 +50,4 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 - **알림 :** 도착 직전 문장은 대사를 끊지 않는다. 신호를 기다리는 중, 임무와 임무 사이, 임무를 다 끝냈을 때 말하고, 그사이 온 와이퍼와 장소 신호는 문장이 끝난 뒤 연다. 신호를 기다린 시간은 이어서 센다.
 - **앞길 :** `RoadAhead`가 300m(가정) 안이면 `road_tunnel`, `road_toll`, `road_rest_area` 같은 `SignalReaction` 효과음을 쿨다운 안에서 한 번 낸다. 거리가 바뀔 때마다 다시 와도 소리는 한 번이다.
 - **장소 임무 시간 :** 장소 임무는 `PlaceEntered`가 오면 열리고, 시간으로는 위치를 못 읽을 때(`SignalUnavailable(LOCATION)`)만 열린다. 「못 읽는 신호」 줄의 「안 오면 시간으로 열린다」는 이 줄로 바뀌었다.
+- **갈림길 임무 시간 :** 갈림길 임무는 회전을 지나면 열린다. 시간으로는 회전 안내가 한 번도 안 왔거나 내비를 못 읽을 때(`SignalUnavailable(NAVIGATION)`) `autoAfterSeconds`에, 안내가 오는 중이면 10분(가정) 뒤에 열린다.

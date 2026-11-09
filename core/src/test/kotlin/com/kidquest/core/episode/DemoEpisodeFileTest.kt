@@ -32,6 +32,17 @@ class DemoEpisodeFileTest {
     }
 
     @Test
+    fun `깜빡이로는 보물이나 임무를 열지 않는다`() {
+        // 아이가 운전자에게 깜빡이를 켜 달라고 조르게 되고, 괜히 켠 깜빡이는 뒤차를 헷갈리게 한다(docs/rules.md 아이 안전). 짧은 반응 소리는 둔다.
+        val episode = episode()
+        assertTrue(episode.missions.none { it.trigger == MissionTrigger.TURN_SIGNAL })
+        episode.missions.forEach { mission ->
+            val lines = listOf(mission.briefing, mission.event, mission.fallbackEvent, mission.question, mission.correctLine, mission.wrongLine)
+            assertTrue(mission.id, lines.none { "깜빡" in it })
+        }
+    }
+
+    @Test
     fun `장소 임무의 정답은 그 장소에서 들은 사건 대사 안에 있다`() {
         // 말이 안 되는 오답 보기로 쉽게 고르는 대신, 방금 들은 말에서 답을 찾게 한다.
         episode().missions.filter { it.trigger == MissionTrigger.PLACE }.forEach { mission ->

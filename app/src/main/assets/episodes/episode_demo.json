@@ -109,21 +109,22 @@
       "answers": ["파란색", "파랑"],
       "correctLine": "맞아요, 파란색! 열쇠로 보물 지도 조각을 꺼냈어요.",
       "wrongLine": "괜찮아요, 열쇠는 파란색이었어요. 보물 지도 조각을 꺼냈어요.",
-      "rewardItem": "map_piece"
+      "rewardItem": "map_piece",
+      "fallbackEvent": "오늘은 비가 안 와서 지도에 물방울이 없어요. 글씨가 잘 보여요!"
     },
     {
       "id": "crossroads",
       "ageGroups": [],
       "destinationId": null,
-      "trigger": "TURN_SIGNAL",
+      "trigger": "NAVI_TURN",
       "autoAfterSeconds": 180,
-      "briefing": "대장님, 가는 길에 갈림길이 있대요. 갈림길 어딘가에 보물 표시가 숨어 있어요.",
+      "briefing": "대장님, 가는 길에 갈림길이 있대요. 갈림길 보물 표시는 별 모양이래요.",
       "eventSoundId": null,
-      "event": "깜빡깜빡! 갈림길에서 보물 표시를 찾았어요.",
-      "question": "보물 상자를 여는 건 열쇠일까요, 숟가락일까요?",
-      "answers": ["열쇠"],
-      "correctLine": "맞아요, 열쇠예요! 갈림길 보물 조각을 찾았어요.",
-      "wrongLine": "괜찮아요, 정답은 열쇠예요. 갈림길 보물 조각을 찾았어요.",
+      "event": "반짝! 갈림길 보물 표시가 나타났어요.",
+      "question": "갈림길 보물 표시는 별 모양일까요, 하트 모양일까요?",
+      "answers": ["별"],
+      "correctLine": "맞아요, 별 모양이에요! 갈림길 보물 조각을 찾았어요.",
+      "wrongLine": "괜찮아요, 보물 표시는 별 모양이었어요. 갈림길 보물 조각을 찾았어요.",
       "rewardItem": "crossroads_piece"
     },
     {

@@ -6,7 +6,7 @@
 // 고른 목적지에 출발 문장이 있으면 첫 임무 전에 한 번 말한다. 장소는 차례가 오기 전에 지나가도 기억했다가 그 임무 차례에 연다.
 // 다른 길로 와서 못 지난 장소 임무는 보물 없이 건너뛰고, 도착이 가까우면 남은 중간 장소를 건너뛰어 마지막 장소 임무를 연다.
 // 도착 직전 문장 같은 알림은 대사를 끊지 않고, 신호를 기다리거나 임무 사이, 임무를 다 끝내 조용할 때 끼워 넣는다.
-// 차 신호 기억과 반응 소리는 CarCues, 답 맞춰 보기는 Answers가 한다.
+// 차 신호 기억(내비 갈림길을 지났는지 포함)과 반응 소리는 CarCues, 답 맞춰 보기는 Answers가 한다.
 package com.kidquest.core.engine
 
 import com.kidquest.core.contract.CarSignal
@@ -112,6 +112,13 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         return cues.turnSound(side, clockMillis)
     }
 
+    /** 내비가 알려 준 다음 회전까지 거리. 거리는 멈춘 동안에도 따라가고, 갈림길을 지나면 비행 중일 때만 갈림길 임무를 연다. */
+    fun onNextTurn(meters: Int, flying: Boolean): List<Command> {
+        if (!cues.passedTurn(meters) || !flying) return emptyList()
+        val now = mission
+        return if (now != null && step == Step.WAIT_TRIGGER && now.trigger == MissionTrigger.NAVI_TURN) openEvent(now) else emptyList()
+    }
+
     /** 알림을 맡긴다. 비행 중이고 조용하면 바로 말하고, 아니면 조용해질 때 말한다. */
     fun announce(say: Command.Say, flying: Boolean): List<Command> {
         notice.hold(say)
@@ -126,9 +133,10 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         return recheck(flying) // 뒤 장소에 먼저 왔으면 지금 장소 임무를 건너뛴다.
     }
 
-    /** 위치를 못 읽는 차면 장소 임무도 시간으로 연다. */
+    /** 위치를 못 읽는 차면 장소 임무도, 내비를 못 읽는 차면 갈림길 임무도 시간으로 연다. */
     fun onSignalUnavailable(signal: CarSignal) {
         if (signal == CarSignal.LOCATION) cues.locationMissing = true
+        if (signal == CarSignal.NAVIGATION) cues.navigationMissing = true
     }
 
     /** 도착이 가깝다(남은 시간 5분 이하). 마지막 장소에 온 것으로 보고, 남은 중간 장소는 차례가 오면 건너뛴다. 도착 직전 문장이 먼저 나가게 여기서는 말하지 않는다. */
@@ -150,7 +158,7 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         }
         val waited = nowMillis - startedAt
         return when (step) {
-            Step.WAIT_TRIGGER -> if (cues.opensByTime(now) && waited >= now.autoAfterSeconds * 1_000L) openEvent(now) else emptyList()
+            Step.WAIT_TRIGGER -> if (cues.openAfterSeconds(now)?.let { waited >= it * 1_000L } == true) openEvent(now, byTime = true) else emptyList()
             Step.SOUND -> if (waited >= EVENT_DELAY_SECONDS * 1_000L) sayStep(Step.EVENT, "event", now.event) else emptyList()
             Step.WAIT_ANSWER -> answerTimeout(now, waited)
             else -> emptyList()
@@ -242,8 +250,9 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         return waitOrOpen(now)
     }
 
-    /** 효과음을 먼저 내고 몇 초 뒤에 사건을 말한다. 효과음이 없으면 바로 말한다. */
-    private fun openEvent(now: Mission): List<Command> {
+    /** 효과음을 먼저 내고 몇 초 뒤에 사건을 말한다. 효과음이 없으면 바로 말한다. 신호 없이 시간으로 열 때 맑은 날 대사가 있으면 효과음 없이 그 대사를 말한다. */
+    private fun openEvent(now: Mission, byTime: Boolean = false): List<Command> {
+        if (byTime && now.fallbackEvent.isNotBlank()) return sayStep(Step.EVENT, "event", now.fallbackEvent)
         val sound = now.eventSoundId ?: return sayStep(Step.EVENT, "event", now.event)
         enter(Step.SOUND)
         return listOf(Command.PlaySound(sound))
