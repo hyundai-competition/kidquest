@@ -53,6 +53,7 @@ class MissionEngine(episode: Episode? = null) {
             else -> emptyList()
         }
         is AppEvent.AnswerHeard -> whileFlying { missions.onAnswer(event.word) }
+        is AppEvent.AnswerSelected -> whileFlying { missions.onAnswer(event.word, fromScreen = true) }
         is AppEvent.Tick -> whileFlying { missions.onTick(event.nowMillis) }
         is AppEvent.ListeningConsentChanged -> missions.setListeningAllowed(event.allowed)
         is AppEvent.WiperChanged -> missions.onWiper(event.on, state == EngineState.FLYING)

@@ -61,8 +61,8 @@ fun JourneyEnding(model: AppViewModel) {
                 Text("${model.completedDemoMissions.size}개의 보물 조각을 모았어요. 하지 못한 퍼즐은 다음에 만나도 좋아요. 오늘 만난 이야기를 마음에 담고, 남은 여행도 즐겁고 안전하게 이어가요!", fontSize = 28.sp, lineHeight = 42.sp, textAlign = TextAlign.Center)
                 model.selectedRoute.missions.forEach { Text("${if (it.id in model.completedDemoMissions) "✓" else "다음 기회에 ·"} ${it.place}", fontSize = 28.sp, color = Mint) }
                 Button(onClick = model::readJourneyEnding, modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp)) { Text("브루미 인사 다시 듣기", fontSize = 28.sp) }
-                OutlinedButton(onClick = model::returnToCompletedMap, modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp)) { Text("완성한 지도 보기", fontSize = 28.sp) }
-                TextButton(onClick = model::restartTrip, modifier = Modifier.heightIn(min = 72.dp)) { Text("새로운 탐험 준비하기", fontSize = 28.sp) }
+                OutlinedButton(onClick = model::returnToCompletedMap, modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp)) { Text("미니게임 목록으로", fontSize = 28.sp) }
+                TextButton(onClick = model::closeMiniGames, modifier = Modifier.heightIn(min = 72.dp)) { Text("본편 지도로 돌아가기", fontSize = 28.sp) }
             }
         }
     }

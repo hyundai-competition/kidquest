@@ -10,10 +10,10 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 | F02 승무원 확인 | `SeatOccupied`, `ParentConfirmedBelt` | `Say`, `ShowScreen(CREW_CHECK)` | | 엔진 됨 |
 | F03 벨트 발사 | `BeltBuckled`, `ParentConfirmedBelt`, `GearChanged` | `Say` | | 엔진 됨 |
 | F04 이륙, 정박, 착륙 | `GearChanged`, `DestinationArrived`, `EndTripPressed` | `Say`, `StopAudio`, `ShowScreen(FLYING, DOCKED, LANDED)` | `Episode.endingLine` | 엔진 됨 |
-| F05 임무 진행 | `LineFinished`, `AnswerHeard`, `Tick` | `Say`, `PlaySound`, `Listen`, `AwardItem` | `Mission`, `Item` | 엔진 됨, 앱 연결 됨(가짜 음성) |
+| F05 임무 진행 | `LineFinished`, `AnswerHeard`, `AnswerSelected`, `Tick` | `Say`, `PlaySound`, `Listen`, `AwardItem` | `Mission`, `Item` | 엔진·화면 연결 |
 | F06 차 신호 사건 | `WiperChanged`, `NextTurnDistance`, `TurnSignalOn`, `Tick` | `PlaySound`, `Say` | `SignalReaction`, `Mission.trigger` | 엔진 됨, 반응 대사(`line`)는 아직 안 씀. 갈림길 임무(`NAVI_TURN`)는 내비가 알려 준 회전을 지나면 열림. 깜빡이는 짧은 반응 소리만 내고 임무는 걸지 않음 |
 | F07 음성 출력 | `LineFinished` | `Say`, `StopAudio` | | 가짜 음성 |
-| F08 아이 답 받기 | `ListeningConsentChanged`, `AnswerHeard` | `Listen` | `Mission.answers` | 엔진 됨, 실제 듣기 전 |
+| F08 아이 답 받기 | `ListeningConsentChanged`, `AnswerHeard`, `AnswerSelected` | `Listen` | `Mission.answers` | 음성 답은 동의·듣기 활성 때만 수신. 화면 답은 동의와 별개이며 질문 완료 뒤에만 수신 |
 | F09 벨트 풀림 멈춤 | `BeltBuckled` | `StopAudio`, `Say`, `ShowScreen(PAUSED, 이유)` | | 엔진 됨 |
 | F10 소리 양보 | `AudioFocusChanged` | `StopAudio`, `ShowScreen(PAUSED, 이유)` | | 엔진 됨 |
 | F11 주행 중 화면 | `DrivingRestricted` | `ShowScreen(FLYING, 상태 한 줄)` | | 약속만 |

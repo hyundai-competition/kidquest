@@ -16,8 +16,15 @@ class EnginePresentation(private val episode: Episode?) {
         private set
     var caption by mutableStateOf("")
         private set
+    var answerReady by mutableStateOf(false)
+        private set
+    private var lineId = ""
+    fun lineFinished(id: String) { if (id == lineId && stage == "question") answerReady = true }
+    fun closeAnswer() { answerReady = false }
     val options get() = mission?.let(EngineChoices::forMission).orEmpty()
     fun say(command: Command.Say): Command.Say {
+        lineId = command.lineId
+        answerReady = false
         caption = command.text
         val id = command.lineId.substringBeforeLast('/', "")
         mission = episode?.missions?.firstOrNull { it.id == id }
@@ -30,5 +37,5 @@ class EnginePresentation(private val episode: Episode?) {
         if (stage != "question" || text == null) return text
         return NumberAnswer.parse(text)?.let { options.getOrNull(it) } ?: text
     }
-    fun reset() { mission = null; stage = ""; caption = "" }
+    fun reset() { mission = null; stage = ""; caption = ""; answerReady = false; lineId = "" }
 }

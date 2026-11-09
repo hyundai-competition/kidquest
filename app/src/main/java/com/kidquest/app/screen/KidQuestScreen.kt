@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -25,9 +24,6 @@ import com.kidquest.core.contract.Screen
 @Composable
 fun KidQuestScreen(model: AppViewModel) {
     val controller = model.controller
-    LaunchedEffect(controller.vehicle.restricted) {
-        model.onDrivingRestrictionChanged(controller.vehicle.restricted)
-    }
     KidQuestTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = if (controller.screen in listOf(Screen.DOCKED, Screen.LANDED)) when (controller.background) {
             Background.COOL -> Color(0xFFE8F1F6)
@@ -44,6 +40,8 @@ fun KidQuestScreen(model: AppViewModel) {
                     JourneyEnding(model)
                 } else if (model.demoMission != null) {
                     DemoMissionDialog(model)
+                } else if (model.miniGamesVisible) {
+                    MiniGamesScreen(model)
                 } else if (controller.screen == Screen.START || controller.screen == Screen.CREW_CHECK) {
                     SetupLayout(model)
                 } else {
@@ -113,7 +111,7 @@ internal fun CurrentScreen(model: AppViewModel) {
 
 @Composable
 private fun StopButton(model: AppViewModel) {
-    val inMission = (model.demoMission != null || model.journeyEndingVisible) && !model.bonusSuspended
+    val inMission = (model.demoMission != null || model.journeyEndingVisible)
     val stopped = if (inMission) model.missionAudioMuted else model.controller.vehicle.parentStopped
     Button(onClick = {
         if (inMission) model.toggleMissionAudio()
@@ -140,11 +138,6 @@ private fun ExpeditionLayout(model: AppViewModel) {
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         EngineJourneyBoard(model)
-        if (model.journeyReadyToEnd) {
-            Button(onClick = model::showJourneyEnding, modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp)) {
-                Text("여행 마무리 보기", fontSize = 32.sp)
-            }
-        }
         Column(
             Modifier.fillMaxWidth().background(Panel, RoundedCornerShape(28.dp)).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),

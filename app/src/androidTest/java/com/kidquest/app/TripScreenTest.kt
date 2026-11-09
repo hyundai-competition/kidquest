@@ -71,10 +71,9 @@ class TripScreenTest {
             assertTrue(model.missionAudioMuted)
         }
         send(AppEvent.DrivingRestricted(true))
-        compose.waitUntil { model.bonusSuspended }
+        compose.waitUntil { model.demoMission == null && !model.miniGamesVisible }
         compose.runOnIdle { assertTrue(model.controller.vehicle.parentStopped) }
         send(AppEvent.DrivingRestricted(false))
-        compose.waitUntil { !model.bonusSuspended }
         compose.runOnIdle { model.closeDemoMission() }
         compose.waitUntil { model.demoMission == null }
         compose.runOnIdle { assertTrue(model.controller.vehicle.parentStopped) }

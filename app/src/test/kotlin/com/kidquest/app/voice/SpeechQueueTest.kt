@@ -82,12 +82,28 @@ class SpeechQueueTest {
         assertTrue(finished.isEmpty())
     }
 
-    @Test fun missingRecordingDoesNotPretendSuccessAndReportsFailure() {
+    @Test fun missingRecordingReportsFailureAndAdvancesOnce() {
         val queue = queue(false)
         queue.say(line())
         tts[0].callback.failed("TTS 실패")
-        assertTrue(finished.isEmpty())
+        assertEquals(listOf("a"), finished)
+        tts[0].callback.completed()
+        tts[0].callback.failed("늦은 오류")
+        assertEquals(listOf("a"), finished)
         assertTrue(reports.last().contains("음성 재생 불가"))
+    }
+
+    @Test fun recordingFailureAdvancesToTheNextQueuedLineOnce() {
+        val queue = queue()
+        queue.say(line())
+        queue.say(line("b"))
+        tts[0].callback.failed("TTS 실패")
+        recordings[0].callback.failed("녹음 실패")
+        recordings[0].callback.completed()
+        assertEquals(listOf("a"), finished)
+        assertEquals("b", tts[1].line.lineId)
+        tts[1].callback.completed()
+        assertEquals(listOf("a", "b"), finished)
     }
 
     @Test fun externalInterruptionDoesNotAutomaticallyStartRecording() {

@@ -91,9 +91,9 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         }
     }
 
-    fun onAnswer(word: String?): List<Command> {
+    fun onAnswer(word: String?, fromScreen: Boolean = false): List<Command> {
         val now = mission ?: return emptyList()
-        if (step != Step.WAIT_ANSWER || !listen.active) return emptyList()
+        if (step != Step.WAIT_ANSWER || (!fromScreen && !listen.active)) return emptyList()
         return sayAnswer(now, word)
     }
 

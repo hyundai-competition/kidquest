@@ -31,4 +31,16 @@ class EngineIntegrationTest {
         assertTrue(EngineChoices.forMission(changed).isEmpty())
         assertEquals(2, episode.credits.size)
     }
+    @Test fun onlyTheCurrentFinishedQuestionEnablesChoices() {
+        val presentation = EnginePresentation(episode)
+        val mission = episode.missions.first()
+        presentation.say(Command.Say("${mission.id}/question", mission.question))
+        assertFalse(presentation.answerReady)
+        presentation.lineFinished("other/question")
+        assertFalse(presentation.answerReady)
+        presentation.lineFinished("${mission.id}/question")
+        assertTrue(presentation.answerReady)
+        presentation.say(Command.Say("${mission.id}/answer", mission.correctLine))
+        assertFalse(presentation.answerReady)
+    }
 }

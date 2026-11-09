@@ -19,6 +19,11 @@ class VoiceQuizUiTest {
         lateinit var model: AppViewModel
         compose.runOnIdle {
             model = ViewModelProvider(compose.activity)[AppViewModel::class.java]
+        }
+        compose.waitUntil(10_000) { model.connectionsReady }
+        compose.runOnIdle { model.controller.dispatch(AppEvent.GearChanged(com.kidquest.core.contract.Gear.P)) }
+        compose.waitUntil { model.canPlayMiniGames }
+        compose.runOnIdle {
             model.openDemoMission(model.selectedRoute.missions.first())
             model.stopNarration()
         }
@@ -28,7 +33,7 @@ class VoiceQuizUiTest {
         val answer = model.missionSession!!.quiz.answer
         compose.onNodeWithText("${answer + 1}번 · ${model.missionSession!!.quiz.options[answer]}").performScrollTo().performClick()
         compose.onNodeWithTag("mission-success").assertExists()
-        compose.onNodeWithText("지도로 돌아가기").performClick()
+        compose.onNodeWithText("미니게임 목록으로").performClick()
         compose.runOnIdle {
             assertEquals(1, model.completedDemoMissions.size)
             model.openDemoMission(model.selectedRoute.missions[1])
@@ -46,12 +51,12 @@ class VoiceQuizUiTest {
         compose.onNodeWithText("오늘의 보물 탐험을 마쳐요").assertExists()
         compose.runOnIdle { model.returnToCompletedMap(); model.openDemoMission(model.selectedRoute.missions[1]); model.beginMission() }
         compose.runOnIdle { model.controller.replay.send(AppEvent.DrivingRestricted(true)) }
-        compose.waitUntil { model.controller.vehicle.restricted && model.bonusSuspended }
+        compose.waitUntil { model.controller.vehicle.restricted && model.demoMission == null }
         compose.onNodeWithTag("mission-page").assertDoesNotExist()
         compose.onNodeWithTag("restricted-status").assertExists()
         compose.runOnIdle { model.controller.replay.send(AppEvent.DrivingRestricted(false)) }
         compose.waitUntil { !model.controller.vehicle.restricted }
-        compose.runOnIdle { model.beginVoiceQuiz() }
+        compose.runOnIdle { model.openDemoMission(model.selectedRoute.missions[1]); model.beginVoiceQuiz() }
         compose.onNodeWithText(model.missionSession!!.quiz.question).assertExists()
         compose.runOnIdle {
             model.stopNarration()

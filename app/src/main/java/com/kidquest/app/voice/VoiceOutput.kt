@@ -42,6 +42,10 @@ class VoiceOutput(
             else screenDone?.takeIf { it.first == id }?.second?.let { action -> screenDone = null; action() }
         },
         report = ::status,
+        unavailable = { id ->
+            if (!id.startsWith("screen_mission_")) listener?.onEvent(AppEvent.LineFinished(id))
+            else screenDone = null // 듣지 못한 보너스 질문 뒤 마이크를 자동으로 열지 않는다.
+        },
         onSpeaking = { show(VoiceUiState(VoicePhase.SPEAKING, it.text, "브루미가 이야기하고 있어요 · 마이크는 꺼져 있어요")) },
     )
 

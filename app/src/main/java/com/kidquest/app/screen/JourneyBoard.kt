@@ -40,7 +40,7 @@ fun JourneyBoard(route: DemoRoute, completed: Set<String> = emptySet(), onMissio
         Text("${route.from}에서 ${route.to}까지", fontSize = 38.sp, lineHeight = 50.sp, fontWeight = FontWeight.ExtraBold)
         Text(story ?: MissionNotes.stories.getValue(route.to), color = Mint, fontSize = 26.sp, lineHeight = 38.sp)
         RouteTiles(route, completed, onMission, skipped, tripStops, onPlace)
-        Text(if (tripStops == null) "시연 모드 · 장소를 눌러 미션을 시작해요" else "시연 · 장소를 누르면 엔진에 도착 신호를 보내요", color = Muted, fontSize = 22.sp, lineHeight = 32.sp)
+        Text(if (tripStops == null) "시연 모드 · 장소를 눌러 미션을 시작해요" else "시연 · 장소를 선택하면 현재 대사와 앞 임무가 끝난 뒤 이어져요", color = Muted, fontSize = 22.sp, lineHeight = 32.sp)
     }
 }
 
