@@ -46,6 +46,16 @@ class NaviTurnTest : MissionTestBase() {
     }
 
     @Test
+    fun `고속도로에서 10초마다 받은 거리로도 지난 갈림길을 센다`() {
+        // 시속 160km면 10초에 약 444m를 간다. 지나기 전 마지막 값이 412m여도 센다.
+        waiting()
+        turnAt(1_300)
+        turnAt(856)
+        assertTrue(turnAt(412).isEmpty())
+        assertEquals(opened, turnAt(2_500))
+    }
+
+    @Test
     fun `회전이 가까이 오지 않았으면 거리가 늘어도 열리지 않는다`() {
         // 먼 회전의 거리가 경로를 다시 찾아 늘었을 뿐이다.
         waiting()

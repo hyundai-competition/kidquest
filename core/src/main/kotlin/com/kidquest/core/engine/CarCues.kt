@@ -27,7 +27,7 @@ internal class CarCues(episode: Episode?, private val plan: TripPlan) {
     /** 이번 이동에서 내비 회전 안내를 받았나. 받았으면 갈림길 임무는 실제 갈림길을 지날 때만 연다. */
     private var guided = false
 
-    /** 마지막으로 받은 다음 회전까지 거리, 그리고 지금 기다리는 회전이 가까이(300m 안) 온 적이 있나. */
+    /** 마지막으로 받은 다음 회전까지 거리, 그리고 지금 기다리는 회전이 가까이(500m 안) 온 적이 있나. */
     private var lastTurnMeters: Int? = null
     private var turnNear = false
 
@@ -116,8 +116,8 @@ internal class CarCues(episode: Episode?, private val plan: TripPlan) {
         /** 앞길 사건이 이 거리 안이면 가깝다고 본다(가정). */
         const val ROAD_NEAR_METERS = 300
 
-        /** 다음 회전이 이 거리 안이면 가까이 왔다고 본다(가정). */
-        const val TURN_NEAR_METERS = 300
+        /** 다음 회전이 이 거리 안이면 가까이 왔다고 본다(가정). 회전 거리가 10초마다 와도 시속 150km(10초에 약 420m)까지는 지나기 전 마지막 값이 이 안에 든다. */
+        const val TURN_NEAR_METERS = 500
 
         /** 가까이 왔던 회전의 거리가 이만큼 넘게 늘면 지난 것으로 본다(가정). */
         const val TURN_PASSED_JUMP_METERS = 100
