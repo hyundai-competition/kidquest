@@ -21,13 +21,13 @@ fun SelectionCard(label: String, isSelected: Boolean, onClick: () -> Unit, modif
         onClick = onClick,
         modifier = modifier.heightIn(min = 88.dp).semantics { selected = isSelected },
         shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(if (isSelected) 2.dp else 1.dp, if (isSelected) Mint else Color(0xFF65718A)),
+        border = BorderStroke(if (isSelected) 2.dp else 1.dp, if (isSelected) Mint else Color(0xFFD7DDD1)),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = if (isSelected) Mint.copy(alpha = 0.15f) else Color.Transparent,
-            contentColor = if (isSelected) Mint else Color.White,
+            containerColor = if (isSelected) Mint.copy(alpha = 0.08f) else Color.Transparent,
+            contentColor = if (isSelected) Mint else MaterialTheme.colorScheme.onSurface,
         ),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 20.dp),
     ) {
-        Text(label, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 26.sp, lineHeight = 36.sp, fontWeight = FontWeight.Bold)
+        Text(label, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 32.sp, lineHeight = 44.sp, fontWeight = FontWeight.Bold)
     }
 }

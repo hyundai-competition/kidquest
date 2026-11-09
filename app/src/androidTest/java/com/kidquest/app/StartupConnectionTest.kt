@@ -16,7 +16,13 @@ class StartupConnectionTest {
         val car = TestCar()
         lateinit var controller: AppController
         test.runOnMainSync {
-            controller = AppController(test.targetContext, engine = MissionEngine(), car = car)
+            // 이 시험은 차량 사건 연결만 확인한다. 실제 SDK 음성은 전용 시험에서 검증한다.
+            val silentVoice = object : VoicePort {
+                override fun start(listener: EventListener) = Unit
+                override fun handle(command: Command) = Unit
+                override fun stop() = Unit
+            }
+            controller = AppController(test.targetContext, engine = MissionEngine(), car = car, voice = silentVoice)
             controller.start()
             car.emit(AppEvent.SeatOccupied(RearSeat.LEFT, true))
             car.emit(AppEvent.BeltBuckled(RearSeat.LEFT, true))

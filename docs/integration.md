@@ -6,7 +6,7 @@
 
 - main을 받고 `gradlew.bat :core:test :app:assembleDebug`가 통과하는지 본다.
 - 앱 로그 : `adb logcat -s KQEpisode KidQuestVoice`. 음성에 간 명령(`Say`, `PlaySound`, `Listen`, `StopAudio`)이 `KidQuestVoice`에 찍힌다.
-- 지금 음성은 가짜다. 말을 받으면 바로 끝냈다고 알리고, 듣기를 받으면 바로 「못 알아들음」을 돌려준다. 그래서 대사가 순식간에 넘어간다.
+- 이 브랜치는 실제 ON_DEVICE TTS와 임시 효과음을 재생한다. STT는 ON_DEVICE로 연결했고, 동의한 경우에만 요청한다. 서비스 준비·취소는 확인했으며 실제 발화 정확도는 추가 검증이 필요하다. [음성 출력](voice_output.md)을 참고한다.
 
 ## 1. 앱 통합 : 앱이 켜지고 에피소드가 읽히나
 
@@ -37,7 +37,7 @@
 
 | 명령 | 지킬 것 |
 |---|---|
-| `Say(lineId, text)` | 끝까지 말하면 `LineFinished(lineId)`를 보낸다. 어떤 경우에도 보낸다. 안 보내면 임무가 그 자리에 멈춘다. `StopAudio`로 끊긴 대사는 보내지 않는다 |
+| `Say(lineId, text)` | 끝까지 말하면 `LineFinished(lineId)`를 보낸다. 정상 완료일 때만 한 번 보낸다. 실패하면 녹음 대체를 시도하고, 녹음도 없으면 오류를 표시한다. `StopAudio`로 끊긴 대사는 보내지 않는다 |
 | `PlaySound(soundId)` | 말하는 중에도 온다. 말을 끊지 말고 같이 낸다 |
 | `Listen(words, 8)` | 결과를 `AnswerHeard(word)`로, 못 알아들으면 `AnswerHeard(null)`로 보낸다. 10초 안에 안 오면 엔진이 `StopAudio`를 보내고 넘어간다 |
 | `StopAudio` | 말하기와 듣기를 둘 다 멈춘다 |

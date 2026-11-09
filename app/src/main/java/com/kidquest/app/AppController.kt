@@ -14,6 +14,7 @@ import com.kidquest.app.screen.model.VehicleUiState
 import com.kidquest.app.car.CarSignalCollector
 import com.kidquest.app.replay.ReplaySource
 import com.kidquest.app.voice.VoiceOutput
+import com.kidquest.app.voice.VoiceUiState
 import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.Background
 import com.kidquest.core.contract.Command
@@ -27,9 +28,15 @@ class AppController(
     context: Context,
     private val engine: MissionEngine = MissionEngine(),
     private val car: EventSource = CarSignalCollector(context),
-    private val voice: VoicePort = VoiceOutput(),
+    voice: VoicePort? = null,
     val replay: ReplaySource = ReplaySource(),
 ) {
+    var voiceStatus by mutableStateOf("음성 대기 · 시험용 효과음")
+        private set
+    var voiceUi by mutableStateOf(VoiceUiState())
+        private set
+    private val voice: VoicePort = voice ?: VoiceOutput(context, report = { voiceStatus = it }, ui = { voiceUi = it })
+
     var vehicle by mutableStateOf(VehicleUiState())
         private set
 
@@ -71,9 +78,15 @@ class AppController(
         replay.stop()
     }
 
+    fun speakScreen(text: String, finished: (() -> Unit)? = null) { main.post { (voice as? VoiceOutput)?.readScreen(text, finished) } }
+    fun listenScreen(result: (String?) -> Unit) { main.post { (voice as? VoiceOutput)?.listenScreen(result) } }
+    fun playScreenInstrument(name: String) { main.post { (voice as? VoiceOutput)?.playInstrument(name) } }
+    fun stopScreenAudio() { main.post { voice.handle(Command.StopAudio) } }
+
     fun dispatch(event: AppEvent) {
         main.post {
             vehicle = vehicle.accept(event)
+            if (event is AppEvent.ListeningConsentChanged) (voice as? VoiceOutput)?.setListeningAllowed(event.allowed)
             engine.onEvent(event).forEach(::perform)
         }
     }

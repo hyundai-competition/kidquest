@@ -1,35 +1,35 @@
 {
   "id": "demo",
-  "title": "우주 여행 시험판",
-  "destinations": [
-    {
-      "id": "demo_destination",
-      "name": "시험 목적지",
-      "planetName": "시험 행성",
-      "departureLine": "오늘은 시험 행성에 별지도를 배달해요.",
-      "approachLine": "시험 행성에 거의 도착했어요!",
-      "deliveryLine": "모은 조각으로 별지도를 완성해서 전달했어요!",
-      "landingFact": "시험 문장입니다. 사람이 출처를 확인한 문장으로 바꿉니다.",
-      "factSource": "확인 전"
-    }
-  ],
+  "title": "브루미의 역사 보물찾기",
+  "destinations": [],
   "places": [
-    { "id": "river", "latitude": 37.4979, "longitude": 127.0276, "radiusMeters": 300, "missionId": "water_planet" }
+    {
+      "id": "river",
+      "latitude": 37.4979,
+      "longitude": 127.0276,
+      "radiusMeters": 300,
+      "missionId": "water_planet"
+    }
   ],
   "missions": [
     {
       "id": "meteor_shower",
-      "ageGroups": ["PRESCHOOL"],
+      "ageGroups": [
+        "PRESCHOOL"
+      ],
       "destinationId": null,
       "trigger": "WIPER",
       "autoAfterSeconds": 120,
-      "briefing": "초록 행성을 지나가요. 초록 행성의 방어막은 초록색이래요.",
+      "briefing": "브루미가 오래된 보물 지도를 펼쳤어요. 지도에는 초록색 문이 그려져 있었어요.",
       "eventSoundId": "meteor",
-      "event": "유성우가 떨어지고 있어요!",
-      "question": "방어막 색을 맞히면 우주선을 지킬 수 있어요. 초록 행성의 방어막은 무슨 색이었을까요?",
-      "answers": ["초록색", "초록"],
-      "correctLine": "맞아요, 초록색! 방어막이 켜졌어요.",
-      "wrongLine": "정답은 초록색이에요. 방어막이 켜졌어요.",
+      "event": "빗방울을 지나 보물로 가는 문을 발견했어요!",
+      "question": "지도에서 본 문은 무슨 색이었을까요?",
+      "answers": [
+        "초록색",
+        "초록"
+      ],
+      "correctLine": "맞아요, 초록색이에요! 첫 번째 단서를 찾았어요.",
+      "wrongLine": "지도 속 문은 초록색이었어요. 함께 기억하고 다음 단서를 찾아요.",
       "rewardItem": "shield_piece"
     },
     {
@@ -38,25 +38,48 @@
       "destinationId": null,
       "trigger": "PLACE",
       "autoAfterSeconds": 300,
-      "briefing": "물의 행성에 도착했어요!",
+      "briefing": "이번 단서는 그림 속 동물이에요. 지도에 고래가 그려져 있었어요.",
       "eventSoundId": null,
-      "event": "바다 생물들이 우주선 옆을 지나가요.",
-      "question": "바다에 사는 생물은 고래일까요, 사자일까요?",
-      "answers": ["고래"],
-      "correctLine": "맞아요, 고래! 우주 지도 조각을 얻었어요.",
-      "wrongLine": "정답은 고래예요. 우주 지도 조각을 얻었어요.",
+      "event": "지도에 표시된 다음 장소에 도착했어요.",
+      "question": "지도에 그려진 동물은 고래일까요, 사자일까요?",
+      "answers": [
+        "고래"
+      ],
+      "correctLine": "맞아요, 고래예요! 보물 지도의 마지막 조각을 찾았어요.",
+      "wrongLine": "정답은 고래예요. 마지막 지도 조각을 함께 챙겨요.",
       "rewardItem": "map_piece"
     }
   ],
   "items": [
-    { "id": "shield_piece", "name": "방어막 조각" },
-    { "id": "map_piece", "name": "우주 지도 조각" }
+    {
+      "id": "shield_piece",
+      "name": "보물 열쇠"
+    },
+    {
+      "id": "map_piece",
+      "name": "옛 지도 조각"
+    }
   ],
   "reactions": [
-    { "signal": "turn_left", "soundId": "thruster_left", "line": null, "cooldownSeconds": 60 },
-    { "signal": "turn_right", "soundId": "thruster_right", "line": null, "cooldownSeconds": 60 },
-    { "signal": "road_tunnel", "soundId": "wormhole", "line": null, "cooldownSeconds": 60 }
+    {
+      "signal": "turn_left",
+      "soundId": "thruster_left",
+      "line": null,
+      "cooldownSeconds": 60
+    },
+    {
+      "signal": "turn_right",
+      "soundId": "thruster_right",
+      "line": null,
+      "cooldownSeconds": 60
+    },
+    {
+      "signal": "road_tunnel",
+      "soundId": "wormhole",
+      "line": null,
+      "cooldownSeconds": 60
+    }
   ],
-  "finalLine": "마지막 행성에 거의 도착했어요!",
-  "endingLine": "모은 방어막 조각과 우주 지도 조각으로 우주선을 튼튼하게 고쳤어요. 이제 어떤 유성우가 와도 끄떡없어요. 오늘 항해 정말 멋졌어요, 선장님!"
+  "finalLine": "보물이 숨겨진 곳에 거의 도착했어요!",
+  "endingLine": "모은 열쇠와 지도 조각으로 보물상자를 찾았어요. 오늘의 멋진 탐험을 기억해요, 탐험가 여러분!"
 }

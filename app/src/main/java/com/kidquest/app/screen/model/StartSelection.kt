@@ -1,4 +1,4 @@
-// 시작 버튼이 선택값을 엔진에 전달하는 순서를 한곳에 둔다. 기본 이야기는 목적지 null이다.
+// 시작 버튼이 선택값을 엔진에 전달하는 순서를 한곳에 둔다. 브루미 시작 화면은 네 시연 경로 중 하나의 ID를 보낸다.
 package com.kidquest.app.screen.model
 
 import com.kidquest.core.contract.AgeGroup
