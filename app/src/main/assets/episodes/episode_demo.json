@@ -103,7 +103,7 @@
       "trigger": "WIPER",
       "autoAfterSeconds": 120,
       "briefing": "대장님, 보물 지도에 물방울이 묻으면 글씨가 흐려진대요. 지도 속 열쇠는 파란색이래요.",
-      "eventSoundId": "stardust",
+      "eventSoundId": "wipe_drops",
       "event": "쓱싹쓱싹! 지도에 묻은 물방울을 닦았더니 글씨가 다시 보여요.",
       "question": "보물 상자 열쇠는 파란색일까요, 빨간색일까요?",
       "answers": ["파란색", "파랑"],
@@ -337,9 +337,9 @@
     { "id": "palace_piece", "name": "경복궁 보물 조각" }
   ],
   "reactions": [
-    { "signal": "turn_left", "soundId": "thruster_left", "line": null, "cooldownSeconds": 60 },
-    { "signal": "turn_right", "soundId": "thruster_right", "line": null, "cooldownSeconds": 60 },
-    { "signal": "road_tunnel", "soundId": "wormhole", "line": null, "cooldownSeconds": 60 }
+    { "signal": "turn_left", "soundId": "turn_tick_left", "line": null, "cooldownSeconds": 60 },
+    { "signal": "turn_right", "soundId": "turn_tick_right", "line": null, "cooldownSeconds": 60 },
+    { "signal": "road_tunnel", "soundId": "time_tunnel", "line": null, "cooldownSeconds": 60 }
   ],
   "finalLine": "마지막 보물이 거의 다 왔어요!",
   "endingLine": "오늘 찾은 보물 조각을 하나로 맞췄어요. 정말 멋진 탐험이었어요, 대장님!",
