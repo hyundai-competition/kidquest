@@ -12,6 +12,7 @@ import ai.pleos.playground.navi.helper.listener.NaviHelperEventListener
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.CarSignal
 
@@ -83,9 +84,11 @@ internal class NaviSignals(context: Context, private val filter: CarEventFilter)
     /**
      * SDK의 오류 코드는 경로 찾기 실패(CAUSE_SEARCH_ROUTE 등)와 배터리 부족(CAUSE_LOW_BATTERY)뿐이다.
      * 경로를 못 찾은 것이지 내비 값을 못 읽는 것이 아니라서 SignalUnavailable을 보내지 않는다.
-     * 경로가 생기면 다음 차례 조회에서 값이 온다.
+     * 경로가 생기면 다음 차례 조회에서 값이 온다. 내비 값이 안 올 때 원인을 보려고 로그에는 남긴다.
      */
-    override fun onError(errorCode: NaviErrorCode) = Unit
+    override fun onError(errorCode: NaviErrorCode) {
+        Log.w(CAR_LOG_TAG, "내비 오류 $errorCode")
+    }
 
     private companion object {
         const val POLL_MILLIS = 10_000L
