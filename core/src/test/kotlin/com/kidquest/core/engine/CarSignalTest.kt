@@ -64,6 +64,42 @@ class CarSignalTest : MissionTestBase() {
         assertEquals(listOf(Command.PlaySound("meteor")), tick(120))
     }
 
+    /** 와이퍼를 안 켠 맑은 날에 말할 대사가 있는 임무. */
+    private fun withDryLine() {
+        engine = MissionEngine(episode(mission("a").copy(fallbackEvent = "a 맑은 날")))
+    }
+
+    @Test
+    fun `와이퍼 없이 시간이 지나 열리면 맑은 날 대사를 효과음 없이 바로 말한다`() {
+        withDryLine()
+        untilBriefing()
+        finish("a/briefing")
+        tick(0)
+        assertEquals(listOf(Command.Say("a/event", "a 맑은 날")), tick(120))
+        assertEquals("다음은 같은 질문이다", listOf("a 질문"), said(finish("a/event")))
+    }
+
+    @Test
+    fun `맑은 날 대사가 있어도 와이퍼로 열리면 원래 사건 대사를 말한다`() {
+        withDryLine()
+        untilBriefing()
+        finish("a/briefing")
+        assertEquals(listOf(Command.PlaySound("meteor")), wiper(true))
+        tick(10)
+        assertEquals(listOf(Command.Say("a/event", "a 사건")), tick(13))
+    }
+
+    @Test
+    fun `맑은 날 대사를 말하다 멈추면 이어 갈 때 맑은 날 대사를 다시 말한다`() {
+        withDryLine()
+        untilBriefing()
+        finish("a/briefing")
+        tick(0)
+        tick(120)
+        buckle(false)
+        assertTrue(said(buckle(true)).contains("a 맑은 날"))
+    }
+
     @Test
     fun `탑승과 벨트는 못 읽어도 저절로 넘어가지 않는다`() {
         send(AppEvent.SignalUnavailable(CarSignal.SEAT), AppEvent.SignalUnavailable(CarSignal.BELT))

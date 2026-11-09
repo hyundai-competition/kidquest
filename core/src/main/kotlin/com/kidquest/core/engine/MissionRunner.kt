@@ -158,7 +158,7 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         }
         val waited = nowMillis - startedAt
         return when (step) {
-            Step.WAIT_TRIGGER -> if (cues.openAfterSeconds(now)?.let { waited >= it * 1_000L } == true) openEvent(now) else emptyList()
+            Step.WAIT_TRIGGER -> if (cues.openAfterSeconds(now)?.let { waited >= it * 1_000L } == true) openEvent(now, byTime = true) else emptyList()
             Step.SOUND -> if (waited >= EVENT_DELAY_SECONDS * 1_000L) sayStep(Step.EVENT, "event", now.event) else emptyList()
             Step.WAIT_ANSWER -> answerTimeout(now, waited)
             else -> emptyList()
@@ -250,8 +250,9 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         return waitOrOpen(now)
     }
 
-    /** 효과음을 먼저 내고 몇 초 뒤에 사건을 말한다. 효과음이 없으면 바로 말한다. */
-    private fun openEvent(now: Mission): List<Command> {
+    /** 효과음을 먼저 내고 몇 초 뒤에 사건을 말한다. 효과음이 없으면 바로 말한다. 신호 없이 시간으로 열 때 맑은 날 대사가 있으면 효과음 없이 그 대사를 말한다. */
+    private fun openEvent(now: Mission, byTime: Boolean = false): List<Command> {
+        if (byTime && now.fallbackEvent.isNotBlank()) return sayStep(Step.EVENT, "event", now.fallbackEvent)
         val sound = now.eventSoundId ?: return sayStep(Step.EVENT, "event", now.event)
         enter(Step.SOUND)
         return listOf(Command.PlaySound(sound))

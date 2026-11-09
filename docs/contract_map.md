@@ -19,7 +19,7 @@ P0 기능을 사건, 명령, 에피소드 칸으로 어떻게 적는지 정리�
 | F11 주행 중 화면 | `DrivingRestricted` | `ShowScreen(FLYING, 상태 한 줄)` | | 약속만 |
 | F12 착륙 화면 | | `ShowScreen(LANDED)`, `AwardItem` | `Item` | 약속만 |
 | F13 끄기 | `ParentStopChanged` | `StopAudio`, `ShowScreen(PAUSED, 이유)` | | 엔진 됨 |
-| F14 신호 없는 차 처리 | `SignalUnavailable`, `Tick` | | `Mission.autoAfterSeconds` | 엔진 됨(시간이 지나면 열림) |
+| F14 신호 없는 차 처리 | `SignalUnavailable`, `Tick` | | `Mission.autoAfterSeconds`, `Mission.fallbackEvent` | 엔진 됨(시간이 지나면 열림, `fallbackEvent`가 있으면 효과음 없이 그 대사를 말함) |
 | F15, F16 연령별 임무 | `AgeSelected` | | `Mission.ageGroups` | 엔진 됨, 예시 파일에 나이별 임무는 아직 없음 |
 | F17 남은 시간 맞춤 | `RemainingTimeChanged` | | | 약속만 |
 | F19 우주선 에너지 | `EnergyChanged` | `PlaySound`, `Say` | `SignalReaction` | 약속만 |

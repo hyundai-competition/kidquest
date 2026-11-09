@@ -109,7 +109,8 @@
       "answers": ["파란색", "파랑"],
       "correctLine": "맞아요, 파란색! 열쇠로 보물 지도 조각을 꺼냈어요.",
       "wrongLine": "괜찮아요, 열쇠는 파란색이었어요. 보물 지도 조각을 꺼냈어요.",
-      "rewardItem": "map_piece"
+      "rewardItem": "map_piece",
+      "fallbackEvent": "오늘은 비가 안 와서 지도에 물방울이 없어요. 글씨가 잘 보여요!"
     },
     {
       "id": "crossroads",

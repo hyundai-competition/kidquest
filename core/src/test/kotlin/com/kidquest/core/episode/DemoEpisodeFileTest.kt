@@ -37,7 +37,7 @@ class DemoEpisodeFileTest {
         val episode = episode()
         assertTrue(episode.missions.none { it.trigger == MissionTrigger.TURN_SIGNAL })
         episode.missions.forEach { mission ->
-            val lines = listOf(mission.briefing, mission.event, mission.question, mission.correctLine, mission.wrongLine)
+            val lines = listOf(mission.briefing, mission.event, mission.fallbackEvent, mission.question, mission.correctLine, mission.wrongLine)
             assertTrue(mission.id, lines.none { "깜빡" in it })
         }
     }

@@ -46,6 +46,8 @@ data class Mission(
     val rewardItem: String,
     /** 사건 대사에 넣은 지역 사실의 출처. 사람이 원문을 확인하고 적는다. 사실이 없는 임무는 비워 둔다. */
     val factSource: String = "",
+    /** 신호 없이 시간이 지나 열릴 때 말하는 사건 대사(예 : 와이퍼를 안 켠 맑은 날). 효과음 없이 바로 말한다. 비어 있으면 event를 쓴다. */
+    val fallbackEvent: String = "",
 )
 
 /** 임무 보상과 착륙 화면에 보이는 이름. */
