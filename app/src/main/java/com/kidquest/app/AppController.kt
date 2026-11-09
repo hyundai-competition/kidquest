@@ -2,6 +2,7 @@
 // 사건은 어느 스레드에서 와도 메인 스레드의 줄에 넣어 하나씩 처리한다. 그래서 엔진은 스레드를 신경 쓰지 않는다.
 package com.kidquest.app
 
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -22,8 +23,9 @@ import com.kidquest.core.contract.VoicePort
 import com.kidquest.core.engine.MissionEngine
 
 class AppController(
+    context: Context,
     private val engine: MissionEngine = MissionEngine(),
-    private val car: EventSource = CarSignalCollector(),
+    private val car: EventSource = CarSignalCollector(context),
     private val voice: VoicePort = VoiceOutput(),
     val replay: ReplaySource = ReplaySource(),
 ) {

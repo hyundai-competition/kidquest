@@ -9,6 +9,9 @@ android {
     namespace = "com.kidquest.app"
     compileSdk = 35
 
+    // 주행 규제 값을 읽는다.
+    useLibrary("android.car")
+
     defaultConfig {
         applicationId = "com.kidquest.app"
         minSdk = 23
@@ -43,4 +46,6 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.material3)
+
+    testImplementation(libs.junit)
 }
