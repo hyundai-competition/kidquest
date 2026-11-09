@@ -30,7 +30,7 @@ class EpisodeReaderTest {
           "missions": [
             {
               "id": "meteor", "ageGroups": ["PRESCHOOL"], "destinationId": null,
-              "trigger": "WIPER", "autoAfterSeconds": 120,
+              "trigger": "PLACE", "autoAfterSeconds": 120,
               "briefing": "브리핑", "eventSoundId": "meteor", "event": "사건", "question": "질문",
               "answers": ["초록"], "correctLine": "맞아요", "wrongLine": "정답은 초록", "rewardItem": "shield"
             }
@@ -82,7 +82,7 @@ class EpisodeReaderTest {
         val episode = expectOk(good)
         val mission = episode.missions.single()
         assertEquals("test", episode.id)
-        assertEquals(MissionTrigger.WIPER, mission.trigger)
+        assertEquals(MissionTrigger.PLACE, mission.trigger)
         assertEquals(listOf(AgeGroup.PRESCHOOL), mission.ageGroups)
         assertNull(mission.destinationId)
         assertEquals(listOf("초록"), mission.answers)
@@ -109,7 +109,7 @@ class EpisodeReaderTest {
     @Test
     fun `값의 종류가 틀리면 실패한다`() {
         expectProblem(good.swap(""""autoAfterSeconds": 120""", """"autoAfterSeconds": "두 분""""), "파일 형식")
-        expectProblem(good.swap(""""trigger": "WIPER"""", """"trigger": "RAIN""""), "RAIN")
+        expectProblem(good.swap(""""trigger": "PLACE"""", """"trigger": "RAIN""""), "RAIN")
         expectProblem(good.swap("""["PRESCHOOL"]""", """["BABY"]"""), "BABY")
     }
 
@@ -121,6 +121,19 @@ class EpisodeReaderTest {
     @Test
     fun `좌표가 없는 임무를 가리키면 실패한다`() {
         expectProblem(good.swap(""""missionId": "meteor"""", """"missionId": "ghost""""), "ghost")
+    }
+
+    @Test
+    fun `좌표가 장소 임무가 아닌 임무를 가리키면 실패한다`() {
+        // 장소에 들어가도 와이퍼 임무는 열리지 않아서 좌표가 조용히 버려진다.
+        expectProblem(good.swap(""""trigger": "PLACE"""", """"trigger": "WIPER""""), "장소 임무(PLACE)가 아니다")
+    }
+
+    @Test
+    fun `좌표가 없는 장소 임무는 실패한다`() {
+        // 좌표가 없으면 시간이 지나야만 열린다. 대본을 고치다 좌표를 빠뜨린 것이다.
+        val noPlace = good.swap("""{ "id": "river", "latitude": 37.5, "longitude": 127.0, "radiusMeters": 300, "missionId": "meteor" }""", "")
+        expectProblem(noPlace, "가리키는 좌표가 없다")
     }
 
     @Test
@@ -158,6 +171,44 @@ class EpisodeReaderTest {
     @Test
     fun `저절로 열리는 시간이 0 이하면 실패한다`() {
         expectProblem(good.swap(""""autoAfterSeconds": 120""", """"autoAfterSeconds": 0"""), "autoAfterSeconds")
+    }
+
+    /** 시험 목적지에 경로를 붙인다. */
+    private fun withRoute(route: String) =
+        good.swap(""""factSource": "출처"""", """"factSource": "출처", "routes": [ $route ]""")
+
+    @Test
+    fun `경로를 읽고, 경로 출발 문장은 없어도 된다`() {
+        val route = expectOk(withRoute("""{ "id": "road", "name": "고속도로", "missionIds": ["meteor"] }""")).destinations[0].routes[0]
+        assertEquals(listOf("meteor"), route.missionIds)
+        assertEquals("", route.departureLine)
+        assertTrue(expectOk(good).destinations[0].routes.isEmpty())
+    }
+
+    @Test
+    fun `경로가 없는 임무를 가리키거나 비어 있으면 실패한다`() {
+        expectProblem(withRoute("""{ "id": "road", "name": "고속도로", "missionIds": ["ghost"] }"""), "없는 임무 ghost")
+        expectProblem(withRoute("""{ "id": "road", "name": "고속도로", "missionIds": [] }"""), "임무가 없다")
+        expectProblem(withRoute("""{ "id": "road", "name": " ", "missionIds": ["meteor"] }"""), "name")
+        expectProblem(withRoute("""{ "id": "road", "name": "길", "missionIds": ["meteor", "meteor"] }"""), "두 번 나온다")
+    }
+
+    @Test
+    fun `목적지 임무가 그 목적지의 어느 경로에도 없으면 실패한다`() {
+        // 경로가 있는 목적지는 경로에 적힌 임무만 나와서, 빠진 목적지 임무는 조용히 사라진다.
+        val text = withRoute("""{ "id": "road", "name": "고속도로", "missionIds": ["ghost"] }""")
+            .swap(""""destinationId": null""", """"destinationId": "planet"""")
+        expectProblem(text, "어느 경로에도 없어서")
+    }
+
+    @Test
+    fun `경로가 다른 목적지의 임무를 가리키면 실패한다`() {
+        val moon = """{ "id": "moon", "name": "달", "planetName": "달", "departureLine": "출발", "approachLine": "접근",
+            "deliveryLine": "전달", "landingFact": "사실", "factSource": "출처",
+            "routes": [ { "id": "sky", "name": "하늘길", "missionIds": ["meteor"] } ] },"""
+        val text = good.swap(""""destinations": [""", """"destinations": [ $moon""")
+            .swap(""""destinationId": null""", """"destinationId": "planet"""")
+        expectProblem(text, "다른 목적지 planet")
     }
 
     @Test

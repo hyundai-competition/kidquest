@@ -11,11 +11,14 @@ data class AdventureTheme(val id: String, val name: String, val available: Boole
 
 object AdventureOptions {
     val routes = listOf(
-        DemoRoute("seoul_gyeongju", "서울", "경주", "신라의 잃어버린\n보물을 찾아라!", "대릉원의 유물과 첨성대의 별을 따라"),
-        DemoRoute("seoul_busan", "서울", "부산", "바다 도시\n탐험대", "바다를 향해 이어지는 우리 가족의 탐험"),
-        DemoRoute("seoul_andong", "서울", "안동", "조선 시대\n시간여행", "옛 이야기를 따라 숨은 보물을 찾아요"),
-        DemoRoute("daejeon_seoul", "대전", "서울", "조선의\n비밀 임무", "도시에 숨은 옛 이야기 속으로"),
+        DemoRoute("gyeongju", "서울", "경주", "신라의 잃어버린\n보물을 찾아라!", "대릉원의 유물과 첨성대의 별을 따라"),
+        DemoRoute("busan", "서울", "부산", "바다 도시\n탐험대", "바다를 향해 이어지는 우리 가족의 탐험"),
+        DemoRoute("andong", "서울", "안동", "조선 시대\n시간여행", "옛 이야기를 따라 숨은 보물을 찾아요"),
+        DemoRoute("seoul", "대전", "서울", "조선의\n비밀 임무", "도시에 숨은 옛 이야기 속으로"),
     )
+    fun fromEpisode(episode: com.kidquest.core.contract.Episode?) = episode?.destinations.orEmpty().mapNotNull { destination ->
+        routes.firstOrNull { it.id == destination.id }?.copy()
+    }
     val themes = listOf(
         AdventureTheme("history", "역사 보물찾기", true),
         AdventureTheme("coming_1", "준비 중 01", false),

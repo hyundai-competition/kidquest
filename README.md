@@ -1,10 +1,10 @@
-# 브루미 · Vroomie
+# 브루미 (Vroomie)
 
 ## 앱 이름 및 한 줄 소개
 
-브루미는 가족의 이동을 역사 보물찾기 모험으로 바꾸는 차량용 앱이다. 부모가 경로와 테마를 고르면 아이는 벨트를 매고 이야기를 듣는다. 지역별 역사 퀴즈와 별자리 연결은 개발 예정이며, 현재는 창작 보물 단서로 음성 흐름을 시험한다.
+브루미는 벨트로 시작하는 지역 역사 보물 탐험이다. 앞쪽 디스플레이에서 출발 전 설정을 하고, 주행 중에는 음성 중심으로 진행하며 퍼즐은 주차·휴식 때 즐긴다.
 
-지금은 개발 중이다. 시작 설정과 차량 상태 화면, 임무 엔진, Pleos ON_DEVICE TTS와 임시 효과음을 연결했다. 에뮬레이터에서 차량 최초 상태 조회와 재생 신호, 음성 완료 뒤 임무 진행을 시험했다. 한국어 ON_DEVICE STT와 번호 퀴즈도 연결했고 인식 서비스 준비·취소와 번호 해석을 시험했다. 실제 발화 정확도, 오디오 포커스, 최종 음원과 대체 대사 녹음 검증은 남아 있다.
+최신 main의 목적지 4곳·경로 5개·음성 임무 14개와 브루미 UI, ON_DEVICE TTS/STT를 통합한 로컬 브랜치다. 실제 발화 정확도, 내비 오디오 포커스, 최종 음원은 추가 확인이 필요하다. 정차 퍼즐 16개는 이동 이야기와 보상을 분리했다. 통합 범위와 시연 방법은 [main 통합 기록](docs/main_integration.md)을 참고한다.
 
 ## 실행 방법
 
@@ -20,7 +20,7 @@ gradlew.bat :core:test
 
 ## 테스트 환경 및 필요한 설정
 
-- JDK 17 또는 21 (이 브랜치는 JDK 21로 확인)
+- JDK 17 이상
 - Android SDK Platform 35
 - Pleos Connect v2.1.0 에뮬레이터(API 34)
 - 차 신호는 에뮬레이터의 Virtual Console이나 앱의 재생 모드로 넣는다.
@@ -29,11 +29,12 @@ gradlew.bat :core:test
 
 `apk/` 폴더에 `팀명_앱이름_release.apk`로 둔다. 아직 올리지 않았다.
 
+## 출처
+
+- 역사 내용 : 한국민족문화대백과사전(https://encykorea.aks.ac.kr), 유네스코 세계유산센터(https://whc.unesco.org). 항목별 출처는 에피소드 파일의 `factSource`에 있다.
+- 위치 데이터 : © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright). 에피소드 파일 `places`의 고속도로 나들목 좌표를 OpenStreetMap에서 가져왔다.
+
 ## 더 보기
 
 - 폴더와 역할 : [docs/structure.md](docs/structure.md)
 - 작업 규칙 : [docs/rules.md](docs/rules.md)
-
-- 음성 출력과 녹음 교체 : [docs/voice_output.md](docs/voice_output.md)
-
-- 브루미 경로·테마 화면 : [docs/vroomie_ui.md](docs/vroomie_ui.md)

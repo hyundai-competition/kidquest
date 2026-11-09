@@ -40,6 +40,7 @@ sealed interface AppEvent {
     // 내비와 위치. car와 replay가 보낸다.
     data class PlaceEntered(val placeId: String) : AppEvent
     data class RemainingTimeChanged(val seconds: Int) : AppEvent
+    /** 내비 회전 안내(onTBTInfo)의 첫 회전까지 거리(미터). 경로 안내 중에 값이 바뀔 때마다 보낸다. */
     data class NextTurnDistance(val meters: Int) : AppEvent
     data class RoadAhead(val kind: RoadKind, val meters: Int) : AppEvent
     data object DestinationArrived : AppEvent
@@ -56,8 +57,8 @@ sealed interface AppEvent {
     // 버튼. screen이 보낸다.
     data class AgeSelected(val group: AgeGroup) : AppEvent
 
-    /** 부모가 고른 목적지. null이면 기본 이야기로 간다. */
-    data class DestinationSelected(val destinationId: String?) : AppEvent
+    /** 부모가 고른 목적지와 경로. 목적지가 null이면 기본 이야기로, 경로가 null이거나 없는 경로면 그 목적지의 첫 경로로 간다. */
+    data class DestinationSelected(val destinationId: String?, val routeId: String? = null) : AppEvent
 
     /** 부모가 아이 말 듣기에 동의했나. 동의하지 않으면 듣지 않는다. */
     data class ListeningConsentChanged(val allowed: Boolean) : AppEvent

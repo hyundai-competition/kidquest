@@ -17,6 +17,8 @@ import com.kidquest.app.AppViewModel
 import com.kidquest.app.replay.ReplayPanel
 import com.kidquest.app.screen.common.*
 import com.kidquest.core.contract.AppEvent
+import com.kidquest.core.contract.Background
+import androidx.compose.ui.graphics.Color
 import com.kidquest.core.contract.Screen
 
 @Composable
@@ -26,7 +28,11 @@ fun KidQuestScreen(model: AppViewModel) {
         model.onDrivingRestrictionChanged(controller.vehicle.restricted)
     }
     KidQuestTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = Night) {
+        Surface(modifier = Modifier.fillMaxSize(), color = if (controller.screen in listOf(Screen.DOCKED, Screen.LANDED)) when (controller.background) {
+            Background.COOL -> Color(0xFFE8F1F6)
+            Background.WARM -> Color(0xFFFFF0DF)
+            Background.NORMAL -> Night
+        } else Night) {
             if (controller.vehicle.restricted) {
                 Column(Modifier.fillMaxSize().safeDrawingPadding().padding(32.dp), verticalArrangement = Arrangement.Center) {
                     Text(if (model.demoMission != null || model.journeyEndingVisible) "소리로 이어가는 보물 탐험" else controller.status ?: titleOf(controller.screen), fontSize = 40.sp)
@@ -59,7 +65,7 @@ private fun SetupLayout(model: AppViewModel) {
                 Text("개발 확인 · ${model.controller.voiceStatus}", fontSize = 26.sp)
                 if (model.controller.replayUsed) Text("재생 모드 입력이 포함된 시험입니다", color = Mint, fontSize = 28.sp)
                 // 재생 패널 자체도 스크롤하므로 높이를 제한해 바깥 스크롤과 충돌하지 않게 한다.
-                Column(Modifier.heightIn(max = 480.dp)) { ReplayPanel(model.controller.replay) }
+                Column(Modifier.heightIn(max = 480.dp)) { ReplayPanel(model.controller.replay, model.episode) }
             }
         }
         if (maxWidth >= 1000.dp) {
@@ -98,11 +104,7 @@ internal fun CurrentScreen(model: AppViewModel) {
                     StopButton(model)
                     Button(onClick = { controller.dispatch(AppEvent.EndTripPressed) }) { Text("여기서 탐험 마치기", fontSize = 36.sp) }
                 }
-                Screen.LANDED -> {
-                    Text("브루미와 함께한 오늘의 탐험이 끝났어요. 함께해 줘서 고마워요! 남은 여행도 즐겁고 안전하게 이어가요.", fontSize = 30.sp, lineHeight = 44.sp)
-                    controller.items.forEach { Text(it.name, fontSize = 36.sp) }
-                    Button(onClick = model::restartTrip) { Text("다시 하기", fontSize = 36.sp) }
-                }
+                Screen.LANDED -> EngineTripEnding(model)
                 else -> Unit
             }
         }
@@ -111,7 +113,7 @@ internal fun CurrentScreen(model: AppViewModel) {
 
 @Composable
 private fun StopButton(model: AppViewModel) {
-    val inMission = model.demoMission != null || model.journeyEndingVisible
+    val inMission = (model.demoMission != null || model.journeyEndingVisible) && !model.bonusSuspended
     val stopped = if (inMission) model.missionAudioMuted else model.controller.vehicle.parentStopped
     Button(onClick = {
         if (inMission) model.toggleMissionAudio()
@@ -136,7 +138,7 @@ private fun ExpeditionLayout(model: AppViewModel) {
         Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        JourneyBoard(model.selectedRoute, model.completedDemoMissions, model::openDemoMission, skipped = model.skippedDemoMissions)
+        EngineJourneyBoard(model)
         if (model.journeyReadyToEnd) {
             Button(onClick = model::showJourneyEnding, modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp)) {
                 Text("여행 마무리 보기", fontSize = 32.sp)
@@ -147,10 +149,11 @@ private fun ExpeditionLayout(model: AppViewModel) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             CurrentScreen(model)
+            if (model.controller.screen != Screen.LANDED) EngineMissionPanel(model)
             HorizontalDivider()
             Text("개발 확인 · ${model.controller.voiceStatus}", fontSize = 24.sp)
             if (model.controller.replayUsed) Text("재생 모드 입력이 포함된 시험입니다", color = Mint)
-            Column(Modifier.heightIn(max = 320.dp)) { ReplayPanel(model.controller.replay) }
+            Column(Modifier.heightIn(max = 320.dp)) { ReplayPanel(model.controller.replay, model.episode) }
         }
     }
 }

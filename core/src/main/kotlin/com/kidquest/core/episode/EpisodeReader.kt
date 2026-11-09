@@ -5,6 +5,7 @@ package com.kidquest.core.episode
 import com.kidquest.core.contract.Destination
 import com.kidquest.core.contract.Episode
 import com.kidquest.core.contract.Mission
+import com.kidquest.core.contract.MissionTrigger
 import kotlinx.serialization.json.Json
 
 sealed interface EpisodeResult {
@@ -41,7 +42,43 @@ private fun findProblems(episode: Episode): List<String> {
     episode.destinations.forEach { problems += destinationProblems(it) }
     episode.places.filter { it.missionId !in missionIds }
         .forEach { problems += "좌표 ${it.id} : 없는 임무 ${it.missionId}를 가리킨다" }
+    problems += placeProblems(episode)
+    problems += routeProblems(episode)
     return problems
+}
+
+/** 경로가 있는 임무를 같은 목적지 것으로 가리키는지, 목적지 임무가 경로 밖에 남아 조용히 빠지지 않는지 본다. */
+private fun routeProblems(episode: Episode): List<String> {
+    val byId = episode.missions.associateBy { it.id }
+    val problems = duplicates("경로", episode.destinations.flatMap { d -> d.routes.map { it.id } }).toMutableList()
+    for (destination in episode.destinations) {
+        for (route in destination.routes) {
+            val where = "경로 ${route.id}"
+            if (route.name.isBlank()) problems += "$where : name이 비어 있다"
+            if (route.missionIds.isEmpty()) problems += "$where : 임무가 없다"
+            problems += route.missionIds.groupBy { it }.filterValues { it.size > 1 }.keys.map { "$where : 임무 ${it}가 두 번 나온다" }
+            for (id in route.missionIds) {
+                val owner = byId[id]?.destinationId
+                if (id !in byId) problems += "$where : 없는 임무 ${id}를 가리킨다"
+                if (owner != null && owner != destination.id) problems += "$where : 임무 ${id}는 다른 목적지 ${owner}의 임무다"
+            }
+        }
+        if (destination.routes.isEmpty()) continue
+        val routed = destination.routes.flatMap { it.missionIds }.toSet()
+        episode.missions.filter { it.destinationId == destination.id && it.id !in routed }
+            .forEach { problems += "임무 ${it.id} : 목적지 ${destination.id}에 경로가 있는데 어느 경로에도 없어서 나오지 않는다" }
+    }
+    return problems
+}
+
+/** 장소 임무와 좌표는 짝이 맞아야 한다. 좌표가 없는 장소 임무는 시간이 지나야만 열리고, 장소 임무가 아닌 임무의 좌표는 쓰이지 않는다. */
+private fun placeProblems(episode: Episode): List<String> {
+    val placeMissions = episode.missions.filter { it.trigger == MissionTrigger.PLACE }.map { it.id }.toSet()
+    val pointed = episode.places.map { it.missionId }.toSet()
+    val unused = episode.places.filter { it.missionId in episode.missions.map { m -> m.id } && it.missionId !in placeMissions }
+        .map { "좌표 ${it.id} : 임무 ${it.missionId}는 장소 임무(PLACE)가 아니다" }
+    val missing = (placeMissions - pointed).map { "임무 $it : 장소 임무인데 가리키는 좌표가 없다" }
+    return unused + missing
 }
 
 private fun duplicates(kind: String, ids: List<String>): List<String> =

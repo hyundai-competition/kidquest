@@ -23,6 +23,12 @@ fun RouteStep(model: AppViewModel) {
             }
         }
     }
+    if (model.travelRoutes.size > 1) {
+        Text("가는 길도 골라 주세요", fontSize = 30.sp)
+        model.travelRoutes.forEach { route ->
+            SelectionCard(route.name, model.routeId == route.id, { model.selectTravelRoute(route.id) }, Modifier.fillMaxWidth())
+        }
+    } else model.activeTravelRoute?.let { Text(it.name, fontSize = 28.sp) }
     Text("네 가지 시연 경로 중 하나를 골라 탐험을 준비해요. 내비게이션 경로는 별도로 설정해 주세요.", fontSize = 28.sp, lineHeight = 40.sp)
     Button(onClick = { model.changeStep(1) }, modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp)) {
         Text("테마 고르기 →", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 34.sp, lineHeight = 48.sp)

@@ -11,6 +11,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.kidquest.app.screen.model.VehicleUiState
+import com.kidquest.app.screen.model.EnginePresentation
+import com.kidquest.core.contract.Episode
 import com.kidquest.app.car.CarSignalCollector
 import com.kidquest.app.replay.ReplaySource
 import com.kidquest.app.voice.VoiceOutput
@@ -30,7 +32,9 @@ class AppController(
     private val car: EventSource = CarSignalCollector(context),
     voice: VoicePort? = null,
     val replay: ReplaySource = ReplaySource(),
+    episode: Episode? = null,
 ) {
+    val presentation = EnginePresentation(episode)
     var voiceStatus by mutableStateOf("음성 대기 · 시험용 효과음")
         private set
     var voiceUi by mutableStateOf(VoiceUiState())
@@ -85,9 +89,11 @@ class AppController(
 
     fun dispatch(event: AppEvent) {
         main.post {
-            vehicle = vehicle.accept(event)
+            val actual = if (event is AppEvent.AnswerHeard) AppEvent.AnswerHeard(presentation.answer(event.word)) else event
+            if (event == AppEvent.RestartPressed) presentation.reset()
+            vehicle = vehicle.accept(actual)
             if (event is AppEvent.ListeningConsentChanged) (voice as? VoiceOutput)?.setListeningAllowed(event.allowed)
-            engine.onEvent(event).forEach(::perform)
+            engine.onEvent(actual).forEach(::perform)
         }
     }
 
@@ -98,7 +104,8 @@ class AppController(
                 status = command.status
                 if (command.screen == Screen.START) items.clear()
             }
-            is Command.AwardItem -> items += command
+            is Command.AwardItem -> if (items.none { it.itemId == command.itemId }) items += command
+            is Command.Say -> voice.handle(presentation.say(command))
             is Command.SetBackground -> background = command.background
             else -> voice.handle(command)
         }

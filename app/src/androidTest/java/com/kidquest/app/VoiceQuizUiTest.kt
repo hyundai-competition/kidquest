@@ -46,11 +46,12 @@ class VoiceQuizUiTest {
         compose.onNodeWithText("오늘의 보물 탐험을 마쳐요").assertExists()
         compose.runOnIdle { model.returnToCompletedMap(); model.openDemoMission(model.selectedRoute.missions[1]); model.beginMission() }
         compose.runOnIdle { model.controller.replay.send(AppEvent.DrivingRestricted(true)) }
-        compose.waitUntil { model.controller.vehicle.restricted && model.missionSession?.voiceMode == true }
+        compose.waitUntil { model.controller.vehicle.restricted && model.bonusSuspended }
         compose.onNodeWithTag("mission-page").assertDoesNotExist()
         compose.onNodeWithText("퍼즐은 주차·휴식 중에 이어갈 수 있어요").assertExists()
         compose.runOnIdle { model.controller.replay.send(AppEvent.DrivingRestricted(false)) }
         compose.waitUntil { !model.controller.vehicle.restricted }
+        compose.runOnIdle { model.beginVoiceQuiz() }
         compose.onNodeWithText(model.missionSession!!.quiz.question).assertExists()
         compose.runOnIdle {
             model.stopNarration()

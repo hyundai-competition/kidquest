@@ -61,7 +61,7 @@ class StartAcceptanceTest {
         compose.onNodeWithText("초등 저학년").performScrollTo().assertIsSelected()
         compose.onNodeWithTag("listening-consent").performScrollTo().assertIsOn()
         compose.runOnIdle {
-            assertEquals("seoul_gyeongju", model.destinationId)
+            assertEquals("gyeongju", model.destinationId)
             assertEquals(2, model.setupStep)
         }
         compose.onNodeWithText("탐험 시작하기 →").performScrollTo().performClick()
@@ -76,7 +76,7 @@ class StartAcceptanceTest {
         compose.onNodeWithTag("listening-consent").performScrollTo().assertIsOff()
         compose.runOnIdle {
             model.selectDestination("unknown")
-            assertEquals("seoul_gyeongju", model.destinationId)
+            assertEquals("gyeongju", model.destinationId)
             model.selectAge(AgeGroup.EARLY_GRADE)
             val store = ViewModelStore()
             try {
@@ -84,7 +84,7 @@ class StartAcceptanceTest {
                 val fresh = ViewModelProvider(store, factory)[AppViewModel::class.java]
                 assertEquals(AgeGroup.EARLY_GRADE, fresh.age)
                 assertFalse(fresh.consent)
-                assertEquals("seoul_gyeongju", fresh.destinationId)
+                assertEquals("gyeongju", fresh.destinationId)
             } finally { store.clear() }
         }
         compose.onNodeWithText("탐험 시작하기 →").performScrollTo().performClick()

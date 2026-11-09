@@ -7,6 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import com.kidquest.app.episode.EpisodeFile
+import com.kidquest.app.car.PermissionCarSource
+import com.kidquest.app.screen.model.TripCatalog
 import com.kidquest.app.screen.model.AdventureOptions
 import com.kidquest.app.screen.model.StartSelection
 import com.kidquest.app.screen.model.CityMission
@@ -20,8 +22,16 @@ import com.kidquest.core.episode.EpisodeResult
 
 class AppViewModel(app: Application) : AndroidViewModel(app) {
     private val store = LocalStore(app)
-    private val episode = (EpisodeFile.load(app, EpisodeFile.DEMO) as? EpisodeResult.Ok)?.episode
-    val routes = AdventureOptions.routes
+    val episode = (EpisodeFile.load(app, EpisodeFile.DEMO) as? EpisodeResult.Ok)?.episode
+    val tripCatalog = TripCatalog(episode)
+    val routes = AdventureOptions.fromEpisode(episode).ifEmpty { AdventureOptions.routes }
+    var routeId by mutableStateOf<String?>(tripCatalog.routes(routes.first().id).firstOrNull()?.id)
+        private set
+    val travelRoutes get() = tripCatalog.routes(destinationId)
+    val tripStops get() = tripCatalog.stops(destinationId, routeId, age)
+    val plannedMissions get() = tripCatalog.plan(destinationId, routeId, age)
+    val credits get() = episode?.credits.orEmpty()
+    val activeTravelRoute get() = travelRoutes.firstOrNull { it.id == routeId } ?: travelRoutes.firstOrNull()
     val themes = AdventureOptions.themes
     var setupStep by mutableStateOf(0)
         private set
@@ -38,7 +48,20 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var destinationId by mutableStateOf(routes.first().id)
         private set
-    val controller = AppController(app, engine = MissionEngine(episode)).also { it.start() }
+    private val car = PermissionCarSource(app, episode?.places.orEmpty())
+    val controller = AppController(app, engine = MissionEngine(episode), car = car, episode = episode)
+    var connectionsReady by mutableStateOf(false)
+        private set
+    fun startConnections(locationAllowed: Boolean) {
+        if (connectionsReady) return
+        car.locationAllowed = locationAllowed
+        controller.start()
+        connectionsReady = true
+    }
+    fun selectTravelRoute(id: String) { if (travelRoutes.any { it.id == id }) routeId = id }
+    fun visitPlace(id: String) {
+        if (!controller.vehicle.restricted) controller.replay.send(AppEvent.PlaceEntered(id))
+    }
 
     fun selectAge(value: AgeGroup) {
         age = value
@@ -50,9 +73,10 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun selectDestination(id: String?) {
         destinationId = routes.firstOrNull { it.id == id }?.id ?: routes.first().id
+        routeId = tripCatalog.routes(destinationId).firstOrNull()?.id
     }
     fun startTrip() {
-        StartSelection(age, destinationId, consent).events().forEach(controller::dispatch)
+        StartSelection(age, destinationId, consent, routeId).events().forEach(controller::dispatch)
     }
     var demoMission by mutableStateOf<CityMission?>(null)
         private set
@@ -64,6 +88,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     var skippedDemoMissions by mutableStateOf(setOf<String>())
         private set
     val journeyReadyToEnd get() = selectedRoute.missions.all { it.id in completedDemoMissions || it.id in skippedDemoMissions }
+    var bonusSuspended by mutableStateOf(false)
+        private set
     var missionAudioMuted by mutableStateOf(false)
         private set
     var reviewingCompletedMission by mutableStateOf(false)
@@ -76,6 +102,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (controller.vehicle.restricted || mission !in selectedRoute.missions) return
         soundWasStopped = controller.vehicle.parentStopped
         controller.dispatch(AppEvent.ParentStopChanged(true))
+        bonusSuspended = false
         reviewingCompletedMission = false
         missionAudioMuted = false
         voiceRetryCount = 0
@@ -170,12 +197,15 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         controller.speakScreen(text, after)
     }
     fun onDrivingRestrictionChanged(restricted: Boolean) {
-        if (!restricted) return
-        val session = missionSession ?: return
-        if (!session.done) {
-            session.voiceMode = true
-            session.playing = true
-            if (!missionAudioMuted) readVoiceQuiz(withDescription = true)
+        if (demoMission == null && !journeyEndingVisible) return
+        if (restricted && !bonusSuspended) {
+            bonusSuspended = true
+            controller.stopScreenAudio()
+            if (!soundWasStopped) controller.dispatch(AppEvent.ParentStopChanged(false))
+        } else if (!restricted && bonusSuspended) {
+            bonusSuspended = false
+            soundWasStopped = controller.vehicle.parentStopped
+            controller.dispatch(AppEvent.ParentStopChanged(true))
         }
     }
     fun toggleMissionAudio() {
@@ -209,11 +239,12 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         journeyEndingVisible = false
         if (!soundWasStopped) controller.dispatch(AppEvent.ParentStopChanged(false))
     }
-    fun stopNarration() { if (demoMission != null || journeyEndingVisible) controller.stopScreenAudio() }
+    fun stopNarration() { if ((demoMission != null || journeyEndingVisible) && !bonusSuspended) controller.stopScreenAudio() }
     fun closeDemoMission() {
         controller.stopScreenAudio()
         demoMission = null
         missionSession = null
+        bonusSuspended = false
         if (!soundWasStopped) controller.dispatch(AppEvent.ParentStopChanged(false))
     }
     fun restartTrip() {

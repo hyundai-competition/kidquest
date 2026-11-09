@@ -5,6 +5,7 @@ package com.kidquest.app.car
 import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.CarSignal
 import com.kidquest.core.contract.EventListener
+import com.kidquest.core.contract.TurnSide
 
 internal class CarEventFilter(private val out: EventListener) {
     private val last = HashMap<Any, AppEvent>()
@@ -21,6 +22,16 @@ internal class CarEventFilter(private val out: EventListener) {
     }
 
     fun unavailable(signal: CarSignal) = send(AppEvent.SignalUnavailable(signal))
+
+    /** 방향지시등의 직전 값. 꺼짐은 null이다. */
+    private var lastTurn: TurnSide? = null
+
+    /** 방향지시등은 켜질 때만 사건이다. 껐다가 같은 쪽을 다시 켜면 다시 보낸다. 같은 켜짐이 두 번 와도 한 번만 보낸다. */
+    @Synchronized
+    fun turnSignal(side: TurnSide?) {
+        if (side != null && side != lastTurn) out.onEvent(AppEvent.TurnSignalOn(side))
+        lastTurn = side
+    }
 
     /** 같은 칸끼리 비교한다. null이면 거르지 않는다. 위치 사건과 도착처럼 값이 없는 사건이 여기에 든다. */
     private fun keyOf(event: AppEvent): Any? = when (event) {

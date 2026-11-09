@@ -4,10 +4,10 @@ package com.kidquest.app.screen.model
 import com.kidquest.core.contract.AgeGroup
 import com.kidquest.core.contract.AppEvent
 
-data class StartSelection(val age: AgeGroup, val destinationId: String?, val consent: Boolean) {
+data class StartSelection(val age: AgeGroup, val destinationId: String?, val consent: Boolean, val routeId: String? = null) {
     fun events(): List<AppEvent> = listOf(
         AppEvent.AgeSelected(age),
-        AppEvent.DestinationSelected(destinationId),
+        AppEvent.DestinationSelected(destinationId, routeId),
         AppEvent.ListeningConsentChanged(consent),
         AppEvent.StartPressed,
     )
