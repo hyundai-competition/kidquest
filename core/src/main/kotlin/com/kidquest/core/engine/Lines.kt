@@ -11,7 +11,7 @@ internal object Lines {
     val TAKE_OFF = Say("take_off", "출발! 보물 탐험을 시작해요.")
     val BELT_OFF = Say("belt_off", "벨트를 매면 계속할 수 있어요.")
     val DOCKED = Say("docked", "잠깐 쉬어 갈게요. 다시 출발하면 이어서 들려줄게요.")
-    val LANDED = Say("landed", "도착! 오늘의 배지를 확인해 보세요.")
+    val LANDED = Say("landed", "탐험 끝! 오늘 모은 보물을 확인해 보세요.")
 
     /** 결말 대사의 lineId. 결말 문장은 에피소드 파일에 있고, 이 대사가 끝나면 착륙 대사를 말한다. */
     const val ENDING_ID = "ending"
