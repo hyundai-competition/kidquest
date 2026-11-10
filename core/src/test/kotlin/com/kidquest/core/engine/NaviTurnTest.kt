@@ -8,6 +8,7 @@ import com.kidquest.core.contract.Command
 import com.kidquest.core.contract.Gear
 import com.kidquest.core.contract.MissionTrigger
 import com.kidquest.core.contract.Place
+import com.kidquest.core.contract.TurnKind
 import com.kidquest.core.contract.TurnSide
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -43,6 +44,15 @@ class NaviTurnTest : MissionTestBase() {
         assertTrue(turnAt(250).isEmpty())
         assertTrue("아직 안 지났다", turnAt(40).isEmpty())
         assertEquals(opened, turnAt(1_200))
+    }
+
+    @Test
+    fun `회전 종류가 같이 와도 갈림길은 거리로만 센다`() {
+        // 종류는 화면 한 줄에만 쓴다. 종류가 바뀌어도 지난 회전을 세는 방법은 같다.
+        waiting()
+        assertTrue(send(AppEvent.NextTurnDistance(250, TurnKind.RIGHT)).isEmpty())
+        assertTrue(send(AppEvent.NextTurnDistance(40, TurnKind.RIGHT)).isEmpty())
+        assertEquals(opened, send(AppEvent.NextTurnDistance(1_200, TurnKind.KEEP_LEFT)))
     }
 
     @Test

@@ -21,6 +21,12 @@ enum class CarSignal {
     SEAT, BELT, GEAR, TURN_SIGNAL, WIPER, ENERGY, CABIN_TEMPERATURE, LOCATION, NAVIGATION, DRIVING_STATE,
 }
 
+/**
+ * 내비가 알려 준 다음 회전의 종류. 화면 아래 내비 안내 한 줄에 쓴다(11-09 회의 결정 5번). 엔진은 쓰지 않는다.
+ * SDK의 TurnType은 car/가 이 값으로 바꾼다. 급회전은 LEFT·RIGHT로, 모르는 종류는 UNKNOWN으로 둔다.
+ */
+enum class TurnKind { LEFT, RIGHT, KEEP_LEFT, KEEP_RIGHT, UTURN, ROUNDABOUT, IC_ENTER, IC_EXIT, UNKNOWN }
+
 sealed interface AppEvent {
     // 차 신호. car와 replay가 보낸다.
     data class SeatOccupied(val seat: RearSeat, val occupied: Boolean) : AppEvent
@@ -40,8 +46,8 @@ sealed interface AppEvent {
     // 내비와 위치. car와 replay가 보낸다.
     data class PlaceEntered(val placeId: String) : AppEvent
     data class RemainingTimeChanged(val seconds: Int) : AppEvent
-    /** 내비 회전 안내(onTBTInfo)의 첫 회전까지 거리(미터). 경로 안내 중에 값이 바뀔 때마다 보낸다. */
-    data class NextTurnDistance(val meters: Int) : AppEvent
+    /** 내비 회전 안내(onTBTInfo)의 첫 회전까지 거리(미터)와 그 회전의 종류. 경로 안내 중에 값이 바뀔 때마다 보낸다. 종류를 모르면 UNKNOWN. */
+    data class NextTurnDistance(val meters: Int, val turn: TurnKind = TurnKind.UNKNOWN) : AppEvent
     data class RoadAhead(val kind: RoadKind, val meters: Int) : AppEvent
     data object DestinationArrived : AppEvent
 
