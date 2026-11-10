@@ -266,8 +266,8 @@
       "event": "경주에 들어왔어요! 경주에는 옛날 신라 사람들이 별을 보던 첨성대가 있어요.",
       "question": "첨성대에서 별을 보던 사람들은 신라 사람들일까요, 조선 사람들일까요?",
       "answers": ["신라"],
-      "correctLine": "맞아요, 신라 사람들이에요! 첨성대 보물 조각을 찾았어요.",
-      "wrongLine": "이번 정답은 신라 사람들이에요. 첨성대 보물 조각을 찾았어요.",
+      "correctLine": "맞아요, 신라 사람들이에요! 첨성대 돌을 찾았어요.",
+      "wrongLine": "이번 정답은 신라 사람들이에요. 첨성대 돌을 찾았어요.",
       "rewardItem": "cheomseongdae_piece",
       "factSource": "[출처 : 경주 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002925, [출처 : 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0056197 (2026-11-08 확인)"
     },
@@ -282,8 +282,8 @@
       "event": "부산에 들어왔어요! 6·25 전쟁 때 나라 일을 부산에서 했대요. 부산에는 대통령이 일하고 지낸 집이 있어요.",
       "question": "6·25 전쟁 때 나라 일을 하던 도시는 부산일까요, 제주일까요?",
       "answers": ["부산"],
-      "correctLine": "맞아요, 부산이에요! 임시수도 보물 조각을 찾았어요.",
-      "wrongLine": "이번 정답은 부산이에요. 임시수도 보물 조각을 찾았어요.",
+      "correctLine": "맞아요, 부산이에요! 관저 기와를 찾았어요.",
+      "wrongLine": "이번 정답은 부산이에요. 관저 기와를 찾았어요.",
       "rewardItem": "capital_piece",
       "factSource": "[출처 : 부산 임시수도 대통령관저 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0077059 (2026-11-08 확인)"
     },
@@ -298,8 +298,8 @@
       "event": "안동에 들어왔어요! 안동에는 하회마을이 있어요. 아주 오래전부터 한 집안 사람들이 모여 살아온 마을이고, 옛날 집들이 지금도 남아 있어요.",
       "question": "하회마을은 한 집안 사람들이 모여 살아온 마을일까요, 여러 나라 사람들이 모여 살아온 마을일까요?",
       "answers": ["집안"],
-      "correctLine": "맞아요, 한 집안 사람들이 모여 살아온 마을이에요! 하회마을 보물 조각을 찾았어요.",
-      "wrongLine": "하회마을은 한 집안 사람들이 모여 살아온 마을이에요. 하회마을 보물 조각을 찾았어요.",
+      "correctLine": "맞아요, 한 집안 사람들이 모여 살아온 마을이에요! 하회탈을 찾았어요.",
+      "wrongLine": "하회마을은 한 집안 사람들이 모여 살아온 마을이에요. 하회탈을 찾았어요.",
       "rewardItem": "hahoe_piece",
       "factSource": "https://whc.unesco.org/en/list/1324/ (Date of Inscription 2010), [출처 : 안동 하회마을 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0034689 (2026-11-08 확인)"
     },
@@ -314,8 +314,8 @@
       "event": "서울에 들어왔어요! 서울에는 조선 임금님의 으뜸 궁궐인 경복궁이 있어요.",
       "question": "경복궁은 조선의 궁궐일까요, 신라의 궁궐일까요?",
       "answers": ["조선"],
-      "correctLine": "맞아요, 조선의 궁궐이에요! 경복궁 보물 조각을 찾았어요.",
-      "wrongLine": "이번 정답은 조선의 궁궐이에요. 경복궁 보물 조각을 찾았어요.",
+      "correctLine": "맞아요, 조선의 궁궐이에요! 광화문 해치를 찾았어요.",
+      "wrongLine": "이번 정답은 조선의 궁궐이에요. 광화문 해치를 찾았어요.",
       "rewardItem": "palace_piece",
       "factSource": "[출처 : 경복궁 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002434 (건립 시기 1395년, 정궁, 2026-11-08 확인)"
     }
@@ -331,10 +331,10 @@
     { "id": "saejae_straw_shoes", "name": "새재 짚신" },
     { "id": "sambong_pebble", "name": "삼봉 조약돌" },
     { "id": "buseoksa_tile", "name": "부석사 기와 조각" },
-    { "id": "cheomseongdae_piece", "name": "첨성대 보물 조각" },
-    { "id": "capital_piece", "name": "임시수도 보물 조각" },
-    { "id": "hahoe_piece", "name": "하회마을 보물 조각" },
-    { "id": "palace_piece", "name": "경복궁 보물 조각" }
+    { "id": "cheomseongdae_piece", "name": "첨성대 돌" },
+    { "id": "capital_piece", "name": "관저 기와" },
+    { "id": "hahoe_piece", "name": "하회탈" },
+    { "id": "palace_piece", "name": "광화문 해치" }
   ],
   "reactions": [
     { "signal": "turn_left", "soundId": "turn_tick_left", "line": null, "cooldownSeconds": 60 },

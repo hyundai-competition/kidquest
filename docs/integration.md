@@ -91,10 +91,10 @@
 | `mungyeong` | 36.70141, 128.11131 | 3km | 문경새재IC, 중부내륙 | `mungyeong_saejae` | 새재 짚신 |
 | `danyang` | 36.91789, 128.36526 | 3km | 단양IC, 중앙 | `danyang_dodam` | 삼봉 조약돌 |
 | `yeongju` | 36.76771, 128.57196 | 3km | 영주IC, 중앙 | `yeongju_buseoksa` | 부석사 기와 조각 |
-| `cheomseongdae` | 35.83472, 129.21917 | 1km | 첨성대 | `gyeongju_star` | 첨성대 보물 조각 |
-| `temporary_capital` | 35.1034, 129.0174 | 1km | 임시수도기념관 | `busan_capital` | 임시수도 보물 조각 |
-| `hahoe` | 36.53806, 128.52056 | 1km | 하회마을 | `andong_village` | 하회마을 보물 조각 |
-| `gyeongbokgung` | 37.57861, 126.97722 | 1km | 경복궁 | `seoul_palace` | 경복궁 보물 조각 |
+| `cheomseongdae` | 35.83472, 129.21917 | 1km | 첨성대 | `gyeongju_star` | 첨성대 돌 |
+| `temporary_capital` | 35.1034, 129.0174 | 1km | 임시수도기념관 | `busan_capital` | 관저 기와 |
+| `hahoe` | 36.53806, 128.52056 | 1km | 하회마을 | `andong_village` | 하회탈 |
+| `gyeongbokgung` | 37.57861, 126.97722 | 1km | 경복궁 | `seoul_palace` | 광화문 해치 |
 
 중간 도시 좌표는 OpenStreetMap에서 그 나들목의 양쪽 방향 분기 노드 두 개를 평균한 값이다(위키데이터나 위키백과 좌표와 가장 많이 다른 곳이 북대구IC 470m, 2026-11-09). OpenStreetMap 자료라 앱이나 기획서에 「위치 데이터 © OpenStreetMap contributors, ODbL」 표시가 필요하다. 앱은 이 좌표를 파일에서만 읽고, 실행 중에 지도 서버에 묻지 않는다.
 
