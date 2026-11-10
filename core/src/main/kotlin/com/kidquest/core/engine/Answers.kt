@@ -1,4 +1,5 @@
 // 아이 답을 정답과 맞춰 본다. 아이는 「초록색이요」처럼 덧붙여 말해서, 띄어쓰기를 빼고 정답이 들어 있는지 본다.
+// 영어는 대소문자를 가리지 않는다(Blue와 blue).
 package com.kidquest.core.engine
 
 import com.kidquest.core.contract.Mission
@@ -9,5 +10,5 @@ internal object Answers {
         return mission.answers.any { it.withoutSpaces() in heard }
     }
 
-    private fun String.withoutSpaces() = filterNot { it.isWhitespace() }
+    private fun String.withoutSpaces() = filterNot { it.isWhitespace() }.lowercase()
 }

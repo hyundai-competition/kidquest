@@ -34,7 +34,7 @@ internal class SpeechGate(private val pauseReasons: Set<PauseReason>) {
 
     /** 벨트를 다시 맸으면 미뤄 둔 「벨트를 매면」 안내는 버린다. */
     fun dropBeltGuide() {
-        if (held == Lines.BELT_OFF) held = null
+        if (held?.lineId == Lines.BELT_OFF.lineId) held = null // 영어 대사도 id는 같다.
     }
 
     /** 다시 하기. 미룬 대사와 벨트 안내 횟수를 지운다. */

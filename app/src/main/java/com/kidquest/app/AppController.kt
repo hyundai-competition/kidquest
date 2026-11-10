@@ -34,7 +34,7 @@ class AppController(
     val replay: ReplaySource = ReplaySource(),
     episode: Episode? = null,
 ) {
-    val presentation = EnginePresentation(episode)
+    val presentation = EnginePresentation { engine.episode ?: episode }
     var voiceStatus by mutableStateOf("음성 대기 · 시험용 효과음")
         private set
     var voiceUi by mutableStateOf(VoiceUiState())

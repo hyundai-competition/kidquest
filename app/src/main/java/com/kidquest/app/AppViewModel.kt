@@ -18,12 +18,20 @@ import com.kidquest.app.storage.LocalStore
 import com.kidquest.core.contract.AgeGroup
 import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.Gear
+import com.kidquest.core.contract.Language
 import com.kidquest.core.engine.MissionEngine
 import com.kidquest.core.episode.EpisodeResult
 
 class AppViewModel(app: Application) : AndroidViewModel(app) {
     private val store = LocalStore(app)
     val episode = (EpisodeFile.load(app, EpisodeFile.DEMO) as? EpisodeResult.Ok)?.episode
+    private val english = EpisodeFile.loadOptional(app, EpisodeFile.DEMO_EN)
+
+    /** 고를 수 있는 언어. 영어 예시 파일(#60)이 있을 때만 영어가 들어간다. 화면은 #61. */
+    val languages = listOfNotNull(Language.KO, Language.EN.takeIf { english != null })
+    var language by mutableStateOf(Language.KO)
+        private set
+    fun selectLanguage(value: Language) { if (value in languages) language = value }
     val tripCatalog = TripCatalog(episode)
     val routes = AdventureOptions.fromEpisode(episode).ifEmpty { AdventureOptions.routes }
     var routeId by mutableStateOf<String?>(tripCatalog.routes(routes.first().id).firstOrNull()?.id)
@@ -50,7 +58,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     var destinationId by mutableStateOf(routes.first().id)
         private set
     private val car = PermissionCarSource(app, episode?.places.orEmpty())
-    val controller = AppController(app, engine = MissionEngine(episode), car = car, episode = episode)
+    private val translations = listOfNotNull(english?.let { Language.EN to it }).toMap()
+    val controller = AppController(app, engine = MissionEngine(episode, translations), car = car, episode = episode)
     init { controller.vehicleChanged = { vehicle ->
         if (vehicle.gear != Gear.P || vehicle.restricted) closeMiniGames()
     } }
@@ -93,7 +102,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         routeId = tripCatalog.routes(destinationId).firstOrNull()?.id
     }
     fun startTrip() {
-        StartSelection(age, destinationId, consent, routeId).events().forEach(controller::dispatch)
+        StartSelection(age, destinationId, consent, routeId, language).events().forEach(controller::dispatch)
     }
     var demoMission by mutableStateOf<CityMission?>(null)
         private set

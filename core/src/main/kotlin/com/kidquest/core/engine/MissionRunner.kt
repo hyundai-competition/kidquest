@@ -11,20 +11,19 @@ package com.kidquest.core.engine
 
 import com.kidquest.core.contract.CarSignal
 import com.kidquest.core.contract.Command
-import com.kidquest.core.contract.Episode
 import com.kidquest.core.contract.Mission
 import com.kidquest.core.contract.MissionTrigger
 import com.kidquest.core.contract.RoadKind
 import com.kidquest.core.contract.TurnSide
 
-internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
+internal class MissionRunner(private val plan: TripPlan) {
     private enum class Step { INTRO, NOTICE, BRIEFING, WAIT_TRIGGER, SOUND, EVENT, QUESTION, WAIT_ANSWER, ANSWER_LINE }
 
     /** 고른 목적지와 나이로 거른 임무. 시작 전에만 바뀐다. */
     private val missions: List<Mission> get() = plan.missions
-    private val itemNames = episode?.items.orEmpty().associate { it.id to it.name }
-    private val cues = CarCues(episode, plan)
-    private val endingText = episode?.endingLine.orEmpty()
+    private val itemNames get() = plan.episode?.items.orEmpty().associate { it.id to it.name }
+    private val cues = CarCues(plan)
+    private val endingText get() = plan.episode?.endingLine.orEmpty()
 
     private var index = 0
 
@@ -119,9 +118,9 @@ internal class MissionRunner(episode: Episode?, private val plan: TripPlan) {
         return if (now != null && step == Step.WAIT_TRIGGER && now.trigger == MissionTrigger.NAVI_TURN) openEvent(now) else emptyList()
     }
 
-    /** 알림을 맡긴다. 비행 중이고 조용하면 바로 말하고, 아니면 조용해질 때 말한다. */
-    fun announce(say: Command.Say, flying: Boolean): List<Command> {
-        notice.hold(say)
+    /** 알림을 맡긴다. 비행 중이고 조용하면 바로 말하고, 아니면 조용해질 때 말한다. minor면 맡은 알림이 없을 때만 맡는다. */
+    fun announce(say: Command.Say, flying: Boolean, minor: Boolean = false): List<Command> {
+        if (minor) notice.offer(say) else notice.hold(say)
         return if (flying) sayNoticeIfQuiet() else emptyList()
     }
 

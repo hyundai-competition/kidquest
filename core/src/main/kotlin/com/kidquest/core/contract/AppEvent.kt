@@ -13,6 +13,9 @@ enum class TurnSide { LEFT, RIGHT }
 /** 아이 연령. 아이가 둘 이상이면 어린 쪽에 맞춘다(가정). */
 enum class AgeGroup { PRESCHOOL, EARLY_GRADE }
 
+/** 탐험 언어. 영어는 12세 이상 권장이다(11-09 회의 결정 12번). */
+enum class Language { KO, EN }
+
 /** 내비 회전 안내에서 얻는 도로 사건. 강, 바다, 숲은 여기서 못 얻어서 Place 좌표로 둔다. */
 enum class RoadKind { TUNNEL, TOLL, REST_AREA, OVERPASS, UNDERPASS, INTERCHANGE }
 
@@ -59,6 +62,9 @@ sealed interface AppEvent {
 
     // 버튼. screen이 보낸다.
     data class AgeSelected(val group: AgeGroup) : AppEvent
+
+    /** 부모가 고른 탐험 언어. 시작 전에만 받는다. 그 언어의 에피소드 파일이 없으면 한국어로 둔다. */
+    data class LanguageSelected(val language: Language) : AppEvent
 
     /** 부모가 고른 목적지와 경로. 목적지가 null이면 기본 이야기로, 경로가 null이거나 없는 경로면 그 목적지의 첫 경로로 간다. */
     data class DestinationSelected(val destinationId: String?, val routeId: String? = null) : AppEvent
