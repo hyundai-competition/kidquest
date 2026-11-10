@@ -10,6 +10,12 @@ class NumberAnswerTest {
         listOf("2번", "이번이요", "두 번째").forEach { assertEquals(it, 1, NumberAnswer.parse(it)) }
         listOf("삼번", "3번이에요", "세 번째").forEach { assertEquals(it, 2, NumberAnswer.parse(it)) }
     }
+    @Test fun acceptsEnglishNumberPhrasesWithoutGuessingMultipleAnswers() {
+        listOf("one", "Number one!", "option 1").forEach { assertEquals(0, NumberAnswer.parse(it)) }
+        assertEquals(1, NumberAnswer.parse("Two"))
+        assertEquals(2, NumberAnswer.parse("number three"))
+        assertNull(NumberAnswer.parse("one or two"))
+    }
     @Test fun rejectsAmbiguousOrUnrelatedSpeech() {
         listOf("", "1번 아니고 2번", "12번", "4번", "오늘 3시에", "잘 모르겠어요").forEach { assertNull(it, NumberAnswer.parse(it)) }
         assertTrue(NumberAnswer.isSkip("건너뛰기"))

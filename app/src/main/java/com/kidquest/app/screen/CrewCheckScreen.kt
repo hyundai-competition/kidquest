@@ -1,6 +1,7 @@
 // 최신 탑승·벨트·기어 값을 표시하고 부모 확인 사건을 보낸다. 차량 SDK는 호출하지 않는다.
 package com.kidquest.app.screen
 
+import com.kidquest.app.screen.AppText as Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable

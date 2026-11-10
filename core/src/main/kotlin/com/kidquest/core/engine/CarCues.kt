@@ -6,14 +6,13 @@
 package com.kidquest.core.engine
 
 import com.kidquest.core.contract.Command
-import com.kidquest.core.contract.Episode
 import com.kidquest.core.contract.Mission
 import com.kidquest.core.contract.MissionTrigger
 import com.kidquest.core.contract.RoadKind
 import com.kidquest.core.contract.TurnSide
 
-internal class CarCues(episode: Episode?, private val plan: TripPlan) {
-    private val reactions = SignalReactions(episode)
+internal class CarCues(private val plan: TripPlan) {
+    private val reactions = SignalReactions { plan.episode }
 
     /** 비 오는 날은 와이퍼가 계속 켜져 있다. 켜짐 사건을 다시 못 받아도 임무를 열 수 있게 기억한다. */
     var wiperOn = false

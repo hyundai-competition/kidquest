@@ -1,4 +1,4 @@
-// 브루미의 경로·테마·연령 설정과 좁은 창, 재생성, 연령 저장을 실제 기기에서 확인한다.
+// 언어·경로·테마와 동의 선택이 창 크기 변경과 재생성 후 유지되는지 확인한다.
 package com.kidquest.app
 
 import android.graphics.Bitmap
@@ -25,68 +25,51 @@ import java.io.File
 class StartAcceptanceTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
-    @Test fun fourRoutesLockedThemesAndSelectionsSurviveResizing() {
+    @Test fun languageRoutesThemesAndConsentSurviveResizing() {
         lateinit var model: AppViewModel
         compose.runOnIdle { model = ViewModelProvider(compose.activity)[AppViewModel::class.java] }
         val width = mutableStateOf(1500)
         compose.activity.runOnUiThread {
-            compose.activity.setContent {
-                Box(Modifier.requiredSize(width.value.dp, 900.dp)) { KidQuestScreen(model) }
-            }
+            compose.activity.setContent { Box(Modifier.requiredSize(width.value.dp, 900.dp)) { KidQuestScreen(model) } }
         }
-        compose.waitForIdle()
+        compose.onNodeWithText("한국어").performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithTag("listening-consent").performScrollTo().performClick().assertIsOn()
+        compose.runOnIdle { width.value = 628 }
+        listOf("한국어", "English · 12세 이상 권장", "말로 대답하기", "경로 고르기 →").forEach(::checkText)
+        compose.activityRule.scenario.recreate()
+        compose.onNodeWithText("한국어").performScrollTo().assertIsSelected()
+        compose.onNodeWithTag("listening-consent").performScrollTo().assertIsOn()
+        compose.onNodeWithText("경로 고르기 →").performScrollTo().performClick()
         for (route in model.routes) compose.onNodeWithText(route.label).performScrollTo().performClick().assertIsSelected()
         compose.onNodeWithText("서울 → 경주").performScrollTo().performClick()
-        capture("vroomie-route.png")
-        compose.runOnIdle { width.value = 628 }
-        model.routes.forEach { checkText(it.label) }
         compose.onNodeWithText("테마 고르기 →").performScrollTo().performClick()
         compose.onNodeWithText("역사 보물찾기").assertIsEnabled().assertIsSelected()
         listOf("준비 중 01", "준비 중 02", "준비 중 03").forEach {
             compose.onNodeWithText(it).performScrollTo().assertIsNotEnabled()
         }
         compose.runOnIdle { model.selectTheme("coming_1"); assertEquals("history", model.themeId) }
-        compose.runOnIdle { width.value = 1500 }
-        capture("vroomie-theme.png")
-        compose.onNodeWithText("출발 준비 →").performScrollTo().performClick()
-        compose.onNodeWithText("초등 저학년").performScrollTo().performClick().assertIsSelected()
-        compose.onNodeWithTag("listening-consent").performScrollTo().performClick().assertIsOn()
-        compose.runOnIdle { width.value = 628 }
-        listOf("미취학", "초등 저학년", "말로 대답하기", "탐험 시작하기 →").forEach(::checkText)
-        compose.onNodeWithText("초등 저학년").assertIsSelected()
-        compose.onNodeWithTag("listening-consent").assertIsOn()
-        compose.runOnIdle { width.value = 1500 }
-        compose.activityRule.scenario.recreate()
-        compose.waitForIdle()
-        compose.onNodeWithText("초등 저학년").performScrollTo().assertIsSelected()
-        compose.onNodeWithTag("listening-consent").performScrollTo().assertIsOn()
-        compose.runOnIdle {
-            assertEquals("gyeongju", model.destinationId)
-            assertEquals(2, model.setupStep)
-        }
         compose.onNodeWithText("탐험 시작하기 →").performScrollTo().performClick()
         compose.onNodeWithText("탐험대 확인").assertExists()
     }
 
-    @Test fun defaultRouteStartsWithoutConsentAndAgeUsesIntegrationStore() {
+    @Test fun defaultLanguageStartsWithoutConsentAndFreshSetupDoesNotReuseConsent() {
         lateinit var model: AppViewModel
         compose.runOnIdle { model = ViewModelProvider(compose.activity)[AppViewModel::class.java] }
-        compose.onNodeWithText("테마 고르기 →").performScrollTo().performClick()
-        compose.onNodeWithText("출발 준비 →").performScrollTo().performClick()
         compose.onNodeWithTag("listening-consent").performScrollTo().assertIsOff()
         compose.runOnIdle {
             model.selectDestination("unknown")
             assertEquals("gyeongju", model.destinationId)
-            model.selectAge(AgeGroup.EARLY_GRADE)
+            assertEquals(com.kidquest.core.contract.Language.KO, model.language)
             val store = ViewModelStore()
             try {
                 val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(compose.activity.application)
                 val fresh = ViewModelProvider(store, factory)[AppViewModel::class.java]
-                assertEquals(AgeGroup.EARLY_GRADE, fresh.age)
                 assertFalse(fresh.consent)
-                assertEquals("gyeongju", fresh.destinationId)
+                assertEquals(com.kidquest.core.contract.Language.KO, fresh.language)
             } finally { store.clear() }
         }
+        compose.onNodeWithText("경로 고르기 →").performScrollTo().performClick()
+        compose.onNodeWithText("테마 고르기 →").performScrollTo().performClick()
         compose.onNodeWithText("탐험 시작하기 →").performScrollTo().performClick()
         compose.onNodeWithText("탐험대 확인").assertExists()
     }

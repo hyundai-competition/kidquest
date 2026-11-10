@@ -10,7 +10,11 @@ import com.kidquest.core.contract.Episode
 import com.kidquest.core.contract.Mission
 import com.kidquest.core.contract.Route
 
-internal class TripPlan(private val episode: Episode?) {
+internal class TripPlan(episode: Episode?) {
+    /** 지금 쓰는 에피소드. 언어를 바꾸면 그 언어 파일로 바뀐다. */
+    var episode: Episode? = episode
+        private set
+
     private var destination: Destination? = null
     private var route: Route? = null
     private var age: AgeGroup? = null
@@ -19,12 +23,18 @@ internal class TripPlan(private val episode: Episode?) {
     private var departed = false
 
     /** 어느 경로에든 든 임무. 그 경로를 골랐을 때만 나온다. */
-    private val routed: Set<String> =
-        episode?.destinations.orEmpty().flatMap { it.routes }.flatMap { it.missionIds }.toSet()
+    private var routed: Set<String> = routedIn(episode)
 
     /** 이번 이동의 임무. 목적지 전용 임무는 그 목적지를, 경로 임무는 그 경로를, 나이가 정해진 임무는 그 나이를 골랐을 때만 들어간다. */
     var missions: List<Mission> = pick()
         private set
+
+    /** 언어를 바꿨다. 언어별 파일은 id가 같아서, 고른 목적지와 경로를 새 파일에서 같은 id로 다시 찾는다. 시작 전에만 부른다. */
+    fun useEpisode(next: Episode?) {
+        episode = next
+        routed = routedIn(next)
+        selectDestination(destination?.id, route?.id)
+    }
 
     /** 없는 목적지 id는 고르지 않은 것으로 본다. 경로를 안 골랐거나 없는 경로면 그 목적지의 첫 경로로 간다. */
     fun selectDestination(id: String?, routeId: String? = null) {
@@ -75,6 +85,9 @@ internal class TripPlan(private val episode: Episode?) {
 
     private fun say(id: String, text: String?): Command.Say? =
         text?.takeIf { it.isNotBlank() }?.let { Command.Say(id, it) }
+
+    private fun routedIn(episode: Episode?): Set<String> =
+        episode?.destinations.orEmpty().flatMap { it.routes }.flatMap { it.missionIds }.toSet()
 
     companion object {
         const val DEPARTURE_ID = "departure"

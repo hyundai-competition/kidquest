@@ -3,6 +3,7 @@ package com.kidquest.app.episode
 
 import android.content.Context
 import android.util.Log
+import com.kidquest.core.contract.Episode
 import com.kidquest.core.episode.EpisodeResult
 import com.kidquest.core.episode.readEpisode
 import java.io.IOException
@@ -11,6 +12,9 @@ object EpisodeFile {
     /** 로그 보기 : adb logcat -s KQEpisode */
     private const val TAG = "KQEpisode"
     const val DEMO = "episode_demo.json"
+
+    /** 영어판. 임무·장소·보물 id가 DEMO와 같고 글만 영어다(#60). */
+    const val DEMO_EN = "episode_demo_en.json"
 
     fun load(context: Context, fileName: String): EpisodeResult {
         val result = try {
@@ -23,5 +27,15 @@ object EpisodeFile {
             is EpisodeResult.Failed -> result.problems.forEach { Log.e(TAG, "$fileName : $it") }
         }
         return result
+    }
+
+    /** 없어도 되는 파일(영어판)을 연다. 파일이 없으면 로그 없이 null, 있는데 틀리면 load처럼 로그를 남기고 null. */
+    fun loadOptional(context: Context, fileName: String): Episode? {
+        val exists = try {
+            context.assets.list("episodes").orEmpty().contains(fileName)
+        } catch (e: IOException) {
+            false
+        }
+        return if (exists) (load(context, fileName) as? EpisodeResult.Ok)?.episode else null
     }
 }

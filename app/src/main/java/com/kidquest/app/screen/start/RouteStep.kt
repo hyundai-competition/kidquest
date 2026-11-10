@@ -1,6 +1,7 @@
 // 네 시연 경로를 두 열 카드로 고른다. 선택은 실제 내비 경로 설정과 구분된다.
 package com.kidquest.app.screen.start
 
+import com.kidquest.app.screen.AppText as Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -30,7 +31,7 @@ fun RouteStep(model: AppViewModel) {
         }
     } else model.activeTravelRoute?.let { Text(it.name, fontSize = 28.sp) }
     Text("네 가지 시연 경로 중 하나를 골라 탐험을 준비해요. 내비게이션 경로는 별도로 설정해 주세요.", fontSize = 28.sp, lineHeight = 40.sp)
-    Button(onClick = { model.changeStep(1) }, modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp)) {
+    Button(onClick = { model.changeStep(2) }, modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp)) {
         Text("테마 고르기 →", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 34.sp, lineHeight = 48.sp)
     }
 }

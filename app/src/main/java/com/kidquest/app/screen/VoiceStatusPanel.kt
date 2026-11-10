@@ -1,10 +1,10 @@
 // 브루미 말하기와 아이 답변 차례를 구분한다. 주행 규제 화면은 짧고 정적인 상태만 표시한다.
 package com.kidquest.app.screen
 
+import com.kidquest.app.screen.AppText as Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color

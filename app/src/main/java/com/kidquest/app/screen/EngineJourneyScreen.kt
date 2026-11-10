@@ -1,6 +1,7 @@
 // 이동 경로와 대사·보상을 엔진 상태로 표시한다. 장소 버튼은 실제 위치와 같은 PlaceEntered를 보낸다.
 package com.kidquest.app.screen
 
+import com.kidquest.app.screen.AppText as Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -37,13 +38,15 @@ fun EngineMissionPanel(model: AppViewModel) {
         if (presentation.stage == "question") {
             Text(if (presentation.answerReady) "번호나 답을 골라 주세요." else "질문을 다 읽으면 답을 고를 수 있어요.", fontSize = 26.sp)
             presentation.options.forEachIndexed { i, label ->
-                OutlinedButton(onClick = { controller.answerChoice(i) }, enabled = presentation.answerReady && controller.screen == com.kidquest.core.contract.Screen.FLYING,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp)) { Text("${i + 1}번 · $label", fontSize = 28.sp) }
+                AnswerOptionButton("${i + 1}번 · $label", presentation.answerReady && controller.screen == com.kidquest.core.contract.Screen.FLYING) {
+                    controller.answerChoice(i)
+                }
             }
         }
         if (model.placeNotice.isNotBlank()) Text(model.placeNotice, Modifier.testTag("place-notice"), fontSize = 24.sp, lineHeight = 34.sp)
         OutlinedButton(onClick = model::openMiniGames, enabled = model.canPlayMiniGames,
             modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp).testTag("open-mini-games")) { Text("미니게임 놀이터", fontSize = 30.sp) }
+        TextButton(onClick = controller::toggleMusic) { Text(if (controller.musicEnabled) "배경음 켜짐 · 끄기" else "배경음 꺼짐 · 켜기", fontSize = 24.sp) }
         Text("퍼즐은 P 주차 중에만 열 수 있어요. 본편 보물과는 별도예요.", fontSize = 24.sp, lineHeight = 34.sp)
     }
 }

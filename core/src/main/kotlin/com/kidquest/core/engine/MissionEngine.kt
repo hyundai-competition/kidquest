@@ -1,7 +1,7 @@
 // 앱의 상태 흐름을 정한다. 대기 → 승무원 확인 → 발사 준비 → 비행 ⇄ 멈춤, 비행 ⇄ 정박 → 착륙.
 // 앱은 차를 막지 않는다. 벨트가 안 매져 있으면 이륙하지 않고 안내만 한다.
 // 임무 진행(브리핑, 질문, 답, 보상)은 MissionRunner가 한다. 비행 중일 때만 넘겨서 멈춘 동안에는 진행하지 않는다.
-// 탑승과 벨트 값은 Crew가, 이번 이동에 쓸 임무와 목적지 문장은 TripPlan이, 남은 시간과 실내 온도는 TripSignals가 맡는다.
+// 탑승과 벨트 값은 Crew가, 이번 이동에 쓸 임무와 목적지 문장은 TripPlan이, 남은 시간과 실내 온도는 TripSignals가, 고른 언어의 파일과 고정 대사는 Languages가 맡는다.
 // 대사를 막거나 미루는 일(부모가 끔, 내비 안내 중, 벨트 안내 횟수)은 SpeechGate가 한다.
 package com.kidquest.core.engine
 
@@ -9,14 +9,23 @@ import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.Command
 import com.kidquest.core.contract.Episode
 import com.kidquest.core.contract.Gear
+import com.kidquest.core.contract.Language
 import com.kidquest.core.contract.Screen
 
-class MissionEngine(episode: Episode? = null) {
+/** translations는 한국어 말고 다른 언어의 에피소드다. 임무·장소·보물 id가 episode와 같아야 한다. */
+class MissionEngine(episode: Episode? = null, translations: Map<Language, Episode> = emptyMap()) {
     var state: EngineState = EngineState.WAITING
         private set
 
+    private val languages = Languages(episode, translations)
+    val language: Language get() = languages.language
+    private val lines get() = languages.lines
+
     private val plan = TripPlan(episode)
-    private val missions = MissionRunner(episode, plan)
+
+    /** 지금 쓰는 에피소드. 화면이 대사 id를 임무와 맞춰 볼 때 쓴다. */
+    val episode: Episode? get() = plan.episode
+    private val missions = MissionRunner(plan)
     private val crew = Crew()
     private val trip = TripSignals(plan)
 
@@ -38,6 +47,7 @@ class MissionEngine(episode: Episode? = null) {
         AppEvent.StartPressed -> onStart()
         is AppEvent.DestinationSelected -> beforeStart { plan.selectDestination(event.destinationId, event.routeId) }
         is AppEvent.AgeSelected -> beforeStart { plan.selectAge(event.group) }
+        is AppEvent.LanguageSelected -> beforeStart { if (languages.select(event.language)) plan.useEpisode(languages.episode) }
         is AppEvent.SeatOccupied -> if (crew.seat(event.seat, event.occupied)) afterCrewChange() else emptyList()
         is AppEvent.BeltBuckled -> if (crew.belt(event.seat, event.buckled)) afterCrewChange() else emptyList()
         AppEvent.ParentConfirmedBelt -> onParentConfirmed()
@@ -67,7 +77,7 @@ class MissionEngine(episode: Episode? = null) {
             missions.onSignalUnavailable(event.signal) // 위치와 내비만 쓴다. 다른 신호는 시간이 지나면 임무가 열린다.
             emptyList()
         }
-        else -> emptyList() // 에너지와 주행 중 화면 제한은 아직 안 쓴다.
+        else -> emptyList() // 주행 중 화면 제한은 아직 안 쓴다.
     }
 
     private fun whileFlying(action: () -> List<Command>): List<Command> =
@@ -130,8 +140,8 @@ class MissionEngine(episode: Episode? = null) {
         state = EngineState.READY
         val already = crew.ready()
         readyAnnounced = already
-        if (gear == Gear.D) return if (already) takeOff() else speak(Lines.CREW_FOUND)
-        return speak(if (already) Lines.ALREADY_READY else Lines.CREW_FOUND)
+        if (gear == Gear.D) return if (already) takeOff() else speak(lines.CREW_FOUND)
+        return speak(if (already) lines.ALREADY_READY else lines.CREW_FOUND)
     }
 
     private fun backToCrewCheck(): List<Command> {
@@ -157,10 +167,10 @@ class MissionEngine(episode: Episode? = null) {
         if (!crew.ready()) readyAnnounced = false
         return when {
             gear == Gear.D && crew.ready() -> takeOff()
-            gear == Gear.D -> beltGuide(Lines.NEED_BELT)
+            gear == Gear.D -> beltGuide(lines.NEED_BELT)
             crew.ready() && !readyAnnounced -> {
                 readyAnnounced = true
-                speak(Lines.READY)
+                speak(lines.READY)
             }
             else -> emptyList()
         }
@@ -171,8 +181,8 @@ class MissionEngine(episode: Episode? = null) {
         pauseReasons -= setOf(PauseReason.BELT, PauseReason.GEAR)
         state = if (pauseReasons.isEmpty()) EngineState.FLYING else EngineState.PAUSED
         val screen = if (state == EngineState.FLYING) flyingScreen() else pausedScreen()
-        val spoken = speak(Lines.TAKE_OFF)
-        continueAfterLine = if (state == EngineState.FLYING) Lines.TAKE_OFF.lineId else null
+        val spoken = speak(lines.TAKE_OFF)
+        continueAfterLine = if (state == EngineState.FLYING) lines.TAKE_OFF.lineId else null
         return spoken + screen
     }
 
@@ -196,7 +206,7 @@ class MissionEngine(episode: Episode? = null) {
             else -> null
         }
         val stop = on && (wasFlying || reason == PauseReason.AUDIO_FOCUS || reason == PauseReason.PARENT)
-        val guide = if (reason == PauseReason.BELT && on && state == EngineState.PAUSED) beltGuide(Lines.BELT_OFF) else emptyList()
+        val guide = if (reason == PauseReason.BELT && on && state == EngineState.PAUSED) beltGuide(lines.BELT_OFF) else emptyList()
         val held = if (reason == PauseReason.AUDIO_FOCUS && !on && state != EngineState.LANDED) gate.release() else emptyList()
         // 도착 후 대사도 중단되면 현재 문장부터 잇는다. 부모 끄기가 남아 있으면 재개하지 않는다.
         val landing = if (state == EngineState.LANDED && !on && pauseReasons.isEmpty())
@@ -205,17 +215,9 @@ class MissionEngine(episode: Episode? = null) {
         return listOfNotNull(Command.StopAudio.takeIf { stop }, screen) + guide + held + next + landing
     }
 
-    private fun flyingScreen() = Command.ShowScreen(Screen.FLYING, Lines.STATUS_FLYING)
+    private fun flyingScreen() = Command.ShowScreen(Screen.FLYING, lines.STATUS_FLYING)
 
-    private fun pausedScreen(): Command.ShowScreen {
-        val status = when {
-            PauseReason.PARENT in pauseReasons -> Lines.STATUS_STOPPED
-            PauseReason.BELT in pauseReasons -> Lines.STATUS_BELT
-            PauseReason.GEAR in pauseReasons -> Lines.STATUS_GEAR
-            else -> Lines.STATUS_NAVI
-        }
-        return Command.ShowScreen(Screen.PAUSED, status)
-    }
+    private fun pausedScreen() = Command.ShowScreen(Screen.PAUSED, lines.pausedStatus(pauseReasons))
 
     private fun speak(line: Command.Say) = gate.speak(line)
 
@@ -227,8 +229,8 @@ class MissionEngine(episode: Episode? = null) {
     private fun dock(): List<Command> {
         state = EngineState.DOCKED
         pauseReasons -= setOf(PauseReason.BELT, PauseReason.GEAR)
-        return listOf(Command.StopAudio) + speak(Lines.DOCKED) +
-            Command.ShowScreen(Screen.DOCKED, Lines.STATUS_DOCKED)
+        return listOf(Command.StopAudio) + speak(lines.DOCKED) +
+            Command.ShowScreen(Screen.DOCKED, lines.STATUS_DOCKED)
     }
 
     /** 정박 중에 벨트를 풀었을 수 있으니 출발할 때 다시 본다. */
@@ -239,7 +241,7 @@ class MissionEngine(episode: Episode? = null) {
             state = EngineState.FLYING
             return listOf(flyingScreen()) + continueMissions(emptyList())
         }
-        val guide = if (PauseReason.BELT in pauseReasons) beltGuide(Lines.BELT_OFF) else emptyList()
+        val guide = if (PauseReason.BELT in pauseReasons) beltGuide(lines.BELT_OFF) else emptyList()
         return listOf(pausedScreen()) + guide
     }
 
@@ -262,7 +264,7 @@ class MissionEngine(episode: Episode? = null) {
         pauseReasons.retainAll(setOf(PauseReason.AUDIO_FOCUS, PauseReason.PARENT))
         val arrivalLines = if (arrived || missions.allDone) plan.arrivalLines() else emptyList()
         landingIndex = 0
-        landingLines = listOfNotNull(missions.ending()) + arrivalLines + Lines.LANDED
+        landingLines = listOfNotNull(missions.ending()) + arrivalLines + lines.LANDED
         return listOf(Command.StopAudio) + speak(landingLines.first()) + Command.ShowScreen(Screen.LANDED)
     }
 
@@ -275,7 +277,6 @@ class MissionEngine(episode: Episode? = null) {
 
     /** 몸과 차의 값(탑승, 벨트, 기어, 포커스)과 고른 목적지는 그대로 두고, 이번 이동의 기록만 지운다. */
     private fun onRestart(): List<Command> {
-        if (state != EngineState.LANDED) return emptyList()
         state = EngineState.WAITING
         crew.clearTrip()
         pauseReasons -= PauseReason.PARENT
@@ -287,7 +288,7 @@ class MissionEngine(episode: Episode? = null) {
         landingIndex = 0
         missions.reset()
         trip.reset()
-        return listOf(Command.ShowScreen(Screen.START))
+        return listOf(Command.StopAudio, Command.ShowScreen(Screen.START))
     }
 
     private companion object {

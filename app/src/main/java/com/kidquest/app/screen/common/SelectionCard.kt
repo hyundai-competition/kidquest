@@ -1,6 +1,7 @@
-// 연령과 목적지 선택에 공통으로 쓰는 카드. 선택한 카드는 민트색 테두리와 배경으로 구분한다.
+// 언어와 목적지 선택에 공통으로 쓰는 카드. 선택한 카드는 민트색 테두리와 배경으로 구분한다.
 package com.kidquest.app.screen.common
 
+import com.kidquest.app.screen.AppText as Text
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

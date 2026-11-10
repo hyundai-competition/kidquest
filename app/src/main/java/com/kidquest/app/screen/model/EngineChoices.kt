@@ -13,11 +13,23 @@ object EngineChoices {
         "gyeongju_star" to listOf("신라", "조선"), "busan_capital" to listOf("부산", "제주"),
         "andong_village" to listOf("한 집안", "여러 나라"), "seoul_palace" to listOf("조선", "신라"),
     )
-    // 번호와 보기의 순서가 현재 질문의 순서와 같은지 실제 단어 위치로 확인한다.
+    private val english = mapOf(
+        "rain_map" to listOf("blue", "red"), "crossroads" to listOf("star", "heart"),
+        "cheonan_independence" to listOf("August 15", "March 1"), "daegu_debt" to listOf("repaying debt", "expanding territory"),
+        "suwon_hwaseong" to listOf("Jeongjo", "Sejong"), "daejeon_hanbat" to listOf("Hanbat", "Hanyang"),
+        "chungju_tangeumdae" to listOf("gayageum", "geomungo"), "mungyeong_saejae" to listOf("three", "five"),
+        "danyang_dodam" to listOf("Namhan", "Nakdong"), "yeongju_buseoksa" to listOf("Uisang", "Wonhyo"),
+        "gyeongju_star" to listOf("Silla", "Joseon"), "busan_capital" to listOf("Busan", "Jeju"),
+        "andong_village" to listOf("one clan", "many countries"), "seoul_palace" to listOf("Joseon", "Silla"),
+    )
+    // 실제 질문의 보기 순서가 일치할 때만 번호를 연결한다.
     fun forMission(mission: Mission): List<String> {
-        val options = choices[mission.id] ?: return emptyList()
-        val terms = when (mission.id) { "daegu_debt" -> listOf("빚", "땅"); else -> options }
-        val positions = terms.map { mission.question.indexOf(it) }
-        return options.takeIf { positions.all { it >= 0 } && positions.zipWithNext().all { (a, b) -> a < b } }.orEmpty()
+        for (table in listOf(choices, english)) {
+            val options = table[mission.id] ?: continue
+            val terms = if (table === choices && mission.id == "daegu_debt") listOf("빚", "땅") else options
+            val positions = terms.map { mission.question.indexOf(it, ignoreCase = true) }
+            if (positions.all { it >= 0 } && positions.zipWithNext().all { (a, b) -> a < b }) return options
+        }
+        return emptyList()
     }
 }

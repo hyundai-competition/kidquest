@@ -1,0 +1,531 @@
+{
+  "id": "demo",
+  "title": "Historical treasure adventure",
+  "destinations": [
+    {
+      "id": "gyeongju",
+      "name": "Seoul → Gyeongju",
+      "planetName": "Gyeongju",
+      "departureLine": "Today we travel from Seoul to Gyeongju. Let us discover its historical treasures!",
+      "approachLine": "We are nearly in Gyeongju. The last treasure is waiting.",
+      "deliveryLine": "We have arrived in Gyeongju! Let us open the treasure chest with the treasures we found.",
+      "landingFact": "Cheomseongdae is a raised stone structure used to observe the stars. The old book Samguk Yusa says it was built during the reign of Queen Seondeok of Silla.",
+      "factSource": "[출처 : 경주 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002925, [출처 : 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0056197 (2026-11-08 확인)",
+      "routes": [
+        {
+          "id": "gyeongju_gyeongbu",
+          "name": "Gyeongbu Expressway (Cheonan, Daegu)",
+          "missionIds": [
+            "cheonan_independence",
+            "daegu_debt",
+            "gyeongju_star"
+          ],
+          "departureLine": "Today we travel from Seoul to Gyeongju, following the Gyeongbu Expressway (Cheonan, Daegu). Let us find historical treasures!"
+        }
+      ]
+    },
+    {
+      "id": "busan",
+      "name": "Seoul → Busan",
+      "planetName": "Busan",
+      "departureLine": "Today we travel from Seoul to Busan. Let us discover its historical treasures!",
+      "approachLine": "We are nearly in Busan. The last treasure is waiting.",
+      "deliveryLine": "We have arrived in Busan! Let us open the treasure chest with the treasures we found.",
+      "landingFact": "The building now used as the Provisional Capital Memorial Hall was a presidential residence and workplace during the Korean War. It became a museum in 1984.",
+      "factSource": "[출처 : 부산 임시수도 대통령관저 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0077059 (2026-11-08 확인)",
+      "routes": [
+        {
+          "id": "busan_gyeongbu",
+          "name": "Gyeongbu Expressway (Suwon, Daejeon)",
+          "missionIds": [
+            "suwon_hwaseong",
+            "daejeon_hanbat",
+            "busan_capital"
+          ],
+          "departureLine": "Today we travel from Seoul to Busan, following the Gyeongbu Expressway (Suwon, Daejeon). Let us find historical treasures!"
+        },
+        {
+          "id": "busan_jungbu",
+          "name": "Jungbu Naeryuk Expressway (Chungju, Mungyeong)",
+          "missionIds": [
+            "chungju_tangeumdae",
+            "mungyeong_saejae",
+            "busan_capital"
+          ],
+          "departureLine": "Today we travel from Seoul to Busan, following the Jungbu Naeryuk Expressway (Chungju, Mungyeong). Let us find historical treasures!"
+        }
+      ]
+    },
+    {
+      "id": "andong",
+      "name": "Seoul → Andong",
+      "planetName": "Andong",
+      "departureLine": "Today we travel from Seoul to Andong. Let us discover its historical treasures!",
+      "approachLine": "We are nearly in Andong. The last treasure is waiting.",
+      "deliveryLine": "We have arrived in Andong! Let us open the treasure chest with the treasures we found.",
+      "landingFact": "Hahoe Village and Yangdong Village were inscribed together on the UNESCO World Heritage List in 2010.",
+      "factSource": "https://whc.unesco.org/en/list/1324/ (Date of Inscription 2010), [출처 : 안동 하회마을 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0034689 (2026-11-08 확인)",
+      "routes": [
+        {
+          "id": "andong_jungang",
+          "name": "Jungang Expressway (Danyang, Yeongju)",
+          "missionIds": [
+            "danyang_dodam",
+            "yeongju_buseoksa",
+            "andong_village"
+          ],
+          "departureLine": "Today we travel from Seoul to Andong, following the Jungang Expressway (Danyang, Yeongju). Let us find historical treasures!"
+        }
+      ]
+    },
+    {
+      "id": "seoul",
+      "name": "Daejeon → Seoul",
+      "planetName": "Seoul",
+      "departureLine": "Today we travel from Daejeon to Seoul. Let us discover its historical treasures!",
+      "approachLine": "We are nearly in Seoul. The last treasure is waiting.",
+      "deliveryLine": "We have arrived in Seoul! Let us open the treasure chest with the treasures we found.",
+      "landingFact": "Gyeongbokgung was first built in 1395 as the main palace of Joseon.",
+      "factSource": "[출처 : 경복궁 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002434 (건립 시기 1395년, 정궁, 2026-11-08 확인)",
+      "routes": [
+        {
+          "id": "seoul_gyeongbu",
+          "name": "Gyeongbu Expressway (Cheonan, Suwon)",
+          "missionIds": [
+            "cheonan_independence",
+            "suwon_hwaseong",
+            "seoul_palace"
+          ],
+          "departureLine": "Today we travel from Daejeon to Seoul, following the Gyeongbu Expressway (Cheonan, Suwon). Let us find historical treasures!"
+        }
+      ]
+    }
+  ],
+  "places": [
+    {
+      "id": "cheomseongdae",
+      "latitude": 35.83472,
+      "longitude": 129.21917,
+      "radiusMeters": 1000,
+      "missionId": "gyeongju_star"
+    },
+    {
+      "id": "temporary_capital",
+      "latitude": 35.1034,
+      "longitude": 129.0174,
+      "radiusMeters": 1000,
+      "missionId": "busan_capital"
+    },
+    {
+      "id": "hahoe",
+      "latitude": 36.53806,
+      "longitude": 128.52056,
+      "radiusMeters": 1000,
+      "missionId": "andong_village"
+    },
+    {
+      "id": "gyeongbokgung",
+      "latitude": 37.57861,
+      "longitude": 126.97722,
+      "radiusMeters": 1000,
+      "missionId": "seoul_palace"
+    },
+    {
+      "id": "cheonan",
+      "latitude": 36.82641,
+      "longitude": 127.16881,
+      "radiusMeters": 3000,
+      "missionId": "cheonan_independence"
+    },
+    {
+      "id": "daegu",
+      "latitude": 35.90882,
+      "longitude": 128.57985,
+      "radiusMeters": 3000,
+      "missionId": "daegu_debt"
+    },
+    {
+      "id": "suwon",
+      "latitude": 37.26441,
+      "longitude": 127.10384,
+      "radiusMeters": 3000,
+      "missionId": "suwon_hwaseong"
+    },
+    {
+      "id": "daejeon",
+      "latitude": 36.36544,
+      "longitude": 127.44937,
+      "radiusMeters": 3000,
+      "missionId": "daejeon_hanbat"
+    },
+    {
+      "id": "chungju",
+      "latitude": 36.98098,
+      "longitude": 127.84602,
+      "radiusMeters": 3000,
+      "missionId": "chungju_tangeumdae"
+    },
+    {
+      "id": "mungyeong",
+      "latitude": 36.70141,
+      "longitude": 128.11131,
+      "radiusMeters": 3000,
+      "missionId": "mungyeong_saejae"
+    },
+    {
+      "id": "danyang",
+      "latitude": 36.91789,
+      "longitude": 128.36526,
+      "radiusMeters": 3000,
+      "missionId": "danyang_dodam"
+    },
+    {
+      "id": "yeongju",
+      "latitude": 36.76771,
+      "longitude": 128.57196,
+      "radiusMeters": 3000,
+      "missionId": "yeongju_buseoksa"
+    }
+  ],
+  "missions": [
+    {
+      "id": "rain_map",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "WIPER",
+      "autoAfterSeconds": 120,
+      "briefing": "Captain, drops of water can blur the treasure map. Remember, the key on our map is blue.",
+      "eventSoundId": "wipe_drops",
+      "event": "Swish! We wiped the drops away, just like windshield wipers. Now we can see the map again.",
+      "question": "Is the treasure chest key blue or red?",
+      "answers": [
+        "blue"
+      ],
+      "correctLine": "Blue! That is right. We found the treasure map piece.",
+      "wrongLine": "The key was blue. We found the treasure map piece.",
+      "rewardItem": "map_piece",
+      "fallbackEvent": "There are no drops on our map today. We can see it clearly!"
+    },
+    {
+      "id": "crossroads",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "NAVI_TURN",
+      "autoAfterSeconds": 180,
+      "briefing": "There is a crossroads ahead. The treasure marker is shaped like a star.",
+      "eventSoundId": null,
+      "event": "Sparkle! The crossroads treasure marker has appeared.",
+      "question": "Is the treasure marker a star or a heart?",
+      "answers": [
+        "star"
+      ],
+      "correctLine": "That is right, a star! We found the crossroads token.",
+      "wrongLine": "The marker was a star. We found the crossroads token.",
+      "rewardItem": "crossroads_piece"
+    },
+    {
+      "id": "cheonan_independence",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our next treasure is near Cheonan. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are near Cheonan! Independence Hall collects and displays materials about the independence movement. It opened on August 15, 1987.",
+      "question": "Did Independence Hall open on August 15 or March 1?",
+      "answers": [
+        "August 15",
+        "August fifteenth",
+        "15th"
+      ],
+      "correctLine": "That is right, August 15! We found the independence flag.",
+      "wrongLine": "The answer is August 15. We found the independence flag.",
+      "rewardItem": "independence_flag",
+      "factSource": "[출처 : 독립기념관 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0015975 (독립운동에 관한 유물과 자료를 수집·전시, 1987년 8월 15일 개관, 2026-11-09 확인)"
+    },
+    {
+      "id": "daegu_debt",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our next treasure is near Daegu. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are near Daegu! In 1907, a campaign began here to repay the national debt through public donations.",
+      "question": "Was the campaign about repaying debt or expanding territory?",
+      "answers": [
+        "debt"
+      ],
+      "correctLine": "That is right, repaying debt! We found a love-of-country coin.",
+      "wrongLine": "The answer is repaying debt. We found a love-of-country coin.",
+      "rewardItem": "debt_coin",
+      "factSource": "[출처 : 국채보상운동 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0006527 (1907년 2월 대구 광문사에서 제창, 국채를 국민들의 모금으로 갚기 위한 운동, 2026-11-09 확인)"
+    },
+    {
+      "id": "suwon_hwaseong",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our next treasure is near Suwon. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are near Suwon! Hwaseong Fortress was built during King Jeongjo's reign. It was completed in 1796 and listed by UNESCO in 1997.",
+      "question": "Was Hwaseong built under King Jeongjo or King Sejong?",
+      "answers": [
+        "Jeongjo"
+      ],
+      "correctLine": "That is right, King Jeongjo! We found a Hwaseong brick.",
+      "wrongLine": "The answer is King Jeongjo. We found a Hwaseong brick.",
+      "rewardItem": "hwaseong_brick",
+      "factSource": "[출처 : 수원 화성 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0064671 (정조, 1796년 완성), https://whc.unesco.org/en/list/817 (Date of Inscription 1997) (2026-11-09 확인)"
+    },
+    {
+      "id": "daejeon_hanbat",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our next treasure is near Daejeon. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are near Daejeon! This city was also called Hanbat in the past.",
+      "question": "Was Daejeon once called Hanbat or Hanyang?",
+      "answers": [
+        "Hanbat"
+      ],
+      "correctLine": "That is right, Hanbat! We found a Hanbat seed.",
+      "wrongLine": "The answer is Hanbat. We found a Hanbat seed.",
+      "rewardItem": "hanbat_seed",
+      "factSource": "[출처 : 대전광역시 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0014708 (「대전(大田: 한밭)이라고 불렸다」, 2026-11-09 확인)"
+    },
+    {
+      "id": "chungju_tangeumdae",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our next treasure is near Chungju. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are near Chungju! Tangeumdae was named after Ureuk playing the gayageum here.",
+      "question": "Did Ureuk play the gayageum or the geomungo?",
+      "answers": [
+        "gayageum"
+      ],
+      "correctLine": "That is right, the gayageum! We found a gayageum string.",
+      "wrongLine": "The answer is the gayageum. We found a gayageum string.",
+      "rewardItem": "gayageum_string",
+      "factSource": "[출처 : 충주 탄금대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0058228 (「탄금대라는 명칭도 우륵이 가야금을 타던 곳이라는 데에서 유래한다」, 2026-11-09 확인)"
+    },
+    {
+      "id": "mungyeong_saejae",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our next treasure is near Mungyeong. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are near Mungyeong! Before trains, a major road between Seoul and Busan crossed Mungyeong Saejae. Three Joseon-era gates stand here.",
+      "question": "Are there three gates or five gates at Mungyeong Saejae?",
+      "answers": [
+        "three",
+        "3"
+      ],
+      "correctLine": "That is right, three! We found a Saejae straw shoe.",
+      "wrongLine": "The answer is three. We found a Saejae straw shoe.",
+      "rewardItem": "saejae_straw_shoes",
+      "factSource": "[출처 : 조령 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0051706 (철도가 없던 옛날 서울∼부산 간 주요 도로가 대개 이 고개를 통함, 조선시대에 축성한 제1·2·3관문), [출처 : 문경새재 도립공원 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0019398 (새재가 조령) (2026-11-09 확인)"
+    },
+    {
+      "id": "danyang_dodam",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our next treasure is near Danyang. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are near Danyang! Dodam Sambong is made up of three peaks rising from the Namhan River.",
+      "question": "Do the three peaks stand in the Namhan River or the Nakdong River?",
+      "answers": [
+        "Namhan"
+      ],
+      "correctLine": "That is right, the Namhan River! We found a Sambong pebble.",
+      "wrongLine": "The answer is the Namhan River. We found a Sambong pebble.",
+      "rewardItem": "sambong_pebble",
+      "factSource": "[출처 : 단양팔경 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0013634 (「도담삼봉은 남한강 물줄기 가운데 솟은 세 개의 봉우리」), [출처 : 단양 도담삼봉 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0068786 (2026-11-09 확인)"
+    },
+    {
+      "id": "yeongju_buseoksa",
+      "ageGroups": [],
+      "destinationId": null,
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our next treasure is near Yeongju. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are near Yeongju! The monk Uisang founded Buseoksa in 676. It joined the UNESCO World Heritage List with other mountain monasteries in 2018.",
+      "question": "Was Buseoksa founded by Uisang or Wonhyo?",
+      "answers": [
+        "Uisang"
+      ],
+      "correctLine": "That is right, Uisang! We found a Buseoksa roof tile.",
+      "wrongLine": "The answer is Uisang. We found a Buseoksa roof tile.",
+      "rewardItem": "buseoksa_tile",
+      "factSource": "[출처 : 봉황산 부석사 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0024295 (676년 의상 창건, 2018년 산사 세계유산), https://whc.unesco.org/en/list/1562 (2026-11-09 확인)"
+    },
+    {
+      "id": "gyeongju_star",
+      "ageGroups": [],
+      "destinationId": "gyeongju",
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our Gyeongju treasure is near an old stone observatory. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are in Gyeongju! People of Silla observed the stars at Cheomseongdae.",
+      "question": "Were the people observing stars at Cheomseongdae from Silla or Joseon?",
+      "answers": [
+        "Silla"
+      ],
+      "correctLine": "That is right, Silla! We found the Cheomseongdae treasure.",
+      "wrongLine": "The answer is Silla. We found the Cheomseongdae treasure.",
+      "rewardItem": "cheomseongdae_piece",
+      "factSource": "[출처 : 경주 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002925, [출처 : 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0056197 (2026-11-08 확인)"
+    },
+    {
+      "id": "busan_capital",
+      "ageGroups": [],
+      "destinationId": "busan",
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our Busan treasure is near a former presidential residence. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are in Busan! During the Korean War, national government work took place here. The presidential residence remains in the city.",
+      "question": "Was the wartime government based in Busan or Jeju?",
+      "answers": [
+        "Busan"
+      ],
+      "correctLine": "That is right, Busan! We found the temporary capital treasure.",
+      "wrongLine": "The answer is Busan. We found the temporary capital treasure.",
+      "rewardItem": "capital_piece",
+      "factSource": "[출처 : 부산 임시수도 대통령관저 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0077059 (2026-11-08 확인)"
+    },
+    {
+      "id": "andong_village",
+      "ageGroups": [],
+      "destinationId": "andong",
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our Andong treasure is in a village of old houses. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are in Andong! Hahoe is a village where people of one clan have lived together for a long time. Its old houses remain today.",
+      "question": "Was Hahoe home to one clan or people from many countries?",
+      "answers": [
+        "one clan",
+        "clan"
+      ],
+      "correctLine": "That is right, one clan! We found the Hahoe village treasure.",
+      "wrongLine": "The answer is one clan. We found the Hahoe village treasure.",
+      "rewardItem": "hahoe_piece",
+      "factSource": "https://whc.unesco.org/en/list/1324/ (Date of Inscription 2010), [출처 : 안동 하회마을 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0034689 (2026-11-08 확인)"
+    },
+    {
+      "id": "seoul_palace",
+      "ageGroups": [],
+      "destinationId": "seoul",
+      "trigger": "PLACE",
+      "autoAfterSeconds": 600,
+      "briefing": "Our Seoul treasure is near an old royal palace. I will tell you when we get close.",
+      "eventSoundId": null,
+      "event": "We are in Seoul! Gyeongbokgung was the main palace of the kings of Joseon.",
+      "question": "Is Gyeongbokgung a palace of Joseon or Silla?",
+      "answers": [
+        "Joseon"
+      ],
+      "correctLine": "That is right, Joseon! We found the Gyeongbokgung treasure.",
+      "wrongLine": "The answer is Joseon. We found the Gyeongbokgung treasure.",
+      "rewardItem": "palace_piece",
+      "factSource": "[출처 : 경복궁 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002434 (건립 시기 1395년, 정궁, 2026-11-08 확인)"
+    }
+  ],
+  "items": [
+    {
+      "id": "map_piece",
+      "name": "Treasure map piece"
+    },
+    {
+      "id": "crossroads_piece",
+      "name": "Crossroads token"
+    },
+    {
+      "id": "independence_flag",
+      "name": "Independence flag"
+    },
+    {
+      "id": "debt_coin",
+      "name": "Love-of-country coin"
+    },
+    {
+      "id": "hwaseong_brick",
+      "name": "Hwaseong brick"
+    },
+    {
+      "id": "hanbat_seed",
+      "name": "Hanbat seed"
+    },
+    {
+      "id": "gayageum_string",
+      "name": "Gayageum string"
+    },
+    {
+      "id": "saejae_straw_shoes",
+      "name": "Saejae straw shoe"
+    },
+    {
+      "id": "sambong_pebble",
+      "name": "Sambong pebble"
+    },
+    {
+      "id": "buseoksa_tile",
+      "name": "Buseoksa roof tile"
+    },
+    {
+      "id": "cheomseongdae_piece",
+      "name": "Cheomseongdae treasure"
+    },
+    {
+      "id": "capital_piece",
+      "name": "Temporary capital treasure"
+    },
+    {
+      "id": "hahoe_piece",
+      "name": "Hahoe village treasure"
+    },
+    {
+      "id": "palace_piece",
+      "name": "Gyeongbokgung treasure"
+    }
+  ],
+  "reactions": [
+    {
+      "signal": "turn_left",
+      "soundId": "turn_tick_left",
+      "line": null,
+      "cooldownSeconds": 60
+    },
+    {
+      "signal": "turn_right",
+      "soundId": "turn_tick_right",
+      "line": null,
+      "cooldownSeconds": 60
+    },
+    {
+      "signal": "road_tunnel",
+      "soundId": "time_tunnel",
+      "line": null,
+      "cooldownSeconds": 60
+    }
+  ],
+  "finalLine": "We are nearly at the last treasure!",
+  "endingLine": "We brought our treasures together. What a wonderful adventure, Captain!",
+  "credits": [
+    "Historical sources: Encyclopedia of Korean Culture (encykorea.aks.ac.kr), UNESCO World Heritage Centre (whc.unesco.org)",
+    "Location data © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright)"
+  ]
+}
