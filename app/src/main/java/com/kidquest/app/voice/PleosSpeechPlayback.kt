@@ -16,6 +16,7 @@ class PleosSpeechPlayback(
     private val context: Context,
     private val text: String,
     private val callback: PlaybackCallback,
+    private val locale: Locale = Locale.KOREA,
 ) : SpeechPlayback {
     private val main = Handler(Looper.getMainLooper())
     private var tts: TextToSpeech? = null
@@ -46,7 +47,7 @@ class PleosSpeechPlayback(
                         requested = true
                         try {
                             sdk.addEventListener(events)
-                            sdk.setLocale(Locale.KOREA)
+                            sdk.setLocale(locale)
                             sdk.speak(text, true)
                         } catch (error: Exception) { callback.failed("TTS ${error.javaClass.simpleName}") }
                     }

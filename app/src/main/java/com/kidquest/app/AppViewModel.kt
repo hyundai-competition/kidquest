@@ -18,22 +18,34 @@ import com.kidquest.app.storage.LocalStore
 import com.kidquest.core.contract.AgeGroup
 import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.Gear
+import com.kidquest.core.contract.Language
 import com.kidquest.core.engine.MissionEngine
 import com.kidquest.core.episode.EpisodeResult
 
 class AppViewModel(app: Application) : AndroidViewModel(app) {
     private val store = LocalStore(app)
     val episode = (EpisodeFile.load(app, EpisodeFile.DEMO) as? EpisodeResult.Ok)?.episode
-    val tripCatalog = TripCatalog(episode)
+    private val english = EpisodeFile.loadOptional(app, EpisodeFile.DEMO_EN)
+
+    /** 고를 수 있는 언어. 영어 예시 파일(#60)이 있을 때만 영어가 들어간다. 화면은 #61. */
+    val languages = listOfNotNull(Language.KO, Language.EN.takeIf { english != null })
+    var language by mutableStateOf(Language.KO)
+        private set
+    fun selectLanguage(value: Language) { if (value in languages) language = value }
+    private val activeEpisode get() = if (language == Language.EN) english ?: episode else episode
+    val tripCatalog get() = TripCatalog(activeEpisode)
     val routes = AdventureOptions.fromEpisode(episode).ifEmpty { AdventureOptions.routes }
     var routeId by mutableStateOf<String?>(tripCatalog.routes(routes.first().id).firstOrNull()?.id)
         private set
     val travelRoutes get() = tripCatalog.routes(destinationId)
     val tripStops get() = tripCatalog.stops(destinationId, routeId, age)
     val plannedMissions get() = tripCatalog.plan(destinationId, routeId, age)
-    val credits get() = episode?.credits.orEmpty()
+    val credits get() = activeEpisode?.credits.orEmpty()
     val activeTravelRoute get() = travelRoutes.firstOrNull { it.id == routeId } ?: travelRoutes.firstOrNull()
     val themes = AdventureOptions.themes
+    var weatherStyle by mutableStateOf(com.kidquest.app.screen.WeatherStyle.RAIN)
+        private set
+    fun selectWeatherStyle(value: com.kidquest.app.screen.WeatherStyle) { if (canPlayMiniGames) weatherStyle = value }
     var setupStep by mutableStateOf(0)
         private set
     var themeId by mutableStateOf("history")
@@ -43,14 +55,15 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun selectTheme(id: String) {
         if (themes.any { it.id == id && it.available }) themeId = id
     }
-    var age by mutableStateOf(AgeGroup.entries.firstOrNull { it.name == store.ageGroup } ?: AgeGroup.PRESCHOOL)
+    var age by mutableStateOf(AgeGroup.PRESCHOOL)
         private set
     var consent by mutableStateOf(false)
         private set
     var destinationId by mutableStateOf(routes.first().id)
         private set
     private val car = PermissionCarSource(app, episode?.places.orEmpty())
-    val controller = AppController(app, engine = MissionEngine(episode), car = car, episode = episode)
+    private val translations = listOfNotNull(english?.let { Language.EN to it }).toMap()
+    val controller = AppController(app, engine = MissionEngine(episode, translations), car = car, episode = episode)
     init { controller.vehicleChanged = { vehicle ->
         if (vehicle.gear != Gear.P || vehicle.restricted) closeMiniGames()
     } }
@@ -69,7 +82,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val stop = tripStops.firstOrNull { it.placeId == id } ?: return
         if (controller.vehicle.restricted) return
         controller.replay.send(AppEvent.PlaceEntered(id))
-        placeNotice = "시연 위치를 ${stop.label}(으)로 선택했어요. 현재 대사와 앞 임무가 끝나면 이어져요. 소리가 꺼져 있으면 다시 켜 주세요."
+        placeNotice = if (language == Language.EN) "Demo location selected: ${com.kidquest.app.screen.englishUi(stop.label)}. It follows the current dialogue and earlier missions. Resume audio if muted." else "시연 위치를 ${stop.label}(으)로 선택했어요. 현재 대사와 앞 임무가 끝나면 이어져요. 소리가 꺼져 있으면 다시 켜 주세요."
     }
     var miniGamesVisible by mutableStateOf(false)
         private set
@@ -93,7 +106,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         routeId = tripCatalog.routes(destinationId).firstOrNull()?.id
     }
     fun startTrip() {
-        StartSelection(age, destinationId, consent, routeId).events().forEach(controller::dispatch)
+        StartSelection(age, destinationId, consent, routeId, language).events().forEach(controller::dispatch)
     }
     var demoMission by mutableStateOf<CityMission?>(null)
         private set

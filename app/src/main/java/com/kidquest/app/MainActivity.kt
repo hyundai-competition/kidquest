@@ -7,8 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.compose.BackHandler
-import com.kidquest.core.contract.Screen
 import androidx.activity.viewModels
 import com.kidquest.app.screen.KidQuestScreen
 
@@ -27,10 +25,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            BackHandler(enabled = model.controller.screen == Screen.START && model.setupStep > 0) {
-                model.changeStep(model.setupStep - 1)
-            }
-            KidQuestScreen(model)
+            KidQuestScreen(model, onExit = { finishAndRemoveTask() })
         }
         if (!model.connectionsReady) {
             val permission = "pleos.car.permission.FUSED_LOCATION"

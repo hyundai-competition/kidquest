@@ -22,25 +22,36 @@ class VoiceOutput(
     private val main = Handler(Looper.getMainLooper())
     private val focus = focus ?: AudioFocusSource(app)
     private var hasFocus = true
+    private var musicState = QuietMusicState()
+    private val music = QuietMusic(app) { this.focus.request() }
+    private fun musicState(value: QuietMusicState) { musicState = value; music.allow(value.shouldPlay && listener != null) }
+    fun tripScreen(screen: com.kidquest.core.contract.Screen, muted: Boolean) = onMain {
+        musicState(musicState.copy(flying = screen == com.kidquest.core.contract.Screen.FLYING, muted = muted))
+    }
+    fun enableMusic(value: Boolean) = onMain { musicState(musicState.copy(enabled = value)) }
     private val recordings = runCatching { RecordingCatalog(app) }.getOrNull()
     private var listener: EventListener? = null
     private var instrument: SpeechPlayback? = null
     private var screenSerial = 0L
     private var allowed = false
+    private var language = com.kidquest.core.contract.Language.KO
+    fun language(value: com.kidquest.core.contract.Language) { language = value }
+    private val locale get() = if (language == com.kidquest.core.contract.Language.EN) java.util.Locale.US else java.util.Locale.KOREA
     private var recognition: RecognitionJob? = null
     private var generation = 0L
     private var screenDone: Pair<String, () -> Unit>? = null
     private var voiceUi = VoiceUiState()
     private fun show(state: VoiceUiState) { voiceUi = state; ui(state) }
-    private val effects = EffectPlayer(app, ::status)
+    private val effects = EffectPlayer(app, ::status) { musicState(musicState.copy(effects = it)) }
     private val speech = SpeechQueue(
-        tts = SpeechFactory { line, callback -> PleosSpeechPlayback(app, line.text, callback) },
+        tts = SpeechFactory { line, callback -> PleosSpeechPlayback(app, line.text, callback, if (line.text.any { it in '가'..'힣' }) java.util.Locale.KOREA else locale) },
         recordings = SpeechFactory { line, callback -> recordings?.pathFor(line)?.let { AssetPlayback(app, it, callback) } },
         finished = { id ->
             show(voiceUi.copy(phase = VoicePhase.IDLE, hint = "브루미의 이야기가 끝났어요"))
             if (!id.startsWith("screen_mission_")) listener?.onEvent(AppEvent.LineFinished(id))
             else screenDone?.takeIf { it.first == id }?.second?.let { action -> screenDone = null; action() }
         },
+        busyChanged = { musicState(musicState.copy(speech = it)) },
         report = ::status,
         unavailable = { id ->
             if (!id.startsWith("screen_mission_")) listener?.onEvent(AppEvent.LineFinished(id))
@@ -54,6 +65,7 @@ class VoiceOutput(
         focus.start { available -> onMain {
             if (listener !== this.listener || available == hasFocus) return@onMain
             hasFocus = available
+            musicState(musicState.copy(focus = available))
             if (!available) {
                 stopAudio()
                 show(VoiceUiState(VoicePhase.IDLE, hint = "다른 안내가 끝날 때까지 기다려요"))
@@ -67,7 +79,7 @@ class VoiceOutput(
         if (listener == null) return@onMain
         when (command) {
             is Command.Say -> { if (focus.request()) { cancelListening(); speech.say(command) } }
-            is Command.PlaySound -> if (focus.request()) effects.play(command.soundId)
+            is Command.PlaySound -> if (command.soundId !in setOf("turn_tick_left", "turn_tick_right") && focus.request()) effects.play(command.soundId)
             Command.StopAudio -> stopAudio()
             is Command.Listen -> listen(command.timeoutSeconds) { listener?.onEvent(AppEvent.AnswerHeard(it)) }
             else -> Unit
@@ -90,10 +102,11 @@ class VoiceOutput(
     fun playInstrument(name: String) = onMain {
         stopAudio()
         if (!focus.request()) return@onMain
+        musicState(musicState.copy(instrument = true))
         instrument = AssetPlayback(app, "audio/instruments/${if (name == "편종") "metal_preview" else "stone_preview"}.wav", object : PlaybackCallback {
-            override fun completed() { instrument?.finish(); instrument = null }
-            override fun failed(reason: String) { status(reason); instrument?.cancel(); instrument = null }
-            override fun interrupted() { instrument?.cancel(); instrument = null }
+            override fun completed() { instrument?.finish(); instrument = null; musicState(musicState.copy(instrument = false)) }
+            override fun failed(reason: String) { status(reason); instrument?.cancel(); instrument = null; musicState(musicState.copy(instrument = false)) }
+            override fun interrupted() { instrument?.cancel(); instrument = null; musicState(musicState.copy(instrument = false)) }
         }).also { it.start() }
     }
 
@@ -116,6 +129,7 @@ class VoiceOutput(
             return
         }
         if (!focus.request()) return
+        musicState(musicState.copy(listening = true))
         val token = ++generation
         show(VoiceUiState(VoicePhase.PREPARING, hint = "마이크를 준비하고 있어요"))
         val callback = object : RecognitionCallback {
@@ -125,31 +139,35 @@ class VoiceOutput(
                 if (token != generation) return
                 generation++
                 recognition = null
+                musicState(musicState.copy(listening = false))
                 show(VoiceUiState(if (text == null) VoicePhase.IDLE else VoicePhase.PROCESSING, hint = if (text == null) "잘 듣지 못했어요. 다시 말하거나 쉬어도 좋아요" else "답을 확인하고 있어요"))
                 result(text)
             }
             override fun failed(reason: String) {
                 if (token != generation) return
                 generation++; recognition = null
+                musicState(musicState.copy(listening = false))
                 show(VoiceUiState(VoicePhase.ERROR, hint = reason))
                 result(null)
             }
         }
-        val job = recognitionFactory?.create(callback) ?: PleosRecognition(app, seconds, callback)
+        val job = recognitionFactory?.create(callback) ?: PleosRecognition(app, seconds, callback, if (numbered) java.util.Locale.KOREA else locale)
         recognition = job
         job.start()
     }
 
     override fun stop() = onMain {
         listener = null
+        music.release()
         focus.stop()
         stopAudio()
         main.removeCallbacksAndMessages(null)
     }
 
-    private fun stopAudio() { screenDone = null; cancelListening(); speech.stop(); effects.stop(); instrument?.cancel(); instrument = null }
+    private fun stopAudio() { musicState(musicState.copy(speech = true, listening = false, instrument = false)); screenDone = null; cancelListening(); speech.stop(); effects.stop(); instrument?.cancel(); instrument = null; musicState(musicState.copy(instrument = false)) }
     private fun cancelListening() {
         generation++
+        musicState(musicState.copy(listening = false))
         recognition?.cancel(); recognition = null
         if (voiceUi.phase == VoicePhase.LISTENING || voiceUi.phase == VoicePhase.PREPARING) show(voiceUi.copy(phase = VoicePhase.IDLE, hint = "마이크를 껐어요"))
     }

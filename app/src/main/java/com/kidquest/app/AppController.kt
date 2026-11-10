@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +35,10 @@ class AppController(
     val replay: ReplaySource = ReplaySource(),
     episode: Episode? = null,
 ) {
-    val presentation = EnginePresentation(episode)
+    val presentation = EnginePresentation { engine.episode ?: episode }
+    var musicEnabled by mutableStateOf(true)
+        private set
+    fun toggleMusic() { musicEnabled = !musicEnabled; (voice as? VoiceOutput)?.enableMusic(musicEnabled) }
     var voiceStatus by mutableStateOf("음성 대기 · 시험용 효과음")
         private set
     var voiceUi by mutableStateOf(VoiceUiState())
@@ -79,6 +83,7 @@ class AppController(
     }
 
     fun stop() {
+        Log.i("KQFlow", "stop source=controller")
         main.removeCallbacksAndMessages(null)
         car.stop()
         voice.stop()
@@ -97,7 +102,7 @@ class AppController(
     fun speakScreen(text: String, finished: (() -> Unit)? = null) { main.post { (voice as? VoiceOutput)?.readScreen(text, finished) } }
     fun listenScreen(result: (String?) -> Unit) { main.post { (voice as? VoiceOutput)?.listenScreen(result) } }
     fun playScreenInstrument(name: String) { main.post { (voice as? VoiceOutput)?.playInstrument(name) } }
-    fun stopScreenAudio() { main.post { voice.handle(Command.StopAudio) } }
+    fun stopScreenAudio() { main.post { Log.i("KQFlow", "StopAudio source=screen"); voice.handle(Command.StopAudio) } }
 
     fun dispatch(event: AppEvent) {
         if (Looper.myLooper() != Looper.getMainLooper()) { main.post { dispatch(event) }; return }
@@ -106,11 +111,16 @@ class AppController(
         main.post {
             val actual = if (event is AppEvent.AnswerHeard) AppEvent.AnswerHeard(presentation.answer(event.word)) else event
             if (event == AppEvent.RestartPressed) presentation.reset()
-            vehicle = vehicle.accept(actual)
+            vehicle = vehicle.accept(actual, SystemClock.elapsedRealtime())
             vehicleChanged?.invoke(vehicle)
             if (actual is AppEvent.LineFinished && screen == Screen.FLYING) presentation.lineFinished(actual.lineId)
+            if (event is AppEvent.LanguageSelected) (voice as? VoiceOutput)?.language(event.language)
             if (event is AppEvent.ListeningConsentChanged) (voice as? VoiceOutput)?.setListeningAllowed(event.allowed)
-            engine.onEvent(actual).forEach(::perform)
+            engine.onEvent(actual).forEach { command ->
+                if (command == Command.StopAudio) Log.i("KQFlow", "StopAudio source=engine event=${actual.javaClass.simpleName}")
+                perform(command)
+            }
+            (voice as? VoiceOutput)?.tripScreen(screen, vehicle.parentStopped)
         }
     }
 

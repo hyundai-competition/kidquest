@@ -29,10 +29,10 @@ class StartScreenConnectionTest {
             android.util.Log.i("KQScreenTest", report)
             File(compose.activity.getExternalFilesDir(null), "vehicle-check.txt").writeText(report)
         }
+        compose.onNodeWithText("한국어").performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithText("경로 고르기 →").performScrollTo().performClick()
         compose.onNodeWithText("서울 → 경주").performScrollTo().performClick().assertIsSelected()
         compose.onNodeWithText("테마 고르기 →").performScrollTo().performClick()
-        compose.onNodeWithText("출발 준비 →").performScrollTo().performClick()
-        compose.onNodeWithText("미취학").performScrollTo().performClick().assertIsSelected()
         compose.onNodeWithText("탐험 시작하기 →").performScrollTo().performClick()
         compose.onNodeWithText("탐험대 확인").assertExists()
         compose.onNodeWithText("재생 모드").performScrollTo().performClick()

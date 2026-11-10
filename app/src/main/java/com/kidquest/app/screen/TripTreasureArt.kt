@@ -1,9 +1,9 @@
 // 본편 AwardItem 개수로 완성하는 정적인 보물 길. 주행 규제 화면에서는 구성하지 않는다.
 package com.kidquest.app.screen
 
+import com.kidquest.app.screen.AppText as Text
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -22,10 +22,11 @@ import com.kidquest.app.screen.common.Mint
 fun TripTreasureArt(collected: Int, total: Int) {
     val slots = total.coerceAtLeast(1)
     val found = collected.coerceIn(0, slots)
+    val description = appLabel("탐험 지도 보물 $found / $total")
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(if (found == 0) "오늘은 이야기를 모았어요. 보물은 다음에 찾아도 좋아요." else if (found == slots) "모든 보물을 모아 탐험 지도를 완성했어요!" else "찾아낸 보물로 오늘의 탐험 지도를 채웠어요.", fontSize = 28.sp)
         Canvas(Modifier.fillMaxWidth().height(180.dp).testTag("trip-treasure-art").semantics {
-            contentDescription = "탐험 지도 보물 $found / $total"
+            contentDescription = description
         }) {
             val margin = size.width * .08f
             val step = (size.width - margin * 2) / slots

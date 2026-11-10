@@ -47,7 +47,7 @@
 - 내비 안내로 소리를 잃으면 `AudioFocusChanged(false)`, 돌아오면 `AudioFocusChanged(true)`를 보낸다.
 - 시작 화면 버튼은 `AgeSelected`, `DestinationSelected(목적지 id, 경로 id)`, `ListeningConsentChanged`, `StartPressed`를 이 순서로 보낸다. 고른 값은 `StartPressed` 전에만 받는다. 경로 목록은 파일의 `destinations[].routes`이고, 경로 id를 빼면 첫 경로로 간다.
 - 장소 카드를 눌러도 화면이 직접 임무를 열지 않는다. 위치가 들어왔을 때와 같은 `PlaceEntered(placeId)`를 보낸다. 그래야 카드, 재생 버튼, 진짜 위치가 같은 길로 간다.
-- 주행 중(기어 D)에는 앱 화면이 가려진다(PR #35). 화면 변화는 정박(P)과 착륙 화면에서 보인다.
+- 통합 앱의 11-09 콘솔 D 시연에서는 시스템 차단 대신 앱 자체의 간소한 주행 화면이 표시됐다. signalcheck(PR #35)의 차단 결과를 통합 앱에도 자동 적용하지 않는다. 앱은 `DrivingRestricted`에 따라 화면을 줄이며 플랫폼 정책을 우회하지 않는다.
 - 화면 상태(`screen`, `status`, `items`)는 `AppController`가 들고 있다. 착륙 화면의 아이템은 임무마다 받은 `AwardItem`이다.
 - 출처 표시 : 에피소드 파일의 `credits` 두 줄(역사 내용 출처, OpenStreetMap 위치 데이터 표시)을 앱 정보 화면이나 착륙 화면에 보여 준다. 좌표를 OpenStreetMap에서 가져와서 앱에 표시가 있어야 한다.
 - 착륙 화면 배경은 `AppController.background`(`NORMAL`, `COOL`, `WARM`)다. 엔진이 실내 온도 띠가 바뀔 때만 `SetBackground`를 보낸다.

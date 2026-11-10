@@ -1,13 +1,13 @@
 // 선택한 시연 경로를 출발지부터 목적지까지 이어지는 정적인 보드 지도로 보여준다.
 package com.kidquest.app.screen
 
+import com.kidquest.app.screen.AppText as Text
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier

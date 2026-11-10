@@ -1,6 +1,7 @@
 // 역사 보물찾기만 선택 가능하다. 나머지 세 테마는 잠금 상태로 눌러도 선택되지 않는다.
 package com.kidquest.app.screen.start
 
+import com.kidquest.app.screen.AppText as Text
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,7 +39,7 @@ fun ThemeStep(model: AppViewModel) {
             }
         }
     }
-    Button(onClick = { model.changeStep(2) }, modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp)) {
-        Text("출발 준비 →", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 34.sp, lineHeight = 48.sp)
+    Button(onClick = model::startTrip, modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp)) {
+        Text("탐험 시작하기 →", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 34.sp, lineHeight = 48.sp)
     }
 }

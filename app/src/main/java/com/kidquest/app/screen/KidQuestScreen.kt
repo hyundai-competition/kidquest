@@ -1,6 +1,7 @@
 // ViewModel 설정과 엔진 명령을 화면에 연결한다. 주행 규제 중에는 상태와 멈춤 조작만 표시한다.
 package com.kidquest.app.screen
 
+import com.kidquest.app.screen.AppText as Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -20,32 +22,33 @@ import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.Background
 import androidx.compose.ui.graphics.Color
 import com.kidquest.core.contract.Screen
+import com.kidquest.core.contract.Language
 
 @Composable
-fun KidQuestScreen(model: AppViewModel) {
+fun KidQuestScreen(model: AppViewModel, onExit: () -> Unit = {}) {
     val controller = model.controller
-    KidQuestTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = if (controller.screen in listOf(Screen.DOCKED, Screen.LANDED)) when (controller.background) {
-            Background.COOL -> Color(0xFFE8F1F6)
-            Background.WARM -> Color(0xFFFFF0DF)
-            Background.NORMAL -> Night
-        } else Night) {
-            if (controller.vehicle.restricted) {
-                Column(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
-                    Text(controller.status ?: titleOf(controller.screen), fontSize = 32.sp, modifier = Modifier.testTag("restricted-status"))
-                    StopButton(model)
-                }
-            } else {
-                if (model.journeyEndingVisible) {
-                    JourneyEnding(model)
-                } else if (model.demoMission != null) {
-                    DemoMissionDialog(model)
-                } else if (model.miniGamesVisible) {
-                    MiniGamesScreen(model)
-                } else if (controller.screen == Screen.START || controller.screen == Screen.CREW_CHECK) {
-                    SetupLayout(model)
-                } else {
-                    ExpeditionLayout(model)
+    CompositionLocalProvider(LocalAppLanguage provides model.language) {
+        KidQuestTheme {
+            Surface(modifier = Modifier.fillMaxSize(), color = if (controller.screen in listOf(Screen.DOCKED, Screen.LANDED)) when (controller.background) {
+                Background.COOL -> Color(0xFFE8F1F6)
+                Background.WARM -> Color(0xFFFFF0DF)
+                Background.NORMAL -> Night
+            } else Night) {
+                VehicleBackdrop(controller.vehicle, model.weatherStyle) {
+                    AppNavigation(model, onExit) {
+                        if (controller.vehicle.restricted) {
+                            Column(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
+                                Text(controller.status ?: titleOf(controller.screen), fontSize = 32.sp, modifier = Modifier.testTag("restricted-status"))
+                                StopButton(model)
+                            }
+                        } else when {
+                            model.journeyEndingVisible -> KoreanPlayground { JourneyEnding(model) }
+                            model.demoMission != null -> KoreanPlayground { DemoMissionDialog(model) }
+                            model.miniGamesVisible -> KoreanPlayground { MiniGamesScreen(model) }
+                            controller.screen == Screen.START || controller.screen == Screen.CREW_CHECK -> SetupLayout(model)
+                            else -> ExpeditionLayout(model)
+                        }
+                    }
                 }
             }
         }
@@ -59,10 +62,7 @@ private fun SetupLayout(model: AppViewModel) {
             Column(Modifier.background(Panel, RoundedCornerShape(28.dp)).padding(28.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 CurrentScreen(model)
                 HorizontalDivider()
-                Text("개발 확인 · ${model.controller.voiceStatus}", fontSize = 26.sp)
-                if (model.controller.replayUsed) Text("재생 모드 입력이 포함된 시험입니다", color = Mint, fontSize = 28.sp)
-                // 재생 패널 자체도 스크롤하므로 높이를 제한해 바깥 스크롤과 충돌하지 않게 한다.
-                Column(Modifier.heightIn(max = 480.dp)) { ReplayPanel(model.controller.replay, model.episode) }
+                DeveloperPanel(model, 480)
             }
         }
         if (maxWidth >= 1000.dp) {
@@ -145,9 +145,24 @@ private fun ExpeditionLayout(model: AppViewModel) {
             CurrentScreen(model)
             if (model.controller.screen != Screen.LANDED) EngineMissionPanel(model)
             HorizontalDivider()
+            DeveloperPanel(model, 320)
+        }
+    }
+}
+
+@Composable
+private fun KoreanPlayground(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalAppLanguage provides Language.KO, content = content)
+}
+
+@Composable
+private fun DeveloperPanel(model: AppViewModel, maxHeight: Int) {
+    KoreanPlayground {
+        Column(Modifier.testTag("developer-panel"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("개발 확인 · ${model.controller.voiceStatus}", fontSize = 24.sp)
-            if (model.controller.replayUsed) Text("재생 모드 입력이 포함된 시험입니다", color = Mint)
-            Column(Modifier.heightIn(max = 320.dp)) { ReplayPanel(model.controller.replay, model.episode) }
+            if (model.controller.replayUsed) Text("재생 모드 입력이 포함된 시험입니다", color = Mint, fontSize = 24.sp)
+            // 재생 패널 자체도 스크롤하므로 바깥 스크롤과 충돌하지 않게 높이를 제한한다.
+            Column(Modifier.heightIn(max = maxHeight.dp)) { ReplayPanel(model.controller.replay, model.episode) }
         }
     }
 }

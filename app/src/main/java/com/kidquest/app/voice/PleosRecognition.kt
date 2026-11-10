@@ -21,7 +21,7 @@ interface RecognitionCallback {
 }
 fun interface RecognitionFactory { fun create(callback: RecognitionCallback): RecognitionJob }
 
-class PleosRecognition(context: Context, private val seconds: Int, private val callback: RecognitionCallback, private val diagnostic: (String) -> Unit = { Log.i("KQRecognition", it) }) : RecognitionJob {
+class PleosRecognition(context: Context, private val seconds: Int, private val callback: RecognitionCallback, private val locale: Locale = Locale.KOREA, private val diagnostic: (String) -> Unit = { Log.i("KQRecognition", it) }) : RecognitionJob {
     private val app = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
     private var sdk: SpeechToText? = null
@@ -48,7 +48,7 @@ class PleosRecognition(context: Context, private val seconds: Int, private val c
                         diagnostic("initialized")
                         try {
                             speech.addListener(events)
-                            speech.setLocale(Locale.KOREA)
+                            speech.setLocale(locale)
                             requested = true
                             speech.request()
                             diagnostic("requested")

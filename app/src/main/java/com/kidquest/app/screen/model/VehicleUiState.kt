@@ -5,6 +5,7 @@ import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.CarSignal
 import com.kidquest.core.contract.Gear
 import com.kidquest.core.contract.RearSeat
+import com.kidquest.core.contract.TurnSide
 
 data class VehicleUiState(
     val occupied: Map<RearSeat, Boolean> = emptyMap(),
@@ -14,8 +15,14 @@ data class VehicleUiState(
     val restricted: Boolean = false,
     val parentConfirmed: Boolean = false,
     val parentStopped: Boolean = false,
+    val wiperOn: Boolean = false,
+    val turnSide: TurnSide? = null,
+    val turnUntilMillis: Long = 0L,
 ) {
-    fun accept(event: AppEvent): VehicleUiState = when (event) {
+    fun accept(event: AppEvent, nowMillis: Long = 0L): VehicleUiState = when (event) {
+        is AppEvent.WiperChanged -> copy(wiperOn = event.on)
+        is AppEvent.TurnSignalOn -> copy(turnSide = event.side, turnUntilMillis = nowMillis + 3500L)
+        is AppEvent.Tick -> if (event.nowMillis >= turnUntilMillis) copy(turnSide = null) else this
         is AppEvent.SeatOccupied -> copy(occupied = occupied + (event.seat to event.occupied))
         is AppEvent.BeltBuckled -> copy(buckled = buckled + (event.seat to event.buckled))
         is AppEvent.GearChanged -> copy(gear = event.gear)

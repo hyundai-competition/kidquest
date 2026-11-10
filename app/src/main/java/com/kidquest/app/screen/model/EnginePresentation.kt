@@ -1,4 +1,5 @@
 // 엔진 명령의 대사 id를 에피소드와 대조해 표시한다. 임무 순서·완료·보상을 직접 판단하지 않는다.
+// 에피소드는 부를 때마다 받아 온다. 시작 전에 언어를 바꾸면 엔진이 쓰는 그 언어 파일과 맞춰 본다.
 package com.kidquest.app.screen.model
 
 import androidx.compose.runtime.getValue
@@ -9,7 +10,9 @@ import com.kidquest.core.contract.Command
 import com.kidquest.core.contract.Episode
 import com.kidquest.core.contract.Mission
 
-class EnginePresentation(private val episode: Episode?) {
+class EnginePresentation(private val source: () -> Episode?) {
+    constructor(episode: Episode?) : this({ episode })
+    private val episode get() = source()
     var mission by mutableStateOf<Mission?>(null)
         private set
     var stage by mutableStateOf("")
@@ -30,7 +33,7 @@ class EnginePresentation(private val episode: Episode?) {
         mission = episode?.missions?.firstOrNull { it.id == id }
         stage = if (mission != null) command.lineId.substringAfterLast('/') else ""
         return if (stage == "question" && options.isNotEmpty()) command.copy(
-            text = command.text + " " + options.mapIndexed { i, text -> "${i + 1}번, $text." }.joinToString(" ") + " 번호나 답으로 말해 주세요."
+            text = command.text + " " + options.mapIndexed { i, text -> if (command.text.any { it in '가'..'힣' }) "${i + 1}번, $text." else "Option ${i + 1}, $text." }.joinToString(" ") + if (command.text.any { it in '가'..'힣' }) " 번호나 답으로 말해 주세요." else " Say the number or the answer."
         ) else command
     }
     fun answer(text: String?): String? {

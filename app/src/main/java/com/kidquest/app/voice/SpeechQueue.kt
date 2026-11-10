@@ -11,6 +11,7 @@ class SpeechQueue(
     private val report: (String) -> Unit,
     private val onSpeaking: (Command.Say) -> Unit = {},
     private val unavailable: (String) -> Unit = finished,
+    private val busyChanged: (Boolean) -> Unit = {},
 ) {
     private data class Active(val token: Long, val line: Command.Say, val fallback: Boolean, var job: SpeechPlayback? = null)
     private val pending = ArrayDeque<Command.Say>()
@@ -18,6 +19,7 @@ class SpeechQueue(
     private var active: Active? = null
 
     fun say(line: Command.Say) {
+        busyChanged(true)
         pending.addLast(line)
         if (active == null) next()
     }
@@ -27,11 +29,12 @@ class SpeechQueue(
         val old = active
         active = null // SDK stop 콜백보다 먼저 무효화한다.
         old?.job?.cancel()
+        busyChanged(false)
         report("음성 중단")
     }
 
     private fun next() {
-        if (pending.isEmpty()) return
+        if (pending.isEmpty()) { busyChanged(false); return }
         play(pending.removeFirst(), false)
     }
 
