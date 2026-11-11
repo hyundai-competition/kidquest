@@ -16,6 +16,7 @@ import com.kidquest.app.screen.model.EnginePresentation
 import com.kidquest.core.contract.Episode
 import com.kidquest.app.car.CarSignalCollector
 import com.kidquest.app.replay.ReplaySource
+import com.kidquest.app.replay.ShowcaseSignals
 import com.kidquest.app.voice.VoiceOutput
 import com.kidquest.app.voice.VoiceUiState
 import com.kidquest.core.contract.AppEvent
@@ -59,24 +60,43 @@ class AppController(
         private set
     var replayUsed by mutableStateOf(false)
         private set
+    var simulationMode by mutableStateOf(false)
+        private set
+    var lastFinishedLine by mutableStateOf("")
+        private set
+    var simulationInterrupted: (() -> Unit)? = null
+    private val signalGate = ShowcaseSignals(context.packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_AUTOMOTIVE))
+    private var sourceGeneration = 0
     val items = mutableStateListOf<Command.AwardItem>()
 
     private val main = Handler(Looper.getMainLooper())
-    private val listener = EventListener { dispatch(it) }
+    private val listener = EventListener { event ->
+        enqueue(event, if (event is AppEvent.LineFinished) sourceGeneration else null)
+    }
+    private val carListener = EventListener { event ->
+        main.post {
+            if (signalGate.receive(event)) enqueue(event, sourceGeneration)
+            else if (!signalGate.allowed) {
+                if (simulationInterrupted != null) simulationInterrupted?.invoke() else setSimulationMode(false)
+            }
+        }
+    }
     private val ticker = object : Runnable {
         override fun run() {
-            dispatch(AppEvent.Tick(SystemClock.elapsedRealtime()))
+            if (!simulationMode) dispatch(AppEvent.Tick(SystemClock.elapsedRealtime()))
             main.postDelayed(this, TICK_MILLIS)
         }
     }
 
     fun start() {
-        car.start(listener)
+        car.start(carListener)
         voice.start(listener)
         replay.start(EventListener { event ->
+            val generation = sourceGeneration
             main.post {
+                if (generation != sourceGeneration) return@post
                 replayUsed = true
-                dispatch(event)
+                enqueue(event, generation)
             }
         })
         main.postDelayed(ticker, TICK_MILLIS)
@@ -88,6 +108,22 @@ class AppController(
         car.stop()
         voice.stop()
         replay.stop()
+    }
+
+    fun setSimulationMode(enabled: Boolean): Boolean {
+        if (enabled == simulationMode) return true
+        if (!signalGate.select(enabled)) return false
+        sourceGeneration++ // 이전 입력원의 대기 사건이 새 세션으로 넘어오지 않게 한다.
+        simulationMode = enabled
+        presentation.reset()
+        lastFinishedLine = ""
+        engine.onEvent(AppEvent.RestartPressed).forEach(::perform)
+        // 엔진 재시작은 탑승·벨트를 유지하므로, 입력원을 바꿀 때는 전부 새 값으로 채운다.
+        signalGate.restoreEvents().forEach(::process)
+        vehicle = signalGate.snapshot()
+        vehicleChanged?.invoke(vehicle)
+        replayUsed = enabled
+        return true
     }
 
     fun answerChoice(index: Int) {
@@ -104,24 +140,33 @@ class AppController(
     fun playScreenInstrument(name: String) { main.post { (voice as? VoiceOutput)?.playInstrument(name) } }
     fun stopScreenAudio() { main.post { Log.i("KQFlow", "StopAudio source=screen"); voice.handle(Command.StopAudio) } }
 
-    fun dispatch(event: AppEvent) {
-        if (Looper.myLooper() != Looper.getMainLooper()) { main.post { dispatch(event) }; return }
+    fun dispatch(event: AppEvent) = enqueue(event, null)
+    fun startTrip(events: List<AppEvent>) { events.forEach { enqueue(it, sourceGeneration) } }
+
+    private fun enqueue(event: AppEvent, generation: Int?) {
+        if (Looper.myLooper() != Looper.getMainLooper()) { main.post { enqueue(event, generation) }; return }
         // 화면 전환이 연속돼도 처리 대기 중인 부모 끄기 요청을 내부 퍼즐 멈춤과 혼동하지 않는다.
         if (event is AppEvent.ParentStopChanged) parentStopRequested = event.stopped
         main.post {
-            val actual = if (event is AppEvent.AnswerHeard) AppEvent.AnswerHeard(presentation.answer(event.word)) else event
-            if (event == AppEvent.RestartPressed) presentation.reset()
-            vehicle = vehicle.accept(actual, SystemClock.elapsedRealtime())
-            vehicleChanged?.invoke(vehicle)
-            if (actual is AppEvent.LineFinished && screen == Screen.FLYING) presentation.lineFinished(actual.lineId)
-            if (event is AppEvent.LanguageSelected) (voice as? VoiceOutput)?.language(event.language)
-            if (event is AppEvent.ListeningConsentChanged) (voice as? VoiceOutput)?.setListeningAllowed(event.allowed)
-            engine.onEvent(actual).forEach { command ->
-                if (command == Command.StopAudio) Log.i("KQFlow", "StopAudio source=engine event=${actual.javaClass.simpleName}")
-                perform(command)
-            }
-            (voice as? VoiceOutput)?.tripScreen(screen, vehicle.parentStopped)
+            if (generation != null && generation != sourceGeneration) return@post
+            process(event)
         }
+    }
+
+    private fun process(event: AppEvent) {
+        val actual = if (event is AppEvent.AnswerHeard) AppEvent.AnswerHeard(presentation.answer(event.word)) else event
+        if (event == AppEvent.RestartPressed) { presentation.reset(); lastFinishedLine = "" }
+        if (actual is AppEvent.LineFinished) lastFinishedLine = actual.lineId
+        vehicle = vehicle.accept(actual, SystemClock.elapsedRealtime())
+        vehicleChanged?.invoke(vehicle)
+        if (actual is AppEvent.LineFinished && screen == Screen.FLYING) presentation.lineFinished(actual.lineId)
+        if (event is AppEvent.LanguageSelected) (voice as? VoiceOutput)?.language(event.language)
+        if (event is AppEvent.ListeningConsentChanged) (voice as? VoiceOutput)?.setListeningAllowed(event.allowed)
+        engine.onEvent(actual).forEach { command ->
+            if (command == Command.StopAudio) Log.i("KQFlow", "StopAudio source=engine event=${actual.javaClass.simpleName}")
+            perform(command)
+        }
+        (voice as? VoiceOutput)?.tripScreen(screen, vehicle.parentStopped)
     }
 
     private fun perform(command: Command) {

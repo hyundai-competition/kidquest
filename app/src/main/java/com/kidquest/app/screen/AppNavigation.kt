@@ -31,6 +31,7 @@ fun AppNavigation(model: AppViewModel, onExit: () -> Unit, content: @Composable 
     BackHandler { back() }
     Column(Modifier.fillMaxSize().safeDrawingPadding()) {
         CompanionNavigationBar(model, ::back, { confirmation = "exit" })
+        ShowcasePanel(model)
         if (model.controller.vehicle.wiperOn && !model.controller.vehicle.restricted) {
             Row(Modifier.padding(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(if (model.weatherStyle == WeatherStyle.RAIN) "와이퍼 · 비 연출" else "와이퍼 · 눈 연출", fontSize = 22.sp)
@@ -50,7 +51,7 @@ fun AppNavigation(model: AppViewModel, onExit: () -> Unit, content: @Composable 
             dismissButton = { TextButton(onClick = { confirmation = "" }) { Text("계속 탐험하기", fontSize = 26.sp) } },
             confirmButton = { TextButton(onClick = {
                 confirmation = ""
-                if (exiting) { model.controller.stop(); onExit() } else model.restartTrip()
+                if (exiting) { model.showcase.stop(); model.controller.stop(); onExit() } else model.restartTrip()
             }, modifier = Modifier.testTag("confirm-navigation")) { Text(if (exiting) "끝내기" else "처음으로", fontSize = 26.sp) } },
         )
     }
@@ -65,7 +66,7 @@ private fun CompanionNavigationBar(model: AppViewModel, back: () -> Unit, exit: 
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = back, modifier = Modifier.heightIn(min = 64.dp).testTag("app-back")) { Text("← 뒤로", fontSize = 26.sp) }
-            if (!setupHero) VroomieCompanion(model.controller.vehicle, Modifier.width(160.dp).height(128.dp))
+            if (!setupHero) VroomieCompanion(model.controller.vehicle, Modifier.weight(1f, fill = false).widthIn(max = 160.dp).height(128.dp))
             TextButton(onClick = exit, modifier = Modifier.heightIn(min = 64.dp).testTag("app-exit")) { Text("끝내기", fontSize = 26.sp) }
         }
     }
