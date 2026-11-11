@@ -29,7 +29,8 @@ class EngineIntegrationTest {
         }
         val changed = episode.missions.first().copy(question = "다른 질문")
         assertTrue(EngineChoices.forMission(changed).isEmpty())
-        assertEquals(2, episode.credits.size)
+        assertTrue(episode.credits.any { "encykorea.aks.ac.kr" in it })
+        assertTrue(episode.credits.any { "OpenStreetMap" in it })
     }
     @Test fun onlyTheCurrentFinishedQuestionEnablesChoices() {
         val presentation = EnginePresentation(episode)

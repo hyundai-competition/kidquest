@@ -383,8 +383,8 @@
       "answers": [
         "Silla"
       ],
-      "correctLine": "That is right, Silla! We found the Cheomseongdae treasure.",
-      "wrongLine": "The answer is Silla. We found the Cheomseongdae treasure.",
+      "correctLine": "That is right, Silla! We found the Cheomseongdae stone.",
+      "wrongLine": "The answer is Silla. We found the Cheomseongdae stone.",
       "rewardItem": "cheomseongdae_piece",
       "factSource": "[출처 : 경주 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002925, [출처 : 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0056197 (2026-11-08 확인)"
     },
@@ -401,8 +401,8 @@
       "answers": [
         "Busan"
       ],
-      "correctLine": "That is right, Busan! We found the temporary capital treasure.",
-      "wrongLine": "The answer is Busan. We found the temporary capital treasure.",
+      "correctLine": "That is right, Busan! We found the residence roof tile.",
+      "wrongLine": "The answer is Busan. We found the residence roof tile.",
       "rewardItem": "capital_piece",
       "factSource": "[출처 : 부산 임시수도 대통령관저 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0077059 (2026-11-08 확인)"
     },
@@ -420,8 +420,8 @@
         "one clan",
         "clan"
       ],
-      "correctLine": "That is right, one clan! We found the Hahoe village treasure.",
-      "wrongLine": "The answer is one clan. We found the Hahoe village treasure.",
+      "correctLine": "That is right, one clan! We found the Hahoe mask.",
+      "wrongLine": "The answer is one clan. We found the Hahoe mask.",
       "rewardItem": "hahoe_piece",
       "factSource": "https://whc.unesco.org/en/list/1324/ (Date of Inscription 2010), [출처 : 안동 하회마을 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0034689 (2026-11-08 확인)"
     },
@@ -438,8 +438,8 @@
       "answers": [
         "Joseon"
       ],
-      "correctLine": "That is right, Joseon! We found the Gyeongbokgung treasure.",
-      "wrongLine": "The answer is Joseon. We found the Gyeongbokgung treasure.",
+      "correctLine": "That is right, Joseon! We found the Gwanghwamun Haechi.",
+      "wrongLine": "The answer is Joseon. We found the Gwanghwamun Haechi.",
       "rewardItem": "palace_piece",
       "factSource": "[출처 : 경복궁 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002434 (건립 시기 1395년, 정궁, 2026-11-08 확인)"
     }
@@ -487,19 +487,19 @@
     },
     {
       "id": "cheomseongdae_piece",
-      "name": "Cheomseongdae treasure"
+      "name": "Cheomseongdae stone"
     },
     {
       "id": "capital_piece",
-      "name": "Temporary capital treasure"
+      "name": "Residence roof tile"
     },
     {
       "id": "hahoe_piece",
-      "name": "Hahoe village treasure"
+      "name": "Hahoe mask"
     },
     {
       "id": "palace_piece",
-      "name": "Gyeongbokgung treasure"
+      "name": "Gwanghwamun Haechi"
     }
   ],
   "reactions": [
@@ -526,6 +526,10 @@
   "endingLine": "We brought our treasures together. What a wonderful adventure, Captain!",
   "credits": [
     "Historical sources: Encyclopedia of Korean Culture (encykorea.aks.ac.kr), UNESCO World Heritage Centre (whc.unesco.org)",
-    "Location data © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright)"
+    "Location data © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright)",
+    "Treasure photo: Cheomseongdae - Matt and Nayoung Wilson from Atlanta and surrounding, US, Wikimedia Commons, CC BY 2.0 (https://commons.wikimedia.org/wiki/File:Korea-Gyeongju-Cheomseongdae-02.jpg), cropped and resized",
+    "Treasure photo: Provisional Capital Memorial Hall (former presidential residence) - Steve46814, Wikimedia Commons, CC BY-SA 4.0 (https://commons.wikimedia.org/wiki/File:Provisional_Capital_Memorial_Hall_11-10469.jpg), cropped and resized",
+    "Treasure photo: Hahoe mask (Yangban) - Bernard Gagnon, Wikimedia Commons, CC0 (https://commons.wikimedia.org/wiki/File:Hahoe_World_Mask_Museum_05.jpg), cropped and resized",
+    "Treasure photo: Gwanghwamun Haechi - hyolee2, Wikimedia Commons, CC BY-SA 3.0 (https://commons.wikimedia.org/wiki/File:Gwanghwamun_Haechi2.JPG), cropped and resized"
   ]
 }
