@@ -59,7 +59,7 @@
 - 못 읽는 신호는 `SignalUnavailable(signal)`로 알린다.
 - 남은 시간 `RemainingTimeChanged(seconds)`는 초, 앞길 `RoadAhead(kind, meters)`는 미터, 실내 온도 `CabinTemperatureChanged(celsius)`는 섭씨로 보낸다. 같은 값은 다시 안 보내도 되고, 다시 와도 엔진이 한 번만 쓴다.
 - 내비 회전 안내 `onTBTInfo`가 오면 목록 첫 회전까지 거리와 회전 종류를 `NextTurnDistance(meters, turn)`로 보낸다. 거리가 줄어드는 동안 10초보다 드물지 않게 계속 보내야 한다.
-  - 회전 종류(`TurnKind`)는 `CarSignalMapper.turnKind`가 SDK `TurnType`에서 바꾼다. 화면 맨 아래 내비 안내 한 줄(`NaviGuideLine.kt`, 예 「내비 · 300m 앞 좌회전」)에만 쓴다. 탐험 중·멈춤·쉬는 중에 보이고, 도착하거나 30초 동안 새 안내가 없으면 지운다.
+  - 회전 종류(`TurnKind`)는 `CarSignalMapper.turnKind`가 SDK `TurnType`에서 바꾼다. 화면 맨 아래 내비 안내 한 줄(`NaviGuideLine.kt`, 예 「내비 · 300m 앞 좌회전」)에만 쓴다. 탐험 중·멈춤·쉬는 중에 보이고, 도착하거나 30초 동안 새 안내가 없으면 지운다. 정체로 거리가 그대로여도 안내가 지워지지 않게, `NextTurnDistance`는 같은 값도 거르지 않고 매번 보낸다.
   - 엔진은 500m 안에 왔던 회전의 거리가 100m 넘게 늘면 그 갈림길을 지난 것으로 보고 갈림길 임무(`crossroads`)를 연다. 두 값 다 가정이다. 10초마다 받아도 시속 150km(10초에 약 420m)까지는 지나기 전 마지막 값이 500m 안에 든다.
   - 콜백이 목록이 바뀔 때만 오면 엔진이 500m 안의 값을 못 봐서 갈림길을 지나도 모르고, 아래 10분이 지나야 열린다. 그때는 `getTBTInfo()`(샘플 코드에 이름이 있음)로 몇 초마다 물어서 보낸다. 에뮬레이터와 실제 차에서 얼마나 자주 오는지는 아직 확인하지 않았다.
   - `TURN_TUNNEL`, `TURN_TOLL`처럼 길이 갈라지지 않는 안내 지점은 넣지 않고 `RoadAhead`로 보낸다. 휴게소 안내(`TURN_RESTAREA`)는 지나가기만 할 수 있어서 넣지 않는다. 좌우 회전과 `TURN_ENTER_IC`, `TURN_EXIT_IC`는 넣는다. 모두 가정이고, Pleos 문서에서 옮긴 이름이라 SDK에서 철자를 확인한다.

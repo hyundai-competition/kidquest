@@ -32,7 +32,7 @@ class NaviGuideTest {
     fun `한국어와 영어로 거리와 회전을 쓴다`() {
         assertEquals("내비 · 300m 앞 좌회전", NaviGuideText.line(NaviGuide(300, TurnKind.LEFT), Language.KO))
         assertEquals("내비 · 1.5km 앞 나들목 나가기", NaviGuideText.line(NaviGuide(1500, TurnKind.IC_EXIT), Language.KO))
-        assertEquals("Navi · Keep right in 450 m", NaviGuideText.line(NaviGuide(450, TurnKind.KEEP_RIGHT), Language.EN))
-        assertEquals("Navi · Next guidance in 2.0 km", NaviGuideText.line(NaviGuide(2000, TurnKind.UNKNOWN), Language.EN))
+        assertEquals("Navi · In 450 m, keep right", NaviGuideText.line(NaviGuide(450, TurnKind.KEEP_RIGHT), Language.EN))
+        assertEquals("Navi · In 2.0 km, next guidance", NaviGuideText.line(NaviGuide(2000, TurnKind.UNKNOWN), Language.EN))
     }
 }

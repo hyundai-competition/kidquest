@@ -8,10 +8,13 @@ import com.kidquest.core.contract.TurnKind
 data class NaviGuide(val meters: Int, val turn: TurnKind)
 
 object NaviGuideText {
-    /** 예 : 「내비 · 300m 앞 좌회전」, 「Navi · Turn left in 300 m」 */
+    /**
+     * 예 : 「내비 · 300m 앞 좌회전」, 「Navi · In 300 m, turn left」
+     * 좁은 창에서 줄이 넘치면 끝이 말줄임표로 잘린다. 거리가 잘리지 않게 두 언어 모두 거리를 앞에 둔다.
+     */
     fun line(guide: NaviGuide, language: Language): String = when (language) {
         Language.KO -> "내비 · ${distance(guide.meters, "")} 앞 ${korean(guide.turn)}"
-        Language.EN -> "Navi · ${english(guide.turn)} in ${distance(guide.meters, " ")}"
+        Language.EN -> "Navi · In ${distance(guide.meters, " ")}, ${english(guide.turn)}"
     }
 
     /** 1km 아래는 미터로, 그 위는 소수 한 자리 km로 쓴다. */
@@ -31,14 +34,14 @@ object NaviGuideText {
     }
 
     private fun english(turn: TurnKind) = when (turn) {
-        TurnKind.LEFT -> "Turn left"
-        TurnKind.RIGHT -> "Turn right"
-        TurnKind.KEEP_LEFT -> "Keep left"
-        TurnKind.KEEP_RIGHT -> "Keep right"
+        TurnKind.LEFT -> "turn left"
+        TurnKind.RIGHT -> "turn right"
+        TurnKind.KEEP_LEFT -> "keep left"
+        TurnKind.KEEP_RIGHT -> "keep right"
         TurnKind.UTURN -> "U-turn"
-        TurnKind.ROUNDABOUT -> "Roundabout"
-        TurnKind.IC_ENTER -> "Enter the interchange"
-        TurnKind.IC_EXIT -> "Exit the interchange"
-        TurnKind.UNKNOWN -> "Next guidance"
+        TurnKind.ROUNDABOUT -> "roundabout"
+        TurnKind.IC_ENTER -> "enter the interchange"
+        TurnKind.IC_EXIT -> "exit the interchange"
+        TurnKind.UNKNOWN -> "next guidance"
     }
 }
