@@ -72,7 +72,7 @@ private fun SetupLayout(model: AppViewModel) {
                     Text("브루미와 떠나는 역사 보물찾기", fontSize = 28.sp, lineHeight = 40.sp)
                     Text(model.selectedRoute.title, fontSize = 50.sp, lineHeight = 66.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                     Text(model.selectedRoute.subtitle, color = Muted, fontSize = 30.sp, lineHeight = 44.sp)
-                    TreasureMapArt(Modifier.fillMaxWidth().height(280.dp), model.selectedRoute.to)
+                    VroomieCompanion(model.controller.vehicle, Modifier.fillMaxWidth().height(300.dp))
 
                 }
                 Box(Modifier.weight(1.2f)) { panel() }

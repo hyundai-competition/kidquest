@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,10 +30,7 @@ fun AppNavigation(model: AppViewModel, onExit: () -> Unit, content: @Composable 
     }
     BackHandler { back() }
     Column(Modifier.fillMaxSize().safeDrawingPadding()) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            TextButton(onClick = ::back, modifier = Modifier.heightIn(min = 64.dp).testTag("app-back")) { Text("← 뒤로", fontSize = 26.sp) }
-            TextButton(onClick = { confirmation = "exit" }, modifier = Modifier.heightIn(min = 64.dp).testTag("app-exit")) { Text("끝내기", fontSize = 26.sp) }
-        }
+        CompanionNavigationBar(model, ::back, { confirmation = "exit" })
         if (model.controller.vehicle.wiperOn && !model.controller.vehicle.restricted) {
             Row(Modifier.padding(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(if (model.weatherStyle == WeatherStyle.RAIN) "와이퍼 · 비 연출" else "와이퍼 · 눈 연출", fontSize = 22.sp)
@@ -55,5 +53,20 @@ fun AppNavigation(model: AppViewModel, onExit: () -> Unit, content: @Composable 
                 if (exiting) { model.controller.stop(); onExit() } else model.restartTrip()
             }, modifier = Modifier.testTag("confirm-navigation")) { Text(if (exiting) "끝내기" else "처음으로", fontSize = 26.sp) } },
         )
+    }
+}
+
+@Composable
+private fun CompanionNavigationBar(model: AppViewModel, back: () -> Unit, exit: () -> Unit) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val setupHero = maxWidth >= 1000.dp && !model.controller.vehicle.restricted &&
+            model.controller.screen in listOf(Screen.START, Screen.CREW_CHECK) &&
+            model.demoMission == null && !model.miniGamesVisible && !model.journeyEndingVisible
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = back, modifier = Modifier.heightIn(min = 64.dp).testTag("app-back")) { Text("← 뒤로", fontSize = 26.sp) }
+            if (!setupHero) VroomieCompanion(model.controller.vehicle, Modifier.width(160.dp).height(128.dp))
+            TextButton(onClick = exit, modifier = Modifier.heightIn(min = 64.dp).testTag("app-exit")) { Text("끝내기", fontSize = 26.sp) }
+        }
     }
 }
