@@ -60,17 +60,10 @@ internal object CarSignalMapper {
         else -> null
     }
 
-    /** 운전자가 방향을 바꿔야 하는 안내인가. 터널처럼 직진하는 안내는 빠진다. */
-    fun isTurn(type: TurnType?): Boolean = type != null && (type in sharpTurns || type.name.contains("ROUNDABOUT"))
+    /** 운전자가 방향을 바꿔야 하는 안내인가. 터널처럼 직진하는 안내는 빠진다. 회전 목록은 turnKind 한 곳에만 둔다. */
+    fun isTurn(type: TurnType?): Boolean = turnKind(type) != TurnKind.UNKNOWN
 
-    private val sharpTurns = setOf(
-        TurnType.TURN_LEFT, TurnType.TURN_RIGHT, TurnType.TURN_KEEP_L, TurnType.TURN_KEEP_R,
-        TurnType.TURN_SHARP_L, TurnType.TURN_SHARP_R, TurnType.TURN_UTURN,
-        TurnType.TURN_ENTER_IC_R, TurnType.TURN_ENTER_IC_L, TurnType.TURN_ENTER_IC_C,
-        TurnType.TURN_EXIT_IC_R, TurnType.TURN_EXIT_IC_L, TurnType.TURN_EXIT_IC_C,
-    )
-
-    /** 화면 아래 내비 안내 한 줄에 쓸 회전 종류. 급회전은 보통 회전으로 묶고, 나들목은 좌우를 가리지 않는다. */
+    /** 회전 종류. 여기서 UNKNOWN이 아니면 회전이다. 급회전은 보통 회전으로 묶고, 나들목은 좌우를 가리지 않는다. */
     fun turnKind(type: TurnType?): TurnKind = when {
         type == null -> TurnKind.UNKNOWN
         type == TurnType.TURN_LEFT || type == TurnType.TURN_SHARP_L -> TurnKind.LEFT

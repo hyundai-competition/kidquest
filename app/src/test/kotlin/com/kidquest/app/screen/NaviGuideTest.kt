@@ -20,6 +20,15 @@ class NaviGuideTest {
     }
 
     @Test
+    fun `30초 동안 새 안내가 없으면 지난 안내를 지운다`() {
+        val guided = VehicleUiState().accept(AppEvent.NextTurnDistance(300, TurnKind.LEFT), nowMillis = 1_000L)
+        assertEquals(NaviGuide(300, TurnKind.LEFT), guided.accept(AppEvent.Tick(30_999L)).navi)
+        assertNull(guided.accept(AppEvent.Tick(31_000L)).navi)
+        val renewed = guided.accept(AppEvent.NextTurnDistance(120, TurnKind.LEFT), nowMillis = 25_000L)
+        assertEquals(NaviGuide(120, TurnKind.LEFT), renewed.accept(AppEvent.Tick(40_000L)).navi)
+    }
+
+    @Test
     fun `한국어와 영어로 거리와 회전을 쓴다`() {
         assertEquals("내비 · 300m 앞 좌회전", NaviGuideText.line(NaviGuide(300, TurnKind.LEFT), Language.KO))
         assertEquals("내비 · 1.5km 앞 나들목 나가기", NaviGuideText.line(NaviGuide(1500, TurnKind.IC_EXIT), Language.KO))
