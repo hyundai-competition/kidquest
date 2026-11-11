@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 앱 권한과 시작 화면. 쓸 신호의 권한만 적는다. 권한은 시험 전이다. 기어와 와이퍼 권한은 문서에서 못 찾아서 신호 확인 앱과 SDK에 있는 이름을 넣었고 첫 시험 뒤에 줄인다. -->
+<!-- 앱 권한과 시작 화면. 쓸 신호의 권한만 적는다.
+     차 신호 권한은 Vehicle SDK 2.3.2가 함수에 붙인 권한 이름을 따랐다. 탑승·벨트 CAR_SEATS, 깜빡이 CAR_LIGHTS,
+     와이퍼 CAR_WINDOWS, 기어 CAR_DRIVE, 잔량 CAR_ENERGY, 실내 온도 CAR_CLIMATE. SDK에 없는 READ_WINDSHIELD_WIPERS와 CAR_POWERTRAIN은 뺐다. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="pleos.car.permission.CAR_SEATS" />
     <uses-permission android:name="pleos.car.permission.CAR_LIGHTS" />
     <uses-permission android:name="pleos.car.permission.CAR_WINDOWS" />
-    <uses-permission android:name="pleos.car.permission.READ_WINDSHIELD_WIPERS" />
     <uses-permission android:name="pleos.car.permission.CAR_DRIVE" />
-    <uses-permission android:name="pleos.car.permission.CAR_POWERTRAIN" />
     <uses-permission android:name="pleos.car.permission.CAR_ENERGY" />
     <uses-permission android:name="pleos.car.permission.CAR_CLIMATE" />
     <uses-permission android:name="pleos.car.permission.NAVI_ROUTE" />
