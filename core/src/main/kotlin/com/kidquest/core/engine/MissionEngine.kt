@@ -71,6 +71,7 @@ class MissionEngine(episode: Episode? = null, translations: Map<Language, Episod
         is AppEvent.PlaceEntered -> missions.onPlace(event.placeId, state == EngineState.FLYING)
         is AppEvent.RemainingTimeChanged -> onRemaining(event.seconds)
         is AppEvent.CabinTemperatureChanged -> trip.temperature(event.celsius)
+        is AppEvent.EnergyChanged -> trip.energy(event.percent, lines)?.takeIf { state in TRIP_STATES }?.let { missions.announce(it, state == EngineState.FLYING, minor = true) }.orEmpty()
         is AppEvent.RoadAhead -> whileFlying { missions.onRoad(event.kind, event.meters) }
         is AppEvent.NextTurnDistance -> missions.onNextTurn(event.meters, state == EngineState.FLYING)
         is AppEvent.SignalUnavailable -> {
