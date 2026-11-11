@@ -1,4 +1,4 @@
-// 와이퍼·방향지시등에 반응하는 장식 배경. P에서만 빗방울이 움직이고 주행 중에는 정적으로 그린다.
+// 와이퍼에 반응하는 장식 배경. P에서만 빗방울이 움직이고 주행 중에는 정적으로 그린다.
 package com.kidquest.app.screen
 
 import androidx.compose.animation.core.*
@@ -8,12 +8,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.kidquest.app.screen.model.VehicleUiState
 import com.kidquest.core.contract.Gear
-import com.kidquest.core.contract.TurnSide
 
 enum class WeatherStyle { RAIN, SNOW }
 
@@ -39,22 +37,6 @@ fun VehicleBackdrop(vehicle: VehicleUiState, style: WeatherStyle, content: @Comp
                         drawCircle(Color(0xFF91BACA), 4.dp.toPx(), Offset(x, y), style = Stroke(1.dp.toPx()))
                     }
                 }
-            }
-            vehicle.turnSide?.let { side ->
-                val left = side == TurnSide.LEFT
-                val x = if (left) size.width * .035f else size.width * .965f
-                val y = size.height * .2f
-                drawCircle(Color(0xFFF2CF79).copy(alpha = .36f), 26.dp.toPx(), Offset(x, y))
-                // 길 가장자리의 작은 반짝임. 주행 중에도 깜빡이거나 이동하지 않는다.
-                repeat(3) { i ->
-                    val cy = y + (40 + i * 16).dp.toPx()
-                    val radius = (4 - i).dp.toPx()
-                    drawLine(Color(0xFFC29C45), Offset(x - radius, cy), Offset(x + radius, cy), 1.dp.toPx())
-                    drawLine(Color(0xFFC29C45), Offset(x, cy - radius), Offset(x, cy + radius), 1.dp.toPx())
-                }
-                val d = if (left) -1 else 1
-                val a = 10.dp.toPx()
-                drawPath(Path().apply { moveTo(x - d * a, y); lineTo(x + d * a, y); moveTo(x, y - a); lineTo(x + d * a, y); lineTo(x, y + a) }, Color(0xFFB47B21), style = Stroke(3.dp.toPx()))
             }
         }
     }
