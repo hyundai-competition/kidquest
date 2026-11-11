@@ -52,7 +52,7 @@ class MissionEngine(episode: Episode? = null, translations: Map<Language, Episod
         is AppEvent.BeltBuckled -> if (crew.belt(event.seat, event.buckled)) afterCrewChange() else emptyList()
         AppEvent.ParentConfirmedBelt -> onParentConfirmed()
         is AppEvent.GearChanged -> onGear(event.gear)
-        is AppEvent.AudioFocusChanged -> setPause(PauseReason.AUDIO_FOCUS, !event.hasFocus)
+        is AppEvent.AudioFocusChanged -> { if (!event.hasFocus) gate.focusLost(); setPause(PauseReason.AUDIO_FOCUS, !event.hasFocus) }
         is AppEvent.ParentStopChanged -> setPause(PauseReason.PARENT, event.stopped)
         AppEvent.DestinationArrived -> onArrived()
         AppEvent.EndTripPressed -> if (state == EngineState.DOCKED) land() else emptyList()
@@ -60,6 +60,7 @@ class MissionEngine(episode: Episode? = null, translations: Map<Language, Episod
         is AppEvent.LineFinished -> when (state) {
             EngineState.FLYING -> onLineFinished(event.lineId)
             EngineState.LANDED -> nextLandingLine(event.lineId)
+            EngineState.DOCKED -> { gate.dropResumable(event.lineId); emptyList() }
             else -> emptyList()
         }
         is AppEvent.AnswerHeard -> whileFlying { missions.onAnswer(event.word) }
@@ -230,12 +231,13 @@ class MissionEngine(episode: Episode? = null, translations: Map<Language, Episod
     private fun dock(): List<Command> {
         state = EngineState.DOCKED
         pauseReasons -= setOf(PauseReason.BELT, PauseReason.GEAR)
-        return listOf(Command.StopAudio) + speak(lines.DOCKED) +
+        return listOf(Command.StopAudio) + gate.speakResumable(lines.DOCKED) +
             Command.ShowScreen(Screen.DOCKED, lines.STATUS_DOCKED)
     }
 
     /** 정박 중에 벨트를 풀었을 수 있으니 출발할 때 다시 본다. */
     private fun undock(): List<Command> {
+        gate.dropResumable()
         state = EngineState.PAUSED
         if (!crew.ready()) pauseReasons += PauseReason.BELT
         if (pauseReasons.isEmpty()) {
