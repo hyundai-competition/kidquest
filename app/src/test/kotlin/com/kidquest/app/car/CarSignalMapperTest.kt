@@ -43,6 +43,13 @@ class CarSignalMapperTest {
     }
 
     @Test
+    fun `SDK 탑승 값은 빈 자리가 true라서 뒤집는다`() {
+        assertEquals(false, CarSignalMapper.occupied(true))
+        assertEquals(true, CarSignalMapper.occupied(false))
+        assertNull(CarSignalMapper.occupied(null))
+    }
+
+    @Test
     fun `뒷좌석만 2열 자리로 바꾼다`() {
         assertEquals(SeatValue.ROW_2_LEFT, CarSignalMapper.sdkSeat(RearSeat.LEFT))
         assertEquals(SeatValue.ROW_2_CENTER, CarSignalMapper.sdkSeat(RearSeat.CENTER))
