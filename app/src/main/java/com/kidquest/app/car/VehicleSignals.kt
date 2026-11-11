@@ -146,7 +146,12 @@ internal class VehicleSignals(context: Context, private val filter: CarEventFilt
         val gate = CurrentValueGate<WiperState?> { state ->
             CarSignalMapper.wiperOn(state)?.let { filter.send(AppEvent.WiperChanged(it)) }
         }
-        wiper.getCurrentWiperState(front, { gate.current(it) }, { })
+        // 현재값을 못 읽어도 구독은 건다. 구독까지 실패해야 와이퍼를 못 읽는다고 알린다.
+        try {
+            wiper.getCurrentWiperState(front, { gate.current(it) }, { })
+        } catch (_: Exception) {
+            // 다음 와이퍼 변화는 구독으로 받는다.
+        }
         wiper.registerWiperState(front, object : WiperStateListener {
             override fun onWiperStateUpdated(state: WiperState?) = gate.update(state)
             override fun onFailed(e: Exception) = filter.unavailable(CarSignal.WIPER)
