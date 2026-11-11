@@ -1,4 +1,4 @@
-// 도착 화면에서 이번 탐험에 모은 보물을 차례로 보여 준다. 차를 세운 뒤에 나오는 화면이라 움직임이 운전을 방해하지 않는다.
+// 결과 화면의 보물을 표시한다. P이고 주행 규제가 없을 때만 나타나는 효과를 사용한다.
 // 글자는 처음부터 그려 두고 투명도와 크기만 움직인다. 그래서 화면 읽기와 시험은 바로 보물 이름을 찾는다.
 // 사진은 assets/treasures/<보물 id>.jpg(또는 .png, .webp)가 있을 때만 붙이고, 없으면 이름만 보인다. 사진 출처는 에피소드 credits에 적는다.
 package com.kidquest.app.screen
@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,34 +34,40 @@ import com.kidquest.core.contract.Command
 import java.io.IOException
 
 @Composable
-fun TreasureReveal(items: List<Command.AwardItem>) {
+fun TreasureReveal(items: List<Command.AwardItem>, animate: Boolean) {
     val context = LocalContext.current
     val files = remember { treasureFiles(context) }
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(Modifier.fillMaxWidth().testTag("treasure-list"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         items.forEachIndexed { index, item ->
-            TreasureRow(item, index, remember(item.itemId) { loadTreasurePhoto(context, pickTreasurePhoto(files, item.itemId)) })
+            key(item.itemId) {
+                TreasureRow(item, index, remember(item.itemId) { loadTreasurePhoto(context, pickTreasurePhoto(files, item.itemId)) }, animate)
+            }
         }
     }
 }
 
 @Composable
-private fun TreasureRow(item: Command.AwardItem, index: Int, photo: ImageBitmap?) {
-    val appear = remember(item.itemId) { Animatable(0f) }
-    LaunchedEffect(item.itemId) { appear.animateTo(1f, tween(durationMillis = APPEAR_MILLIS, delayMillis = index * STEP_MILLIS)) }
+private fun TreasureRow(item: Command.AwardItem, index: Int, photo: ImageBitmap?, animate: Boolean) {
+    val appear = remember(item.itemId) { Animatable(if (animate) 0f else 1f) }
+    LaunchedEffect(item.itemId, animate) {
+        // D/R/기어 미확인·규제 진입 시 지연과 진행 중 효과를 취소한다. P 복귀 때 다시 숨기지 않는다.
+        if (animate && appear.value < 1f) appear.animateTo(1f, tween(durationMillis = APPEAR_MILLIS, delayMillis = index * STEP_MILLIS))
+        else appear.snapTo(1f)
+    }
     Row(
         Modifier.fillMaxWidth().testTag("treasure-${item.itemId}").graphicsLayer {
-            alpha = appear.value
-            scaleX = START_SCALE + (1f - START_SCALE) * appear.value
+            alpha = if (animate) appear.value else 1f
+            scaleX = if (animate) START_SCALE + (1f - START_SCALE) * appear.value else 1f
             scaleY = scaleX
         },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         if (photo != null) {
-            Image(photo, contentDescription = item.name, contentScale = ContentScale.Crop,
+            Image(photo, contentDescription = null, contentScale = ContentScale.Crop,
                 modifier = Modifier.size(PHOTO_DP.dp).clip(RoundedCornerShape(12.dp)).testTag("treasure-photo-${item.itemId}"))
         }
-        Text("✦ ${item.name}", fontSize = 28.sp)
+        Text("✦ ${item.name}", modifier = Modifier.weight(1f), fontSize = 28.sp, lineHeight = 40.sp)
     }
 }
 

@@ -19,6 +19,8 @@ data class VehicleUiState(
     val turnSide: TurnSide? = null,
     val turnUntilMillis: Long = 0L,
 ) {
+    val decorationsMayAnimate get() = gear == Gear.P && !restricted
+
     fun accept(event: AppEvent, nowMillis: Long = 0L): VehicleUiState = when (event) {
         is AppEvent.WiperChanged -> copy(wiperOn = event.on)
         is AppEvent.TurnSignalOn -> copy(turnSide = event.side, turnUntilMillis = nowMillis + 3500L)

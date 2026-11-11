@@ -58,7 +58,7 @@ fun EngineTripEnding(model: AppViewModel) {
         Text("오늘 만난 이야기를 마음에 담고, 다음 모험에서 또 만나요!", fontSize = 30.sp, lineHeight = 42.sp)
         Text("오늘 모은 보물 ${model.controller.items.size}개", fontSize = 32.sp)
         TripTreasureArt(model.controller.items.size, model.plannedMissions.size)
-        TreasureReveal(model.controller.items)
+        TreasureReveal(model.controller.items, animate = model.controller.vehicle.decorationsMayAnimate)
         Button(onClick = model::restartTrip, modifier = Modifier.heightIn(min = 80.dp)) { Text("새로운 탐험 준비하기", fontSize = 30.sp) }
         HorizontalDivider()
         Text("콘텐츠와 위치 데이터 출처", fontSize = 26.sp, fontWeight = FontWeight.Bold)
