@@ -15,6 +15,9 @@ internal interface LineSet {
     val DOCKED: Say
     val LANDED: Say
 
+    /** 차 잔량(전기차 배터리, 못 읽으면 연료)이 절반 아래로 내려갈 때 한 번. 운전자를 부르거나 재촉하지 않는다. */
+    val ENERGY_HALF: Say
+
 
     val STATUS_FLYING: String
     val STATUS_BELT: String
@@ -42,6 +45,7 @@ internal object Lines : LineSet {
     override val BELT_OFF = Say("belt_off", "벨트를 매면 계속할 수 있어요.")
     override val DOCKED = Say("docked", "잠깐 쉬어 갈게요. 다시 출발하면 이어서 들려줄게요.")
     override val LANDED = Say("landed", "탐험 끝! 오늘 모은 보물을 확인해 보세요.")
+    override val ENERGY_HALF = Say("energy_half", "우리 차 힘이 절반 남았어요. 보물을 향해 계속 달려요!")
 
     /** 결말 대사의 lineId. 결말 문장은 에피소드 파일에 있고, 이 대사가 끝나면 착륙 대사를 말한다. */
     const val ENDING_ID = "ending"
@@ -64,6 +68,7 @@ internal object EnglishLines : LineSet {
     override val BELT_OFF = Say("belt_off", "Buckle up and we can keep going.")
     override val DOCKED = Say("docked", "Let's take a short break. I'll continue the story when we set off again.")
     override val LANDED = Say("landed", "Adventure complete! Take a look at the treasures you found today.")
+    override val ENERGY_HALF = Say("energy_half", "Our car has half of its power left. Let's keep going to the treasure!")
 
     override val STATUS_FLYING = "Exploring"
     override val STATUS_BELT = "Buckle up to continue"

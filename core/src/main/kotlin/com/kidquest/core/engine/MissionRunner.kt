@@ -118,9 +118,9 @@ internal class MissionRunner(private val plan: TripPlan) {
         return if (now != null && step == Step.WAIT_TRIGGER && now.trigger == MissionTrigger.NAVI_TURN) openEvent(now) else emptyList()
     }
 
-    /** 알림을 맡긴다. 비행 중이고 조용하면 바로 말하고, 아니면 조용해질 때 말한다. */
-    fun announce(say: Command.Say, flying: Boolean): List<Command> {
-        notice.hold(say)
+    /** 알림을 맡긴다. 비행 중이고 조용하면 바로 말하고, 아니면 조용해질 때 말한다. minor면 맡은 알림이 없을 때만 맡는다. */
+    fun announce(say: Command.Say, flying: Boolean, minor: Boolean = false): List<Command> {
+        if (minor) notice.offer(say) else notice.hold(say)
         return if (flying) sayNoticeIfQuiet() else emptyList()
     }
 
