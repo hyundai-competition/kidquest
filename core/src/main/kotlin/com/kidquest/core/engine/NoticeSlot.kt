@@ -21,6 +21,11 @@ internal class NoticeSlot {
         pending = say
     }
 
+    /** 맡은 알림이 없을 때만 맡는다. 잔량 문장 같은 덜 중요한 알림이 도착 예고를 덮지 않게 한다. */
+    fun offer(say: Command.Say) {
+        if (pending == null) pending = say
+    }
+
     /** 알림을 꺼낸다. 맡은 게 없으면 null. */
     fun take(fromWait: Boolean, waitStartedAt: Long?): Command.Say? {
         val say = pending ?: return null
