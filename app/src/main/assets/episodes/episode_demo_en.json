@@ -6,9 +6,9 @@
       "id": "gyeongju",
       "name": "Seoul → Gyeongju",
       "planetName": "Gyeongju",
-      "departureLine": "Today we travel from Seoul to Gyeongju. Let us discover its historical treasures!",
+      "departureLine": "Today we travel from Seoul to Gyeongju. Let's find the treasures the people of Silla left behind!",
       "approachLine": "We are nearly in Gyeongju. The last treasure is waiting.",
-      "deliveryLine": "We have arrived in Gyeongju! Let us open the treasure chest with the treasures we found.",
+      "deliveryLine": "We have arrived in Gyeongju! We put today's treasure pieces together and opened the Gyeongju treasure chest.",
       "landingFact": "Cheomseongdae is a raised stone structure used to observe the stars. The old book Samguk Yusa says it was built during the reign of Queen Seondeok of Silla.",
       "factSource": "[출처 : 경주 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002925, [출처 : 첨성대 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0056197 (2026-11-08 확인)",
       "routes": [
@@ -20,7 +20,7 @@
             "daegu_debt",
             "gyeongju_star"
           ],
-          "departureLine": "Today we travel from Seoul to Gyeongju, following the Gyeongbu Expressway (Cheonan, Daegu). Let us find historical treasures!"
+          "departureLine": "Today we travel from Seoul to Gyeongju, passing Cheonan and Daegu. Let's find the treasures the people of Silla left behind!"
         }
       ]
     },
@@ -28,9 +28,9 @@
       "id": "busan",
       "name": "Seoul → Busan",
       "planetName": "Busan",
-      "departureLine": "Today we travel from Seoul to Busan. Let us discover its historical treasures!",
+      "departureLine": "Today we travel from Seoul to Busan. Let's find the treasures hidden in Busan, the city by the sea!",
       "approachLine": "We are nearly in Busan. The last treasure is waiting.",
-      "deliveryLine": "We have arrived in Busan! Let us open the treasure chest with the treasures we found.",
+      "deliveryLine": "We have arrived in Busan! We put today's treasure pieces together and opened the Busan treasure chest.",
       "landingFact": "The building now used as the Provisional Capital Memorial Hall was a presidential residence and workplace during the Korean War. It became a museum in 1984.",
       "factSource": "[출처 : 부산 임시수도 대통령관저 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0077059 (2026-11-08 확인)",
       "routes": [
@@ -42,7 +42,7 @@
             "daejeon_hanbat",
             "busan_capital"
           ],
-          "departureLine": "Today we travel from Seoul to Busan, following the Gyeongbu Expressway (Suwon, Daejeon). Let us find historical treasures!"
+          "departureLine": "Today we travel from Seoul to Busan, passing Suwon and Daejeon. Let's find the treasures hidden in Busan, the city by the sea!"
         },
         {
           "id": "busan_jungbu",
@@ -52,7 +52,7 @@
             "mungyeong_saejae",
             "busan_capital"
           ],
-          "departureLine": "Today we travel from Seoul to Busan, following the Jungbu Naeryuk Expressway (Chungju, Mungyeong). Let us find historical treasures!"
+          "departureLine": "Today we travel from Seoul to Busan, passing Chungju and Mungyeong. Let's find the treasures hidden in Busan, the city by the sea!"
         }
       ]
     },
@@ -60,10 +60,10 @@
       "id": "andong",
       "name": "Seoul → Andong",
       "planetName": "Andong",
-      "departureLine": "Today we travel from Seoul to Andong. Let us discover its historical treasures!",
+      "departureLine": "Today we travel from Seoul to Andong. Let's find the treasures of Andong, where an old village still stands!",
       "approachLine": "We are nearly in Andong. The last treasure is waiting.",
-      "deliveryLine": "We have arrived in Andong! Let us open the treasure chest with the treasures we found.",
-      "landingFact": "Hahoe Village and Yangdong Village were inscribed together on the UNESCO World Heritage List in 2010.",
+      "deliveryLine": "We have arrived in Andong! We put today's treasure pieces together and opened the Andong treasure chest.",
+      "landingFact": "In 2010, Hahoe Village became a UNESCO World Heritage Site together with Yangdong Village in Gyeongju.",
       "factSource": "https://whc.unesco.org/en/list/1324/ (Date of Inscription 2010), [출처 : 안동 하회마을 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0034689 (2026-11-08 확인)",
       "routes": [
         {
@@ -74,7 +74,7 @@
             "yeongju_buseoksa",
             "andong_village"
           ],
-          "departureLine": "Today we travel from Seoul to Andong, following the Jungang Expressway (Danyang, Yeongju). Let us find historical treasures!"
+          "departureLine": "Today we travel from Seoul to Andong, passing Danyang and Yeongju. Let's find the treasures of Andong, where an old village still stands!"
         }
       ]
     },
@@ -82,9 +82,9 @@
       "id": "seoul",
       "name": "Daejeon → Seoul",
       "planetName": "Seoul",
-      "departureLine": "Today we travel from Daejeon to Seoul. Let us discover its historical treasures!",
+      "departureLine": "Today we travel from Daejeon to Seoul. Let's find the treasures hidden in Seoul, where kings lived long ago!",
       "approachLine": "We are nearly in Seoul. The last treasure is waiting.",
-      "deliveryLine": "We have arrived in Seoul! Let us open the treasure chest with the treasures we found.",
+      "deliveryLine": "We have arrived in Seoul! We put today's treasure pieces together and opened the Seoul treasure chest.",
       "landingFact": "Gyeongbokgung was first built in 1395 as the main palace of Joseon.",
       "factSource": "[출처 : 경복궁 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0002434 (건립 시기 1395년, 정궁, 2026-11-08 확인)",
       "routes": [
@@ -96,7 +96,7 @@
             "suwon_hwaseong",
             "seoul_palace"
           ],
-          "departureLine": "Today we travel from Daejeon to Seoul, following the Gyeongbu Expressway (Cheonan, Suwon). Let us find historical treasures!"
+          "departureLine": "Today we travel from Daejeon to Seoul, passing Cheonan and Suwon. Let's find the treasures hidden in Seoul, where kings lived long ago!"
         }
       ]
     }
@@ -212,7 +212,7 @@
       "destinationId": null,
       "trigger": "NAVI_TURN",
       "autoAfterSeconds": 180,
-      "briefing": "There is a crossroads ahead. The treasure marker is shaped like a star.",
+      "briefing": "Captain, our treasure map has a crossroads too. Its treasure marker is shaped like a star.",
       "eventSoundId": null,
       "event": "Sparkle! The crossroads treasure marker has appeared.",
       "question": "Is the treasure marker a star or a heart?",
@@ -231,12 +231,14 @@
       "autoAfterSeconds": 600,
       "briefing": "Our next treasure is near Cheonan. I will tell you when we get close.",
       "eventSoundId": null,
-      "event": "We are near Cheonan! Independence Hall collects and displays materials about the independence movement. It opened on August 15, 1987.",
+      "event": "We are near Cheonan! The Independence Hall of Korea is here. It shows objects and records from Korea's independence movement. It opened on August 15, 1987.",
       "question": "Did Independence Hall open on August 15 or March 1?",
       "answers": [
         "August 15",
         "August fifteenth",
-        "15th"
+        "15th",
+        "15",
+        "fifteen"
       ],
       "correctLine": "That is right, August 15! We found the independence flag.",
       "wrongLine": "The answer is August 15. We found the independence flag.",
@@ -251,13 +253,15 @@
       "autoAfterSeconds": 600,
       "briefing": "Our next treasure is near Daegu. I will tell you when we get close.",
       "eventSoundId": null,
-      "event": "We are near Daegu! In 1907, a campaign began here to repay the national debt through public donations.",
-      "question": "Was the campaign about repaying debt or expanding territory?",
+      "event": "We are near Daegu! In 1907, the National Debt Repayment Movement began here. People gave their own money to pay back the country's debt.",
+      "question": "Was the movement about repaying debt or expanding territory?",
       "answers": [
-        "debt"
+        "debt",
+        "repay",
+        "pay back"
       ],
-      "correctLine": "That is right, repaying debt! We found a love-of-country coin.",
-      "wrongLine": "The answer is repaying debt. We found a love-of-country coin.",
+      "correctLine": "That is right, repaying debt! We found a Love for Korea coin.",
+      "wrongLine": "The answer is repaying debt. We found a Love for Korea coin.",
       "rewardItem": "debt_coin",
       "factSource": "[출처 : 국채보상운동 - 한국민족문화대백과사전] https://encykorea.aks.ac.kr/Article/E0006527 (1907년 2월 대구 광문사에서 제창, 국채를 국민들의 모금으로 갚기 위한 운동, 2026-11-09 확인)"
     },
@@ -269,7 +273,7 @@
       "autoAfterSeconds": 600,
       "briefing": "Our next treasure is near Suwon. I will tell you when we get close.",
       "eventSoundId": null,
-      "event": "We are near Suwon! Hwaseong Fortress was built during King Jeongjo's reign. It was completed in 1796 and listed by UNESCO in 1997.",
+      "event": "We are near Suwon! Hwaseong Fortress was built when King Jeongjo of Joseon ruled. It was finished in 1796 and became a UNESCO World Heritage Site in 1997.",
       "question": "Was Hwaseong built under King Jeongjo or King Sejong?",
       "answers": [
         "Jeongjo"
@@ -305,7 +309,7 @@
       "autoAfterSeconds": 600,
       "briefing": "Our next treasure is near Chungju. I will tell you when we get close.",
       "eventSoundId": null,
-      "event": "We are near Chungju! Tangeumdae was named after Ureuk playing the gayageum here.",
+      "event": "We are near Chungju! Tangeumdae got its name because Ureuk played the gayageum here long ago.",
       "question": "Did Ureuk play the gayageum or the geomungo?",
       "answers": [
         "gayageum"
@@ -323,7 +327,7 @@
       "autoAfterSeconds": 600,
       "briefing": "Our next treasure is near Mungyeong. I will tell you when we get close.",
       "eventSoundId": null,
-      "event": "We are near Mungyeong! Before trains, a major road between Seoul and Busan crossed Mungyeong Saejae. Three Joseon-era gates stand here.",
+      "event": "We are near Mungyeong! Before there were trains, the main road between Seoul and Busan usually went over the Mungyeong Saejae mountain pass. Three gates from the Joseon era stand here.",
       "question": "Are there three gates or five gates at Mungyeong Saejae?",
       "answers": [
         "three",
@@ -379,7 +383,7 @@
       "briefing": "Our Gyeongju treasure is near an old stone observatory. I will tell you when we get close.",
       "eventSoundId": null,
       "event": "We are in Gyeongju! People of Silla observed the stars at Cheomseongdae.",
-      "question": "Were the people observing stars at Cheomseongdae from Silla or Joseon?",
+      "question": "Did the people of Silla or the people of Joseon watch the stars at Cheomseongdae?",
       "answers": [
         "Silla"
       ],
@@ -396,7 +400,7 @@
       "autoAfterSeconds": 600,
       "briefing": "Our Busan treasure is near a former presidential residence. I will tell you when we get close.",
       "eventSoundId": null,
-      "event": "We are in Busan! During the Korean War, national government work took place here. The presidential residence remains in the city.",
+      "event": "We are in Busan! During the Korean War, the government did its work here. The house where the president lived and worked is still here.",
       "question": "Was the wartime government based in Busan or Jeju?",
       "answers": [
         "Busan"
@@ -418,7 +422,9 @@
       "question": "Was Hahoe home to one clan or people from many countries?",
       "answers": [
         "one clan",
-        "clan"
+        "clan",
+        "one family",
+        "family"
       ],
       "correctLine": "That is right, one clan! We found the Hahoe mask.",
       "wrongLine": "The answer is one clan. We found the Hahoe mask.",
@@ -459,7 +465,7 @@
     },
     {
       "id": "debt_coin",
-      "name": "Love-of-country coin"
+      "name": "Love for Korea coin"
     },
     {
       "id": "hwaseong_brick",
