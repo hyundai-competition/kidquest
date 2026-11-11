@@ -18,6 +18,8 @@ data class VehicleUiState(
     val wiperOn: Boolean = false,
     val turnSide: TurnSide? = null,
     val turnUntilMillis: Long = 0L,
+    /** 내비 다음 회전. 아직 안내가 없거나 도착했으면 null이다. */
+    val navi: NaviGuide? = null,
 ) {
     fun accept(event: AppEvent, nowMillis: Long = 0L): VehicleUiState = when (event) {
         is AppEvent.WiperChanged -> copy(wiperOn = event.on)
@@ -27,6 +29,8 @@ data class VehicleUiState(
         is AppEvent.BeltBuckled -> copy(buckled = buckled + (event.seat to event.buckled))
         is AppEvent.GearChanged -> copy(gear = event.gear)
         is AppEvent.DrivingRestricted -> copy(restricted = event.restricted)
+        is AppEvent.NextTurnDistance -> copy(navi = NaviGuide(event.meters, event.turn))
+        AppEvent.DestinationArrived -> copy(navi = null)
         is AppEvent.SignalUnavailable -> copy(unavailable = unavailable + event.signal)
         is AppEvent.ParentStopChanged -> copy(parentStopped = event.stopped)
         AppEvent.ParentConfirmedBelt -> copy(parentConfirmed = true)
