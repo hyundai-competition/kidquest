@@ -12,7 +12,8 @@
 | `app/.../voice/` | 말하기, 효과음, 답 듣기, 소리 양보 | 화면·음성 | `kq-voice` |
 | `app/.../screen/` | 정차 화면과 주행 중 화면 | 화면·음성 | `kq-voice` |
 | `app/.../storage/` | 연령과 배지 저장 | 앱 통합 | `kq-integration` |
-| `app/.../AppController.kt`, 빌드 파일, `apk/` | 앱 연결, 빌드, 권한, APK | 앱 통합 | `kq-integration` |
+| `app/.../AppController.kt`, 빌드 파일 | 앱 연결, 빌드, 권한 | 앱 통합 | `kq-integration` |
+| `apk/`, release 서명 설정 | 제출용 release APK를 만들고 서명함. 서명 키는 저장소 밖에 둠 | 앱 통합 | `kq-integration` |
 | `app/.../replay/` | 가짜 신호를 넣는 재생 모드 | 시연·품질 | `kq-demo` |
 | `signalcheck/` | 첫 시험 전용 앱. 차 SDK 값이 오는지 본다. 제출 앱과 따로 빌드한다 | 앱 통합 | `kq-integration` |
 
