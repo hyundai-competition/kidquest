@@ -23,7 +23,7 @@ gradlew.bat :core:test
 - JDK 17 이상
 - Android SDK Platform 35
 - Pleos Connect v2.1.0 에뮬레이터(API 34)
-- 차 신호는 에뮬레이터의 Virtual Console이나 앱의 재생 모드로 넣는다.
+- 실제 탐험은 차량 SDK·에뮬레이터 Virtual Console 신호로 진행한다. 첫 화면의 **시연 체험**은 가상 차량·위치 신호로 한 판을 자동 진행한다. 조작과 입력원 구분은 [자동 시연 안내](docs/showcase_mode.md)를 따른다.
 
 ## APK 파일 위치 또는 GitHub Release 링크
 

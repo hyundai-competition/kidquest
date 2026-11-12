@@ -36,6 +36,7 @@ fun StartScreen(model: AppViewModel) {
 
 @Composable
 private fun DepartureSettings(model: AppViewModel) {
+    ShowcaseChoice(model)
     Text("작은 탐험가, 준비됐나요?", fontSize = 40.sp, lineHeight = 54.sp)
     Text("한국어 또는 영어로 함께 떠나요", fontSize = 30.sp, lineHeight = 42.sp, color = Mint)
     Text("이야기 언어 / Story language", fontSize = 34.sp, lineHeight = 48.sp)

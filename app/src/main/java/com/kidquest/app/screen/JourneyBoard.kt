@@ -30,7 +30,7 @@ import com.kidquest.app.screen.model.MissionNotes
 import com.kidquest.app.screen.model.TripStop
 
 @Composable
-fun JourneyBoard(route: DemoRoute, completed: Set<String> = emptySet(), onMission: (CityMission) -> Unit = {}, skipped: Set<String> = emptySet(), tripStops: List<TripStop>? = null, onPlace: (String) -> Unit = {}, story: String? = null) {
+fun JourneyBoard(route: DemoRoute, completed: Set<String> = emptySet(), onMission: (CityMission) -> Unit = {}, skipped: Set<String> = emptySet(), tripStops: List<TripStop>? = null, onPlace: (String) -> Unit = {}, story: String? = null, allowPlaceSelection: Boolean = true, progressHint: String? = null) {
     Column(
         Modifier.fillMaxWidth().background(Color(0xFFE8EEDD), RoundedCornerShape(32.dp)).padding(24.dp)
             .testTag("journey-board"),
@@ -39,13 +39,13 @@ fun JourneyBoard(route: DemoRoute, completed: Set<String> = emptySet(), onMissio
         Text("Vroomie  /  TREASURE TRAIL", color = Mint, fontWeight = FontWeight.Bold, fontSize = 24.sp)
         Text("${route.from}에서 ${route.to}까지", fontSize = 38.sp, lineHeight = 50.sp, fontWeight = FontWeight.ExtraBold)
         Text(story ?: MissionNotes.stories.getValue(route.to), color = Mint, fontSize = 26.sp, lineHeight = 38.sp)
-        RouteTiles(route, completed, onMission, skipped, tripStops, onPlace)
-        Text(if (tripStops == null) "시연 모드 · 장소를 눌러 미션을 시작해요" else "시연 · 장소를 선택하면 현재 대사와 앞 임무가 끝난 뒤 이어져요", color = Muted, fontSize = 22.sp, lineHeight = 32.sp)
+        RouteTiles(route, completed, onMission, skipped, tripStops, onPlace, allowPlaceSelection)
+        Text(progressHint ?: if (tripStops == null) "시연 모드 · 장소를 눌러 미션을 시작해요" else "시연 · 장소를 선택하면 현재 대사와 앞 임무가 끝난 뒤 이어져요", color = Muted, fontSize = 22.sp, lineHeight = 32.sp)
     }
 }
 
 @Composable
-private fun RouteTiles(route: DemoRoute, completed: Set<String>, onMission: (CityMission) -> Unit, skipped: Set<String>, tripStops: List<TripStop>?, onPlace: (String) -> Unit) {
+private fun RouteTiles(route: DemoRoute, completed: Set<String>, onMission: (CityMission) -> Unit, skipped: Set<String>, tripStops: List<TripStop>?, onPlace: (String) -> Unit, allowPlaceSelection: Boolean) {
     BoxWithConstraints(Modifier.fillMaxWidth().height(490.dp)) {
         val tileWidth = minOf(210.dp, maxWidth * .29f)
         // 세 칸을 오른쪽으로 이동한 뒤 아래로 돌아오는 보드게임 길이다.
@@ -71,9 +71,10 @@ private fun RouteTiles(route: DemoRoute, completed: Set<String>, onMission: (Cit
                 Modifier.offset(maxWidth * x - tileWidth / 2, 490.dp * y - 96.dp)
                     .width(tileWidth).height(192.dp)
                     .background(if (index == labels.lastIndex) Color(0xFFF5DCA0) else Color(0xFFFFFEF8), RoundedCornerShape(20.dp))
-                    .then(if (index > 0) Modifier.testTag(if (tripStops != null) "place-${tripStops[index - 1].placeId}" else "bonus-place-$index").clickable {
-                        if (tripStops != null) onPlace(tripStops[index - 1].placeId) else onMission(route.missions[index - 1])
-                    } else Modifier)
+                    .then(if (index > 0) Modifier.testTag(if (tripStops != null) "place-${tripStops[index - 1].placeId}" else "bonus-place-$index")
+                        .then(if (tripStops == null || allowPlaceSelection) Modifier.clickable {
+                            if (tripStops != null) onPlace(tripStops[index - 1].placeId) else onMission(route.missions[index - 1])
+                        } else Modifier) else Modifier)
                     .padding(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -81,7 +82,7 @@ private fun RouteTiles(route: DemoRoute, completed: Set<String>, onMission: (Cit
                 Text(when { index == 0 -> "출발"; city in completed -> "완료 ✓"; city in skipped -> "다음 기회에"; else -> "미션 $index" }, color = Mint, fontSize = 20.sp)
                 Text(city, fontSize = 26.sp, lineHeight = 36.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                 if (index == labels.lastIndex) TreasureMapArt(Modifier.fillMaxWidth().height(42.dp), route.to)
-                else Text(if (index == 0) "START" else "눌러서 시작 →", color = Muted, fontSize = 18.sp)
+                else Text(if (index == 0) "START" else if (tripStops != null && !allowPlaceSelection) "경유지" else "눌러서 시작 →", color = Muted, fontSize = 18.sp)
             }
         }
     }

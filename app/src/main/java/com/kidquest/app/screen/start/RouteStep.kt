@@ -15,7 +15,7 @@ import com.kidquest.app.screen.common.SelectionCard
 @Composable
 fun RouteStep(model: AppViewModel) {
     Text("어디로 떠날까요?", fontSize = 42.sp, lineHeight = 56.sp)
-    Text("함께 달릴 시연 경로를 골라 주세요", fontSize = 30.sp, lineHeight = 42.sp)
+    Text(if (model.showcase.selected) "함께 달릴 시연 경로를 골라 주세요" else "함께 달릴 경로를 골라 주세요", fontSize = 30.sp, lineHeight = 42.sp)
     model.routes.chunked(2).forEach { routes ->
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             routes.forEach { route ->
@@ -30,7 +30,8 @@ fun RouteStep(model: AppViewModel) {
             SelectionCard(route.name, model.routeId == route.id, { model.selectTravelRoute(route.id) }, Modifier.fillMaxWidth())
         }
     } else model.activeTravelRoute?.let { Text(it.name, fontSize = 28.sp) }
-    Text("네 가지 시연 경로 중 하나를 골라 탐험을 준비해요. 내비게이션 경로는 별도로 설정해 주세요.", fontSize = 28.sp, lineHeight = 40.sp)
+    Text(if (model.showcase.selected) "네 가지 시연 경로 중 하나를 골라 탐험을 준비해요. 내비게이션 경로는 별도로 설정해 주세요."
+        else "네 가지 경로 중 하나를 골라 탐험을 준비해요. 내비게이션 경로는 별도로 설정해 주세요.", fontSize = 28.sp, lineHeight = 40.sp)
     Button(onClick = { model.changeStep(2) }, modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp)) {
         Text("테마 고르기 →", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 34.sp, lineHeight = 48.sp)
     }

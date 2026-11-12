@@ -100,8 +100,8 @@ internal class VehicleSignals(context: Context, private val filter: CarEventFilt
 
     private fun watchSeatOccupancy(seat: RearSeat) {
         val area = SeatArea(CarSignalMapper.sdkSeat(seat))
-        val gate = CurrentValueGate<Boolean?> { occupied ->
-            if (occupied != null) filter.send(AppEvent.SeatOccupied(seat, occupied))
+        val gate = CurrentValueGate<Boolean?> { value ->
+            CarSignalMapper.occupied(value)?.let { filter.send(AppEvent.SeatOccupied(seat, it)) }
         }
         vehicle.getSeat().getCurrentSeatOccupancy(area, { gate.current(it) }, { })
         vehicle.getSeat().registerSeatOccupancy(area, object : SeatOccupancyListener {
@@ -139,12 +139,21 @@ internal class VehicleSignals(context: Context, private val filter: CarEventFilt
         })
     }
 
+    /** 비 오는 날은 앱을 켜기 전부터 와이퍼가 돌고 있다. 구독은 바뀔 때만 올 수 있어서 시작할 때 현재값을 한 번 읽는다. */
     private fun watchWiper() {
-        vehicle.getWiper().registerWiperState(WindowArea(WindowValue.FRONT_WINDSHIELD), object : WiperStateListener {
-            override fun onWiperStateUpdated(state: WiperState?) {
-                CarSignalMapper.wiperOn(state)?.let { filter.send(AppEvent.WiperChanged(it)) }
-            }
-
+        val wiper = vehicle.getWiper()
+        val front = WindowArea(WindowValue.FRONT_WINDSHIELD)
+        val gate = CurrentValueGate<WiperState?> { state ->
+            CarSignalMapper.wiperOn(state)?.let { filter.send(AppEvent.WiperChanged(it)) }
+        }
+        // 현재값을 못 읽어도 구독은 건다. 구독까지 실패해야 와이퍼를 못 읽는다고 알린다.
+        try {
+            wiper.getCurrentWiperState(front, { gate.current(it) }, { })
+        } catch (_: Exception) {
+            // 다음 와이퍼 변화는 구독으로 받는다.
+        }
+        wiper.registerWiperState(front, object : WiperStateListener {
+            override fun onWiperStateUpdated(state: WiperState?) = gate.update(state)
             override fun onFailed(e: Exception) = filter.unavailable(CarSignal.WIPER)
         })
     }

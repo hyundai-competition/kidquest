@@ -11,6 +11,7 @@ import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.Gear
 import com.kidquest.core.contract.RearSeat
 import com.kidquest.core.contract.RoadKind
+import com.kidquest.core.contract.TurnKind
 import com.kidquest.core.contract.TurnSide
 
 internal object CarSignalMapper {
@@ -41,6 +42,14 @@ internal object CarSignalMapper {
         else -> null
     }
 
+    /**
+     * SDK 탑승 값을 「아이가 앉았나」로 바꾼다. SDK 값을 뒤집는다.
+     * SDK(Vehicle 2.3.2)는 SEAT_OCCUPANCY 원시값이 1일 때 true를 준다. 그런데 AAOS의 1은 빈 자리(VACANT)이고 앉음은 2(OCCUPIED)다.
+     * 그래서 SDK의 true는 빈 자리, false는 앉음이나 모름(0)이다. 11-09 시연에서 빈 뒷좌석 3자리가 모두 탄 것으로 읽힌 원인이다.
+     * 모름(0)은 앉은 것으로 본다. 벨트를 매거나 부모가 확인해야 출발하므로 안전한 쪽이다. SDK가 고쳐지면 이 함수만 바꾼다.
+     */
+    fun occupied(sdkValue: Boolean?): Boolean? = sdkValue?.not()
+
     fun sdkSeat(seat: RearSeat): SeatValue = when (seat) {
         RearSeat.LEFT -> SeatValue.ROW_2_LEFT
         RearSeat.CENTER -> SeatValue.ROW_2_CENTER
@@ -59,22 +68,29 @@ internal object CarSignalMapper {
         else -> null
     }
 
-    /** 운전자가 방향을 바꿔야 하는 안내인가. 터널처럼 직진하는 안내는 빠진다. */
-    fun isTurn(type: TurnType?): Boolean = type != null && (type in sharpTurns || type.name.contains("ROUNDABOUT"))
+    /** 운전자가 방향을 바꿔야 하는 안내인가. 터널처럼 직진하는 안내는 빠진다. 회전 목록은 turnKind 한 곳에만 둔다. */
+    fun isTurn(type: TurnType?): Boolean = turnKind(type) != TurnKind.UNKNOWN
 
-    private val sharpTurns = setOf(
-        TurnType.TURN_LEFT, TurnType.TURN_RIGHT, TurnType.TURN_KEEP_L, TurnType.TURN_KEEP_R,
-        TurnType.TURN_SHARP_L, TurnType.TURN_SHARP_R, TurnType.TURN_UTURN,
-        TurnType.TURN_ENTER_IC_R, TurnType.TURN_ENTER_IC_L, TurnType.TURN_ENTER_IC_C,
-        TurnType.TURN_EXIT_IC_R, TurnType.TURN_EXIT_IC_L, TurnType.TURN_EXIT_IC_C,
-    )
+    /** 회전 종류. 여기서 UNKNOWN이 아니면 회전이다. 급회전은 보통 회전으로 묶고, 나들목은 좌우를 가리지 않는다. */
+    fun turnKind(type: TurnType?): TurnKind = when {
+        type == null -> TurnKind.UNKNOWN
+        type == TurnType.TURN_LEFT || type == TurnType.TURN_SHARP_L -> TurnKind.LEFT
+        type == TurnType.TURN_RIGHT || type == TurnType.TURN_SHARP_R -> TurnKind.RIGHT
+        type == TurnType.TURN_KEEP_L -> TurnKind.KEEP_LEFT
+        type == TurnType.TURN_KEEP_R -> TurnKind.KEEP_RIGHT
+        type == TurnType.TURN_UTURN -> TurnKind.UTURN
+        type.name.contains("ROUNDABOUT") -> TurnKind.ROUNDABOUT
+        type.name.startsWith("TURN_ENTER_IC") -> TurnKind.IC_ENTER
+        type.name.startsWith("TURN_EXIT_IC") -> TurnKind.IC_EXIT
+        else -> TurnKind.UNKNOWN
+    }
 
     /** 회전 안내 목록에서 가장 가까운 회전과 가장 가까운 도로 사건을 하나씩 뽑는다. 목록은 가까운 순이라고 가정한다(미시험). */
     fun roadEvents(list: List<TBTInfo>): List<AppEvent> {
         val turn = list.firstOrNull { isTurn(it.type) }
         val road = list.firstOrNull { roadKind(it.type) != null }
         return listOfNotNull(
-            turn?.let { AppEvent.NextTurnDistance(it.distance.toInt()) },
+            turn?.let { AppEvent.NextTurnDistance(it.distance.toInt(), turnKind(it.type)) },
             road?.let { info -> roadKind(info.type)?.let { AppEvent.RoadAhead(it, info.distance.toInt()) } },
         )
     }

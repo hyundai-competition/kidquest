@@ -33,14 +33,18 @@ internal class CarEventFilter(private val out: EventListener) {
         lastTurn = side
     }
 
-    /** 같은 칸끼리 비교한다. null이면 거르지 않는다. 위치 사건과 도착처럼 값이 없는 사건이 여기에 든다. */
+    /**
+     * 같은 칸끼리 비교한다. null이면 거르지 않는다. 위치 사건과 도착처럼 값이 없는 사건이 여기에 든다.
+     * 다음 회전(NextTurnDistance)도 거르지 않는다. 화면 안내 한 줄은 30초 동안 새 값이 없으면 지우는데,
+     * 정체로 거리가 그대로일 때 거르면 아직 맞는 안내가 지워진다. 엔진은 같은 거리가 다시 와도 한 번만 쓴다.
+     */
     private fun keyOf(event: AppEvent): Any? = when (event) {
         is AppEvent.SeatOccupied -> "seat" to event.seat
         is AppEvent.BeltBuckled -> "belt" to event.seat
         is AppEvent.SignalUnavailable -> "unavailable" to event.signal
         is AppEvent.GearChanged, is AppEvent.WiperChanged, is AppEvent.EnergyChanged,
         is AppEvent.CabinTemperatureChanged, is AppEvent.DrivingRestricted, is AppEvent.RemainingTimeChanged,
-        is AppEvent.NextTurnDistance, is AppEvent.RoadAhead,
+        is AppEvent.RoadAhead,
         -> event::class
         else -> null
     }
