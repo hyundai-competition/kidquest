@@ -43,7 +43,7 @@ class GameplayFixesTest {
         }
         send(AppEvent.LineFinished("rain_map/answer"), AppEvent.LineFinished("crossroads/briefing"),
             AppEvent.NextTurnDistance(200), AppEvent.NextTurnDistance(1500), AppEvent.LineFinished("crossroads/event"), AppEvent.LineFinished("crossroads/question"))
-        compose.onNodeWithText("2번 · 하트").performScrollTo().performClick()
+        compose.onNodeWithText("1번 · 하트").performScrollTo().performClick()
         compose.waitUntil { model.controller.presentation.stage == "answer" }
         compose.runOnIdle { assertEquals(model.episode!!.missions.first { it.id == "crossroads" }.wrongLine, model.controller.presentation.caption) }
     }
