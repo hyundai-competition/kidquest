@@ -215,7 +215,7 @@
       "briefing": "Captain, our treasure map has a crossroads too. Its treasure marker is shaped like a star.",
       "eventSoundId": null,
       "event": "Sparkle! The crossroads treasure marker has appeared.",
-      "question": "Is the treasure marker a star or a heart?",
+      "question": "Is the treasure marker a heart or a star?",
       "answers": [
         "star"
       ],
@@ -274,7 +274,7 @@
       "briefing": "Our next treasure is near Suwon. I will tell you when we get close.",
       "eventSoundId": null,
       "event": "We are near Suwon! Hwaseong Fortress was built when King Jeongjo of Joseon ruled. It was finished in 1796 and became a UNESCO World Heritage Site in 1997.",
-      "question": "Was Hwaseong built under King Jeongjo or King Sejong?",
+      "question": "Was Hwaseong built under King Sejong or King Jeongjo?",
       "answers": [
         "Jeongjo"
       ],
@@ -310,7 +310,7 @@
       "briefing": "Our next treasure is near Chungju. I will tell you when we get close.",
       "eventSoundId": null,
       "event": "We are near Chungju! Tangeumdae got its name because Ureuk played the gayageum here long ago.",
-      "question": "Did Ureuk play the gayageum or the geomungo?",
+      "question": "Did Ureuk play the geomungo or the gayageum?",
       "answers": [
         "gayageum"
       ],
@@ -347,7 +347,7 @@
       "briefing": "Our next treasure is near Danyang. I will tell you when we get close.",
       "eventSoundId": null,
       "event": "We are near Danyang! Dodam Sambong is made up of three peaks rising from the Namhan River.",
-      "question": "Do the three peaks stand in the Namhan River or the Nakdong River?",
+      "question": "Do the three peaks stand in the Nakdong River or the Namhan River?",
       "answers": [
         "Namhan"
       ],
@@ -383,7 +383,7 @@
       "briefing": "Our Gyeongju treasure is near an old stone observatory. I will tell you when we get close.",
       "eventSoundId": null,
       "event": "We are in Gyeongju! People of Silla observed the stars at Cheomseongdae.",
-      "question": "Did the people of Silla or the people of Joseon watch the stars at Cheomseongdae?",
+      "question": "Did the people of Joseon or the people of Silla watch the stars at Cheomseongdae?",
       "answers": [
         "Silla"
       ],
@@ -419,7 +419,7 @@
       "briefing": "Our Andong treasure is in a village of old houses. I will tell you when we get close.",
       "eventSoundId": null,
       "event": "We are in Andong! Hahoe is a village where people of one clan have lived together for a long time. Its old houses remain today.",
-      "question": "Was Hahoe home to one clan or people from many countries?",
+      "question": "Was Hahoe home to people from many countries or one clan?",
       "answers": [
         "one clan",
         "clan",
@@ -440,7 +440,7 @@
       "briefing": "Our Seoul treasure is near an old royal palace. I will tell you when we get close.",
       "eventSoundId": null,
       "event": "We are in Seoul! Gyeongbokgung was the main palace of the kings of Joseon.",
-      "question": "Is Gyeongbokgung a palace of Joseon or Silla?",
+      "question": "Is Gyeongbokgung a palace of Silla or Joseon?",
       "answers": [
         "Joseon"
       ],
