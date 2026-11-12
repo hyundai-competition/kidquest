@@ -4,6 +4,7 @@ package com.kidquest.app
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
@@ -23,6 +24,7 @@ import android.graphics.Bitmap
 class JourneyLayoutTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private lateinit var model: AppViewModel
+    private val fullFrame = mutableStateOf(false)
     private val width = mutableStateOf(1200)
     private fun send(vararg events: AppEvent) {
         compose.runOnIdle { events.forEach(model.controller::dispatch) }
@@ -40,7 +42,7 @@ class JourneyLayoutTest {
         compose.waitUntil(15_000) { model.connectionsReady }
         compose.runOnIdle { model.controller.stop() }
         compose.activityRule.scenario.onActivity { activity ->
-            activity.setContent { Box(Modifier.requiredSize(width.value.dp, 1000.dp)) { KidQuestScreen(model) } }
+            activity.setContent { Box(if (fullFrame.value) Modifier.fillMaxSize() else Modifier.requiredSize(width.value.dp, 1000.dp)) { KidQuestScreen(model) } }
         }
         send(AppEvent.GearChanged(Gear.P), AppEvent.DrivingRestricted(false), AppEvent.AudioFocusChanged(true))
         for (size in listOf(1200, 628, 360)) {
@@ -85,9 +87,12 @@ class JourneyLayoutTest {
         assertEquals(status.center.x, button.center.x, 2f)
         compose.onAllNodesWithTag("vroomie-companion").assertCountEquals(1)
         capture("layout-driving")
+        compose.runOnIdle { fullFrame.value = true }
         send(AppEvent.GearChanged(Gear.P), AppEvent.DrivingRestricted(false))
+        capture("main-rain-full")
         compose.runOnIdle { model.selectWeatherStyle(com.kidquest.app.screen.WeatherStyle.SNOW) }
+        capture("main-snow-full")
         send(AppEvent.GearChanged(Gear.D), AppEvent.DrivingRestricted(true))
-        capture("layout-driving-snow")
+        capture("driving-snow-full")
     }
 }
