@@ -55,6 +55,8 @@
 ## 4. 차량·내비 연결 : `CarSignalCollector`가 보낼 사건
 
 - `SeatOccupied(seat, occupied)`, `BeltBuckled(seat, buckled)`, `GearChanged(gear)`
+  - SDK(Vehicle 2.3.2)의 탑승 값은 빈 자리가 `true`다. SDK가 원시값 1을 `true`로 주는데 AAOS의 1은 빈 자리(VACANT)라서다. `CarSignalMapper.occupied`에서 뒤집고, 모름(0)은 앉은 것으로 본다.
+  - 콘솔에 뒷좌석 탑승이나 벨트 항목이 없으면 재생 모드의 탑승·벨트 버튼으로 넣는다. 그 신호가 `SignalUnavailable`이면 부모 확인으로도 넘어간다.
 - `TurnSignalOn(side)`, `WiperChanged(on)`. 와이퍼는 켜짐과 꺼짐을 둘 다 보낸다. 깜빡이는 짧은 반응 소리만 내고 임무는 안 연다.
 - 못 읽는 신호는 `SignalUnavailable(signal)`로 알린다.
 - 남은 시간 `RemainingTimeChanged(seconds)`는 초, 앞길 `RoadAhead(kind, meters)`는 미터, 실내 온도 `CabinTemperatureChanged(celsius)`는 섭씨로 보낸다. 같은 값은 다시 안 보내도 되고, 다시 와도 엔진이 한 번만 쓴다.

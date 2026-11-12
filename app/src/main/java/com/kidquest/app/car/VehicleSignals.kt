@@ -100,8 +100,8 @@ internal class VehicleSignals(context: Context, private val filter: CarEventFilt
 
     private fun watchSeatOccupancy(seat: RearSeat) {
         val area = SeatArea(CarSignalMapper.sdkSeat(seat))
-        val gate = CurrentValueGate<Boolean?> { occupied ->
-            if (occupied != null) filter.send(AppEvent.SeatOccupied(seat, occupied))
+        val gate = CurrentValueGate<Boolean?> { value ->
+            CarSignalMapper.occupied(value)?.let { filter.send(AppEvent.SeatOccupied(seat, it)) }
         }
         vehicle.getSeat().getCurrentSeatOccupancy(area, { gate.current(it) }, { })
         vehicle.getSeat().registerSeatOccupancy(area, object : SeatOccupancyListener {

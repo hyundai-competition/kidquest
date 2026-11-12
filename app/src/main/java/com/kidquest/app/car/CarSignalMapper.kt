@@ -41,6 +41,14 @@ internal object CarSignalMapper {
         else -> null
     }
 
+    /**
+     * SDK 탑승 값을 「아이가 앉았나」로 바꾼다. SDK 값을 뒤집는다.
+     * SDK(Vehicle 2.3.2)는 SEAT_OCCUPANCY 원시값이 1일 때 true를 준다. 그런데 AAOS의 1은 빈 자리(VACANT)이고 앉음은 2(OCCUPIED)다.
+     * 그래서 SDK의 true는 빈 자리, false는 앉음이나 모름(0)이다. 11-09 시연에서 빈 뒷좌석 3자리가 모두 탄 것으로 읽힌 원인이다.
+     * 모름(0)은 앉은 것으로 본다. 벨트를 매거나 부모가 확인해야 출발하므로 안전한 쪽이다. SDK가 고쳐지면 이 함수만 바꾼다.
+     */
+    fun occupied(sdkValue: Boolean?): Boolean? = sdkValue?.not()
+
     fun sdkSeat(seat: RearSeat): SeatValue = when (seat) {
         RearSeat.LEFT -> SeatValue.ROW_2_LEFT
         RearSeat.CENTER -> SeatValue.ROW_2_CENTER
