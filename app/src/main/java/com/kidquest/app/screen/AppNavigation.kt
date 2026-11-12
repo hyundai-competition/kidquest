@@ -60,13 +60,9 @@ fun AppNavigation(model: AppViewModel, onExit: () -> Unit, content: @Composable 
 @Composable
 private fun CompanionNavigationBar(model: AppViewModel, back: () -> Unit, exit: () -> Unit) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val setupHero = maxWidth >= 1000.dp && !model.controller.vehicle.restricted &&
-            model.controller.screen in listOf(Screen.START, Screen.CREW_CHECK) &&
-            model.demoMission == null && !model.miniGamesVisible && !model.journeyEndingVisible
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = back, modifier = Modifier.heightIn(min = 64.dp).testTag("app-back")) { Text("← 뒤로", fontSize = 26.sp) }
-            if (!setupHero) VroomieCompanion(model.controller.vehicle, Modifier.weight(1f, fill = false).widthIn(max = 160.dp).height(128.dp))
             TextButton(onClick = exit, modifier = Modifier.heightIn(min = 64.dp).testTag("app-exit")) { Text("끝내기", fontSize = 26.sp) }
         }
     }

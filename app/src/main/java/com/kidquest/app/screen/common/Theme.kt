@@ -19,12 +19,12 @@ fun KidQuestTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = lightColorScheme(primary = Mint, onPrimary = Color.White, background = Night, surface = Panel, onSurface = Color(0xFF25392F), onBackground = Color(0xFF25392F)),
         typography = Typography(
-            bodyLarge = TextStyle(fontSize = 28.sp, lineHeight = 40.sp),
-            bodyMedium = TextStyle(fontSize = 26.sp, lineHeight = 38.sp),
-            bodySmall = TextStyle(fontSize = 22.sp, lineHeight = 32.sp),
-            labelLarge = TextStyle(fontSize = 26.sp, lineHeight = 36.sp),
-            labelMedium = TextStyle(fontSize = 24.sp, lineHeight = 34.sp),
-            labelSmall = TextStyle(fontSize = 22.sp, lineHeight = 32.sp),
+            bodyLarge = TextStyle(lineBreak = androidx.compose.ui.text.style.LineBreak.Heading, hyphens = androidx.compose.ui.text.style.Hyphens.None, fontSize = 28.sp, lineHeight = 40.sp),
+            bodyMedium = TextStyle(lineBreak = androidx.compose.ui.text.style.LineBreak.Heading, hyphens = androidx.compose.ui.text.style.Hyphens.None, fontSize = 26.sp, lineHeight = 38.sp),
+            bodySmall = TextStyle(lineBreak = androidx.compose.ui.text.style.LineBreak.Heading, hyphens = androidx.compose.ui.text.style.Hyphens.None, fontSize = 22.sp, lineHeight = 32.sp),
+            labelLarge = TextStyle(lineBreak = androidx.compose.ui.text.style.LineBreak.Heading, hyphens = androidx.compose.ui.text.style.Hyphens.None, fontSize = 26.sp, lineHeight = 36.sp),
+            labelMedium = TextStyle(lineBreak = androidx.compose.ui.text.style.LineBreak.Heading, hyphens = androidx.compose.ui.text.style.Hyphens.None, fontSize = 24.sp, lineHeight = 34.sp),
+            labelSmall = TextStyle(lineBreak = androidx.compose.ui.text.style.LineBreak.Heading, hyphens = androidx.compose.ui.text.style.Hyphens.None, fontSize = 22.sp, lineHeight = 32.sp),
         ),
         content = content,
     )

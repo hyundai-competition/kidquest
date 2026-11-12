@@ -17,9 +17,15 @@ val LocalAppLanguage = staticCompositionLocalOf { Language.KO }
 fun AppText(text: String, modifier: Modifier = Modifier, color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified, fontWeight: FontWeight? = null,
     lineHeight: TextUnit = TextUnit.Unspecified, textAlign: TextAlign? = null,
+    separateSentences: Boolean = false,
     maxLines: Int = Int.MAX_VALUE, overflow: TextOverflow = TextOverflow.Clip,
 ) {
-    androidx.compose.material3.Text(appLabel(text),
+    val label = appLabel(text).let { if (separateSentences) it.replace(". ", ".\n") else it }
+    androidx.compose.material3.Text(label,
+        style = androidx.compose.material3.LocalTextStyle.current.copy(
+            lineBreak = androidx.compose.ui.text.style.LineBreak.Heading,
+            hyphens = androidx.compose.ui.text.style.Hyphens.None,
+            localeList = androidx.compose.ui.text.intl.LocaleList(if (LocalAppLanguage.current == Language.KO) "ko-KR" else "en-US")),
         modifier = modifier, color = color, fontSize = fontSize, fontWeight = fontWeight,
         lineHeight = lineHeight, textAlign = textAlign, maxLines = maxLines, overflow = overflow)
 }

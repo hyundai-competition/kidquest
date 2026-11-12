@@ -33,7 +33,7 @@ fun CrewCheckScreen(controller: AppController) {
         if (CarSignal.SEAT in vehicle.unavailable || CarSignal.BELT in vehicle.unavailable) {
             Text("일부 탑승·벨트 신호를 읽지 못했어요. 직접 확인해 주세요.", fontSize = 30.sp)
         }
-        Text("탑승과 벨트는 자동으로 확인해요. 카시트 등으로 확인이 어려울 때만 아래 버튼을 사용해 주세요.", fontSize = 30.sp)
+        Text("탑승과 벨트는 자동으로 확인해요. 카시트 등으로 확인이 어려울 때만 아래 버튼을 사용해 주세요.", separateSentences = true, fontSize = 30.sp)
         ParentBeltConfirmation(controller)
         Text("모두 벨트를 매면 출발 준비 완료! 기어가 D이면 보물 탐험을 시작해요.", fontSize = 30.sp)
     }
