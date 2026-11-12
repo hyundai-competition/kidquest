@@ -40,6 +40,6 @@ fun ThemeStep(model: AppViewModel) {
         }
     }
     Button(onClick = model::startTrip, modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp)) {
-        Text("탐험 시작하기 →", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 34.sp, lineHeight = 48.sp)
+        Text(if (model.showcase.selected) { if (model.language == com.kidquest.core.contract.Language.EN) "Start demo →" else "시연 시작 →" } else "탐험 시작하기 →", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 34.sp, lineHeight = 48.sp)
     }
 }

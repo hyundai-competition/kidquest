@@ -24,6 +24,12 @@ fun EngineJourneyBoard(model: AppViewModel) {
             tripStops = model.tripStops,
             onPlace = model::visitPlace,
             story = model.activeTravelRoute?.name ?: "함께 떠나는 보물 탐험",
+            allowPlaceSelection = false,
+            progressHint = if (model.showcase.active) {
+                if (model.language == com.kidquest.core.contract.Language.EN) "Demo locations advance automatically. Use Next section to shorten the wait."
+                else "시연 경유지는 자동으로 이어져요. 다음 구간으로 대기 시간을 줄일 수 있어요."
+            } else if (model.language == com.kidquest.core.contract.Language.EN) "The story continues when you enter each location."
+            else "실제 위치가 경유지에 들어오면 이야기가 이어져요.",
         )
         Text("모은 보물 ${controller.items.size} / ${model.plannedMissions.size}", fontSize = 30.sp)
     }
@@ -34,8 +40,8 @@ fun EngineMissionPanel(model: AppViewModel) {
     val controller = model.controller
     val presentation = controller.presentation
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        VoiceStatusPanel(controller.voiceUi.copy(caption = presentation.caption))
-        if (presentation.stage == "question") {
+        if (!model.showcase.active) VoiceStatusPanel(controller.voiceUi.copy(caption = presentation.caption))
+        if (!model.showcase.active && presentation.stage == "question") {
             Text(if (presentation.answerReady) "번호나 답을 골라 주세요." else "질문을 다 읽으면 답을 고를 수 있어요.", fontSize = 26.sp)
             presentation.options.forEachIndexed { i, label ->
                 AnswerOptionButton("${i + 1}번 · $label", presentation.answerReady && controller.screen == com.kidquest.core.contract.Screen.FLYING) {

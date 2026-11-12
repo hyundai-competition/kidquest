@@ -15,6 +15,7 @@ import com.kidquest.app.screen.model.CityMission
 import com.kidquest.app.screen.model.MissionSession
 import com.kidquest.app.voice.NumberAnswer
 import com.kidquest.app.storage.LocalStore
+import com.kidquest.app.replay.ShowcaseSession
 import com.kidquest.core.contract.AgeGroup
 import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.Gear
@@ -64,6 +65,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private val car = PermissionCarSource(app, episode?.places.orEmpty())
     private val translations = listOfNotNull(english?.let { Language.EN to it }).toMap()
     val controller = AppController(app, engine = MissionEngine(episode, translations), car = car, episode = episode)
+    val showcase = ShowcaseSession(controller, ::restartTrip)
     init { controller.vehicleChanged = { vehicle ->
         if (vehicle.gear != Gear.P || vehicle.restricted) closeMiniGames()
     } }
@@ -79,6 +81,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     var placeNotice by mutableStateOf("")
         private set
     fun visitPlace(id: String) {
+        if (!showcase.active || showcase.paused) return
         val stop = tripStops.firstOrNull { it.placeId == id } ?: return
         if (controller.vehicle.restricted) return
         controller.replay.send(AppEvent.PlaceEntered(id))
@@ -106,7 +109,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         routeId = tripCatalog.routes(destinationId).firstOrNull()?.id
     }
     fun startTrip() {
-        StartSelection(age, destinationId, consent, routeId, language).events().forEach(controller::dispatch)
+        showcase.start(plannedMissions, activeEpisode?.places.orEmpty()) {
+            controller.startTrip(StartSelection(age, destinationId, consent, routeId, language).events())
+        }
     }
     var demoMission by mutableStateOf<CityMission?>(null)
         private set
@@ -266,6 +271,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (!soundWasStopped) controller.dispatch(AppEvent.ParentStopChanged(false))
     }
     fun restartTrip() {
+        showcase.stop()
         journeyEndingVisible = false
         miniGamesVisible = false
         placeNotice = ""
@@ -283,5 +289,5 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         controller.dispatch(AppEvent.RestartPressed)
         controller.dispatch(AppEvent.ListeningConsentChanged(false))
     }
-    override fun onCleared() { controller.stopScreenAudio(); controller.stop() }
+    override fun onCleared() { showcase.stop(); controller.stopScreenAudio(); controller.stop() }
 }
