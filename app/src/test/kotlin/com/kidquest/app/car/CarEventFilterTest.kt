@@ -5,6 +5,7 @@ import com.kidquest.core.contract.AppEvent
 import com.kidquest.core.contract.CarSignal
 import com.kidquest.core.contract.Gear
 import com.kidquest.core.contract.RearSeat
+import com.kidquest.core.contract.TurnKind
 import com.kidquest.core.contract.TurnSide
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -19,6 +20,13 @@ class CarEventFilterTest {
         filter.send(AppEvent.GearChanged(Gear.D))
         filter.send(AppEvent.GearChanged(Gear.P))
         assertEquals(listOf(AppEvent.GearChanged(Gear.D), AppEvent.GearChanged(Gear.P)), sent)
+    }
+
+    @Test
+    fun `다음 회전은 같은 값이어도 매번 보낸다`() {
+        filter.send(AppEvent.NextTurnDistance(300, TurnKind.LEFT))
+        filter.send(AppEvent.NextTurnDistance(300, TurnKind.LEFT))
+        assertEquals(2, sent.size)
     }
 
     @Test

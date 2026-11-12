@@ -33,19 +33,21 @@ fun KidQuestScreen(model: AppViewModel, onExit: () -> Unit = {}) {
                 Background.WARM -> Color(0xFFFFF0DF)
                 Background.NORMAL -> Night
             } else Night) {
-                VehicleBackdrop(controller.vehicle, model.weatherStyle) {
-                    AppNavigation(model, onExit) {
-                        if (controller.vehicle.restricted) {
-                            Column(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
-                                Text(controller.status ?: titleOf(controller.screen), fontSize = 32.sp, modifier = Modifier.testTag("restricted-status"))
-                                StopButton(model)
+                NaviGuideFrame(controller.vehicle.navi, controller.screen) {
+                    VehicleBackdrop(controller.vehicle, model.weatherStyle) {
+                        AppNavigation(model, onExit) {
+                            if (controller.vehicle.restricted) {
+                                Column(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
+                                    Text(controller.status ?: titleOf(controller.screen), fontSize = 32.sp, modifier = Modifier.testTag("restricted-status"))
+                                    StopButton(model)
+                                }
+                            } else when {
+                                model.journeyEndingVisible -> KoreanPlayground { JourneyEnding(model) }
+                                model.demoMission != null -> KoreanPlayground { DemoMissionDialog(model) }
+                                model.miniGamesVisible -> KoreanPlayground { MiniGamesScreen(model) }
+                                controller.screen == Screen.START || controller.screen == Screen.CREW_CHECK -> SetupLayout(model)
+                                else -> ExpeditionLayout(model)
                             }
-                        } else when {
-                            model.journeyEndingVisible -> KoreanPlayground { JourneyEnding(model) }
-                            model.demoMission != null -> KoreanPlayground { DemoMissionDialog(model) }
-                            model.miniGamesVisible -> KoreanPlayground { MiniGamesScreen(model) }
-                            controller.screen == Screen.START || controller.screen == Screen.CREW_CHECK -> SetupLayout(model)
-                            else -> ExpeditionLayout(model)
                         }
                     }
                 }
