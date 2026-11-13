@@ -20,6 +20,9 @@ fun EngineJourneyBoard(model: AppViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         JourneyBoard(
             model.selectedRoute,
+            journeyProgress = com.kidquest.app.screen.model.journeyProgress(model.selectedRoute.from, model.tripStops,
+                controller.reachedPlaces.toSet(), rewards, controller.destinationReached),
+            vehicle = controller.vehicle,
             completed = model.tripStops.filter { it.mission.rewardItem in rewards }.map { it.label }.toSet(),
             tripStops = model.tripStops,
             onPlace = model::visitPlace,
@@ -53,7 +56,7 @@ fun EngineMissionPanel(model: AppViewModel) {
         OutlinedButton(onClick = model::openMiniGames, enabled = model.canPlayMiniGames,
             modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp).testTag("open-mini-games")) { Text("미니게임 놀이터", fontSize = 30.sp) }
         TextButton(onClick = controller::toggleMusic) { Text(if (controller.musicEnabled) "배경음 켜짐 · 끄기" else "배경음 꺼짐 · 켜기", fontSize = 24.sp) }
-        Text("퍼즐은 P 주차 중에만 열 수 있어요. 본편 보물과는 별도예요.", fontSize = 24.sp, lineHeight = 34.sp)
+        Text("퍼즐은 P 주차 중에만 열 수 있어요. 본편 보물과는 별도예요.", separateSentences = true, fontSize = 24.sp, lineHeight = 34.sp)
     }
 }
 

@@ -37,10 +37,7 @@ fun KidQuestScreen(model: AppViewModel, onExit: () -> Unit = {}) {
                     VehicleBackdrop(controller.vehicle, model.weatherStyle) {
                         AppNavigation(model, onExit) {
                             if (controller.vehicle.restricted) {
-                                Column(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
-                                    Text(controller.status ?: titleOf(controller.screen), fontSize = 32.sp, modifier = Modifier.testTag("restricted-status"))
-                                    StopButton(model)
-                                }
+                                DrivingStatusCard(model)
                             } else when {
                                 model.journeyEndingVisible -> KoreanPlayground { JourneyEnding(model) }
                                 model.demoMission != null -> KoreanPlayground { DemoMissionDialog(model) }
@@ -66,19 +63,12 @@ private fun SetupLayout(model: AppViewModel) {
         }
         if (maxWidth >= 1000.dp) {
             Row(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(40.dp), horizontalArrangement = Arrangement.spacedBy(40.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("Vroomie", color = Mint, fontSize = 52.sp, lineHeight = 66.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold)
-                    Text("브루미와 떠나는 역사 보물찾기", fontSize = 28.sp, lineHeight = 40.sp)
-                    Text(model.selectedRoute.title, fontSize = 50.sp, lineHeight = 66.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-                    Text(model.selectedRoute.subtitle, color = Muted, fontSize = 30.sp, lineHeight = 44.sp)
-                    VroomieCompanion(model.controller.vehicle, Modifier.fillMaxWidth().height(300.dp))
-
-                }
+                SetupIntro(model, Modifier.weight(1f), large = true)
                 Box(Modifier.weight(1.2f)) { panel() }
             }
         } else {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                Text("Vroomie", color = Mint, fontSize = 42.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold)
+                SetupIntro(model, Modifier.fillMaxWidth(), large = false)
                 panel()
             }
         }
@@ -92,36 +82,38 @@ internal fun CurrentScreen(model: AppViewModel) {
         Screen.START -> StartScreen(model)
         Screen.CREW_CHECK -> CrewCheckScreen(controller)
         else -> {
-            Text(titleOf(controller.screen), fontSize = 46.sp)
-            controller.status?.takeUnless { it == titleOf(controller.screen) }?.let { Text(it, fontSize = 36.sp) }
-            when (controller.screen) {
-                Screen.FLYING, Screen.PAUSED -> StopButton(model)
-                Screen.DOCKED -> {
-                    ParentBeltConfirmation(controller)
-                    StopButton(model)
-                    Button(onClick = { controller.dispatch(AppEvent.EndTripPressed) }) { Text("여기서 탐험 마치기", fontSize = 36.sp) }
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(titleOf(controller.screen), fontSize = 46.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                controller.status?.takeUnless { it == titleOf(controller.screen) }?.let { Text(it, Modifier.fillMaxWidth(), fontSize = 36.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
+                when (controller.screen) {
+                    Screen.FLYING, Screen.PAUSED -> StopButton(model)
+                    Screen.DOCKED -> {
+                        ParentBeltConfirmation(controller)
+                        StopButton(model)
+                        Button(onClick = { controller.dispatch(AppEvent.EndTripPressed) }) { Text("여기서 탐험 마치기", fontSize = 36.sp) }
+                    }
+                    Screen.LANDED -> EngineTripEnding(model)
+                    else -> Unit
                 }
-                Screen.LANDED -> EngineTripEnding(model)
-                else -> Unit
             }
         }
     }
 }
 
 @Composable
-private fun StopButton(model: AppViewModel) {
+internal fun StopButton(model: AppViewModel) {
     val inMission = (model.demoMission != null || model.journeyEndingVisible)
     val stopped = if (inMission) model.missionAudioMuted else model.controller.vehicle.parentStopped
     Button(onClick = {
         if (inMission) model.toggleMissionAudio()
         else if (stopped) model.controller.resumeAudio()
         else model.controller.dispatch(AppEvent.ParentStopChanged(true))
-    }, modifier = Modifier.heightIn(min = 88.dp)) {
+    }, modifier = Modifier.widthIn(min = 240.dp, max = 400.dp).heightIn(min = 88.dp).testTag("stop-audio")) {
         Text(if (stopped) "다시 켜기" else "소리 끄기", fontSize = 38.sp)
     }
 }
 
-private fun titleOf(screen: Screen) = when (screen) {
+internal fun titleOf(screen: Screen) = when (screen) {
     Screen.START -> "출발 전 설정이 필요해요"
     Screen.CREW_CHECK -> "탑승과 벨트를 확인해 주세요"
     Screen.FLYING -> "보물 탐험 중"

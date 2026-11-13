@@ -56,5 +56,5 @@ private fun DepartureSettings(model: AppViewModel) {
     Button(onClick = { model.changeStep(1) }, modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp)) {
         Text("경로 고르기 →", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 34.sp, lineHeight = 48.sp)
     }
-    Text("정차 중에 설정해 주세요. 브루미는 차량의 안전벨트 경고를 대신하지 않아요.", fontSize = 28.sp, lineHeight = 40.sp)
+    Text("정차 중에 설정해 주세요. 브루미는 차량의 안전벨트 경고를 대신하지 않아요.", separateSentences = true, fontSize = 28.sp, lineHeight = 40.sp)
 }

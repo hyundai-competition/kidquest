@@ -67,6 +67,9 @@ class AppController(
     var simulationInterrupted: (() -> Unit)? = null
     private val signalGate = ShowcaseSignals(context.packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_AUTOMOTIVE))
     private var sourceGeneration = 0
+    val reachedPlaces = mutableStateListOf<String>()
+    var destinationReached by mutableStateOf(false)
+        private set
     val items = mutableStateListOf<Command.AwardItem>()
 
     private val main = Handler(Looper.getMainLooper())
@@ -157,6 +160,8 @@ class AppController(
         val actual = if (event is AppEvent.AnswerHeard) AppEvent.AnswerHeard(presentation.answer(event.word)) else event
         if (event == AppEvent.RestartPressed) { presentation.reset(); lastFinishedLine = "" }
         if (actual is AppEvent.LineFinished) lastFinishedLine = actual.lineId
+        if (actual is AppEvent.PlaceEntered && actual.placeId !in reachedPlaces) reachedPlaces += actual.placeId
+        if (actual == AppEvent.DestinationArrived) destinationReached = true
         vehicle = vehicle.accept(actual, SystemClock.elapsedRealtime())
         vehicleChanged?.invoke(vehicle)
         if (actual is AppEvent.LineFinished && screen == Screen.FLYING) presentation.lineFinished(actual.lineId)
@@ -175,7 +180,7 @@ class AppController(
                 screen = command.screen
                 status = command.status
                 if (screen != Screen.FLYING) presentation.closeAnswer()
-                if (command.screen == Screen.START) { items.clear(); parentStopRequested = false }
+                if (command.screen == Screen.START) { items.clear(); reachedPlaces.clear(); destinationReached = false; parentStopRequested = false }
             }
             is Command.AwardItem -> if (items.none { it.itemId == command.itemId }) items += command
             is Command.Say -> voice.handle(presentation.say(command))

@@ -26,15 +26,23 @@ fun VehicleBackdrop(vehicle: VehicleUiState, style: WeatherStyle, content: @Comp
         content()
         Canvas(Modifier.fillMaxSize()) {
             if (vehicle.wiperOn) {
-                drawRect(if (style == WeatherStyle.RAIN) Color(0xFF76A6CE).copy(alpha = .05f) else Color(0xFFA2C9D6).copy(alpha = .07f))
-                repeat(32) { i ->
-                    // 글을 가리지 않도록 가장자리에만 연출한다.
-                    val x = if (i % 2 == 0) size.width * ((i % 5 + 1) * .009f) else size.width * (1f - (i % 5 + 1) * .009f)
+                drawRect(if (style == WeatherStyle.RAIN) Color(0xFF76A6CE).copy(alpha = .02f) else Color(0xFFA2C9D6).copy(alpha = .025f))
+                repeat(42) { i ->
+                    // 화면 전체에 낮은 농도로 흩뿌린다. 희미한 입자만 겹쳐 내용의 대비를 유지한다.
+                    val x = ((i * .618034f + .04f) % 1f) * size.width
                     val y = ((i * .071f + offset) % 1f) * size.height
-                    if (style == WeatherStyle.RAIN) drawLine(Color(0xFF6296BE).copy(alpha = .5f), Offset(x, y), Offset(x - 3.dp.toPx(), y + 12.dp.toPx()), 2.dp.toPx())
+                    if (style == WeatherStyle.RAIN) drawLine(Color(0xFF6296BE).copy(alpha = .28f), Offset(x, y), Offset(x - 3.dp.toPx(), y + 16.dp.toPx()), 2.dp.toPx())
                     else {
-                        drawCircle(Color.White.copy(alpha = .9f), 4.dp.toPx(), Offset(x, y))
-                        drawCircle(Color(0xFF91BACA), 4.dp.toPx(), Offset(x, y), style = Stroke(1.dp.toPx()))
+                        drawCircle(Color.White.copy(alpha = .85f), 4.dp.toPx(), Offset(x, y))
+                        drawCircle(Color(0xFF91BACA).copy(alpha = .55f), 4.dp.toPx(), Offset(x, y), style = Stroke(1.dp.toPx()))
+                        if (i % 3 == 0) {
+                            val r = 7.dp.toPx()
+                            repeat(3) { arm ->
+                                val angle = arm * kotlin.math.PI / 3
+                                val delta = Offset(kotlin.math.cos(angle).toFloat() * r, kotlin.math.sin(angle).toFloat() * r)
+                                drawLine(Color(0xFF769CAC).copy(alpha = .5f), Offset(x, y) - delta, Offset(x, y) + delta, 1.dp.toPx())
+                            }
+                        }
                     }
                 }
             }
