@@ -21,6 +21,8 @@ data class VehicleUiState(
     /** 내비 다음 회전. 아직 안내가 없거나, 도착했거나, 한동안 새 안내가 없으면 null이다. */
     val navi: NaviGuide? = null,
     val naviUntilMillis: Long = 0L,
+    /** 도착했나. 도착 뒤에 늦게 온 회전 안내는 한 줄을 다시 띄우지 않는다. 다시 하기를 누르면 푼다. */
+    val arrived: Boolean = false,
 ) {
     val decorationsMayAnimate get() = gear == Gear.P && !restricted
 
@@ -32,12 +34,13 @@ data class VehicleUiState(
         is AppEvent.BeltBuckled -> copy(buckled = buckled + (event.seat to event.buckled))
         is AppEvent.GearChanged -> copy(gear = event.gear)
         is AppEvent.DrivingRestricted -> copy(restricted = event.restricted)
-        is AppEvent.NextTurnDistance -> copy(navi = NaviGuide(event.meters, event.turn), naviUntilMillis = nowMillis + NAVI_KEEP_MILLIS)
-        AppEvent.DestinationArrived -> copy(navi = null)
+        is AppEvent.NextTurnDistance ->
+            if (arrived) this else copy(navi = NaviGuide(event.meters, event.turn), naviUntilMillis = nowMillis + NAVI_KEEP_MILLIS)
+        AppEvent.DestinationArrived -> copy(navi = null, arrived = true)
         is AppEvent.SignalUnavailable -> copy(unavailable = unavailable + event.signal)
         is AppEvent.ParentStopChanged -> copy(parentStopped = event.stopped)
         AppEvent.ParentConfirmedBelt -> copy(parentConfirmed = true)
-        AppEvent.RestartPressed -> copy(parentStopped = false, parentConfirmed = false)
+        AppEvent.RestartPressed -> copy(parentStopped = false, parentConfirmed = false, arrived = false)
         else -> this
     }
 
