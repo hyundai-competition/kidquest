@@ -27,7 +27,11 @@ gradlew.bat :core:test
 
 ## APK 파일 위치 또는 GitHub Release 링크
 
-`apk/` 폴더에 `팀명_앱이름_release.apk`로 둔다. 아직 올리지 않았다.
+[`apk/Roadiverse_Vroomie_release.apk`](apk/Roadiverse_Vroomie_release.apk) (release 서명, 버전 0.1.0)
+
+- 만드는 법 : `gradlew.bat :app:assembleRelease` → `app/build/outputs/apk/release/app-release.apk`를 위 이름으로 복사한다.
+- 서명 키와 비밀번호는 저장소에 없다. 앱 통합 역할의 컴퓨터에만 있고, 값이 없는 컴퓨터에서는 release가 서명 없이 만들어진다.
+- 디버그 앱과 서명이 달라서, 디버그 앱을 지운 뒤 설치한다.
 
 ## 출처
 
