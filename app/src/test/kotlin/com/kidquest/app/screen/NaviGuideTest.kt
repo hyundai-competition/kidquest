@@ -20,6 +20,14 @@ class NaviGuideTest {
     }
 
     @Test
+    fun `도착 뒤 늦게 온 회전 안내는 다시 하기 전까지 무시한다`() {
+        val arrived = VehicleUiState().accept(AppEvent.NextTurnDistance(300, TurnKind.LEFT)).accept(AppEvent.DestinationArrived)
+        assertNull(arrived.accept(AppEvent.NextTurnDistance(200, TurnKind.RIGHT)).navi)
+        val restarted = arrived.accept(AppEvent.RestartPressed)
+        assertEquals(NaviGuide(200, TurnKind.RIGHT), restarted.accept(AppEvent.NextTurnDistance(200, TurnKind.RIGHT)).navi)
+    }
+
+    @Test
     fun `30초 동안 새 안내가 없으면 지난 안내를 지운다`() {
         val guided = VehicleUiState().accept(AppEvent.NextTurnDistance(300, TurnKind.LEFT), nowMillis = 1_000L)
         assertEquals(NaviGuide(300, TurnKind.LEFT), guided.accept(AppEvent.Tick(30_999L)).navi)
