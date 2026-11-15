@@ -44,17 +44,26 @@ internal class NaviSignals(private val context: Context, private val filter: Car
 
     private val retry = Runnable { if (running) connect() }
 
+    /** 내비가 계속 없으면 두 번째 초기화부터 SDK가 성공도 실패도 돌려주지 않는다(#98). 정해진 시간 안에 답이 없으면 실패로 본다. */
+    private val noAnswer = Runnable {
+        if (running && helper != null) {
+            Log.w(CAR_LOG_TAG, "내비 초기화 응답 없음 ${INIT_TIMEOUT_MILLIS / 1000}초")
+            initFailed()
+        }
+    }
+
     fun start() {
         running = true
         attempts = 0
         connect()
     }
 
-    /** 메인 스레드에서만 부른다. 새 NaviHelper로 초기화하고, 실패하면 정해진 횟수까지 다시 한다. */
+    /** 메인 스레드에서만 부른다. 새 NaviHelper로 초기화하고, 실패하거나 답이 없으면 정해진 횟수까지 다시 한다. */
     private fun connect() {
         attempts++
         val next = newHelperOrNull() ?: return initFailed()
         helper = next
+        main.postDelayed(noAnswer, INIT_TIMEOUT_MILLIS)
         try {
             next.initialize(
                 { main.post { onReady(next) } },
@@ -73,6 +82,7 @@ internal class NaviSignals(private val context: Context, private val filter: Car
 
     private fun initFailed() {
         if (!running) return
+        main.removeCallbacks(noAnswer)
         release(helper)
         helper = null
         if (attempts < MAX_ATTEMPTS) {
@@ -86,6 +96,7 @@ internal class NaviSignals(private val context: Context, private val filter: Car
     /** 성공 콜백이 어느 스레드에서 와도 메인 스레드에서 stop()과 차례로 돈다. 그새 다른 초기화로 바뀌었으면 무시한다. */
     private fun onReady(ready: NaviHelper) {
         if (!running || helper !== ready) return
+        main.removeCallbacks(noAnswer)
         try {
             ready.addListener(this)
         } catch (_: Exception) {
@@ -99,6 +110,7 @@ internal class NaviSignals(private val context: Context, private val filter: Car
         running = false
         main.removeCallbacks(poll)
         main.removeCallbacks(retry)
+        main.removeCallbacks(noAnswer)
         release(helper)
         helper = null
     }
@@ -160,6 +172,7 @@ internal class NaviSignals(private val context: Context, private val filter: Car
     private companion object {
         const val POLL_MILLIS = 10_000L
         const val RETRY_MILLIS = 5_000L
+        const val INIT_TIMEOUT_MILLIS = 15_000L
         const val MAX_ATTEMPTS = 3
     }
 }
