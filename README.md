@@ -4,13 +4,14 @@
 
 브루미는 벨트로 시작하는 지역 역사 보물 탐험이다. 앞쪽 디스플레이에서 출발 전 설정을 하고, 주행 중에는 음성 중심으로 진행하며 퍼즐은 주차·휴식 때 즐긴다.
 
-최신 main의 목적지 4곳·경로 5개·음성 임무 14개와 브루미 UI, ON_DEVICE TTS/STT를 통합한 로컬 브랜치다. 실제 발화 정확도, 내비 오디오 포커스, 최종 음원은 추가 확인이 필요하다. 정차 퍼즐 16개는 이동 이야기와 보상을 분리했다. 통합 범위와 시연 방법은 [main 통합 기록](docs/main_integration.md)을 참고한다.
+목적지 4곳·경로 5개·음성 임무 14개와 정차 퍼즐 16개가 들어 있다. 말하기와 답 듣기는 Pleos ON_DEVICE TTS/STT를 쓴다. 정차 퍼즐은 이동 이야기와 보상을 분리했다. 실제 발화 정확도, 내비 오디오 포커스, 최종 음원은 추가 확인이 필요하다. 통합 범위와 시연 방법은 [main 통합 기록](docs/main_integration.md)을 참고한다.
 
 ## 실행 방법
 
 1. Android Studio에서 이 폴더를 연다.
 2. Pleos Connect 에뮬레이터를 켠다.
 3. Windows는 `gradlew.bat installDebug`, 그 밖에는 `./gradlew installDebug`로 설치한다.
+   - 제출용 APK로 설치할 때 : `adb install apk/Roadiverse_Vroomie_release.apk`
 
 앱의 상태 흐름(`core`)은 에뮬레이터 없이 시험할 수 있다.
 
@@ -42,6 +43,8 @@ gradlew.bat :core:test
   - 임시수도기념관(옛 대통령관저) : Steve46814, CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Provisional_Capital_Memorial_Hall_11-10469.jpg
   - 하회탈(양반탈) : Bernard Gagnon, CC0, https://commons.wikimedia.org/wiki/File:Hahoe_World_Mask_Museum_05.jpg
   - 광화문 해치 : hyolee2, CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:Gwanghwamun_Haechi2.JPG
+- 브루미 캐릭터 그림 4장(`app/src/main/res/drawable-nodpi/vroomie_*.png`) : 생성형 AI 이미지 도구로 만들었다. 만든 방법은 [docs/vroomie_companion.md](docs/vroomie_companion.md)에 있다.
+- 놀이터 퍼즐 문장 : AI가 쓴 초안을 팀이 출처와 대조해 고쳤다. 대조 결과는 [docs/puzzle_sources.md](docs/puzzle_sources.md)에 있다.
 
 ## 더 보기
 
