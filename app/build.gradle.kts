@@ -21,6 +21,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // release 서명. 키와 비밀번호는 저장소 밖(GRADLE_USER_HOME의 gradle.properties)에 둔다.
+    // 값이 없는 컴퓨터에서는 release를 서명 없이 만든다. 그래서 다른 역할과 CI의 빌드는 그대로 돈다.
+    val releaseStore = providers.gradleProperty("KQ_RELEASE_STORE_FILE").orNull
+    signingConfigs {
+        if (releaseStore != null) create("release") {
+            storeFile = file(releaseStore)
+            storePassword = providers.gradleProperty("KQ_RELEASE_STORE_PASSWORD").get()
+            keyAlias = providers.gradleProperty("KQ_RELEASE_KEY_ALIAS").get()
+            keyPassword = providers.gradleProperty("KQ_RELEASE_KEY_PASSWORD").get()
+        }
+    }
+    buildTypes {
+        release {
+            // Pleos SDK가 리플렉션을 쓰는지 확인하지 않아서 코드 줄이기(R8)는 끈다.
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
