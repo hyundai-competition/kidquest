@@ -39,10 +39,11 @@ gradlew.bat :core:test
 - 역사 내용 : 한국민족문화대백과사전(https://encykorea.aks.ac.kr), 유네스코 세계유산센터(https://whc.unesco.org). 항목별 출처는 에피소드 파일의 `factSource`에 있다.
 - 위치 데이터 : © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright). 에피소드 파일 `places`의 고속도로 나들목 좌표를 OpenStreetMap에서 가져왔다.
 - 보물 사진(`app/src/main/assets/treasures/`, 도착 화면) : 위키미디어 공용 사진을 잘라서 줄였다
-  - 첨성대 : Matt and Nayoung Wilson from Atlanta and surrounding, US, CC BY 2.0, https://commons.wikimedia.org/wiki/File:Korea-Gyeongju-Cheomseongdae-02.jpg
-  - 임시수도기념관(옛 대통령관저) : Steve46814, CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Provisional_Capital_Memorial_Hall_11-10469.jpg
+  - 첨성대 : Matt and Nayoung Wilson from Atlanta and surrounding, US, CC BY 2.0(https://creativecommons.org/licenses/by/2.0/legalcode), https://commons.wikimedia.org/wiki/File:Korea-Gyeongju-Cheomseongdae-02.jpg
+  - 임시수도기념관(옛 대통령관저) : Steve46814, CC BY-SA 4.0(https://creativecommons.org/licenses/by-sa/4.0/legalcode), https://commons.wikimedia.org/wiki/File:Provisional_Capital_Memorial_Hall_11-10469.jpg
   - 하회탈(양반탈) : Bernard Gagnon, CC0, https://commons.wikimedia.org/wiki/File:Hahoe_World_Mask_Museum_05.jpg
-  - 광화문 해치 : hyolee2, CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:Gwanghwamun_Haechi2.JPG
+  - 광화문 해치 : hyolee2, CC BY-SA 3.0(https://creativecommons.org/licenses/by-sa/3.0/legalcode), https://commons.wikimedia.org/wiki/File:Gwanghwamun_Haechi2.JPG
+  - 잘라서 줄인 사진도 원본 사진과 같은 라이선스를 따른다.
 - 브루미 캐릭터 그림 4장(`app/src/main/res/drawable-nodpi/vroomie_*.png`) : 생성형 AI 이미지 도구로 만들었다. 만든 방법은 [docs/vroomie_companion.md](docs/vroomie_companion.md)에 있다.
 - 놀이터 퍼즐 문장 : AI가 쓴 초안을 팀이 출처와 대조해 고쳤다. 대조 결과는 [docs/puzzle_sources.md](docs/puzzle_sources.md)에 있다.
 
